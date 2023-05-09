@@ -1,0 +1,959 @@
+{
+	"info": {
+		"_postman_id": "5c414f04-1156-4cb0-a7ca-0341ae0b1072",
+		"name": "cod-ot",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24762215"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "codot.2023@gmail.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "Bismillah_123654",
+									"type": "default"
+								},
+								{
+									"key": "remember_me",
+									"value": "true",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{api_url}}/auth/login",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZTkwYzM2OTlhOTY2ZTcxZWE3NTNjODI1YTViZmI1ZDAyNDBjMTQ1NWNjYTFjNTU0NjQwZWRjN2YyNDVjNTA3MThjODE0MjNhM2FjNTA0Y2UiLCJpYXQiOjE2NzY3NzI1MjQuODE2MDUxLCJuYmYiOjE2NzY3NzI1MjQuODE2MDU2LCJleHAiOjE3MDgzMDg1MjQuNjQ1MTc0LCJzdWIiOiIxNCIsInNjb3BlcyI6W119.GavfYMMoH5vQOjPz_yy-xaJdsNAWOm07n3EBvuX4IK0BEcqsGq-hb5ZN8uLL-BAt8zdLT2epbTba1SEU4gcr2si04ZaVSAbpkRw8ovX2wfEE46T-CtT7_P0nj_mhB1YO71AkA52yU41L4itHW9a0GQKsFEBsqwpom4CYYtUAoHG4jkeJXiqCyFnDZQ1Q_CGP5dV_J9n_43PbcrTTT0_XMc9DVjIWSfm_C8q__KDSOka-l0P-8xVg873DTRT0UI_L-RTfLjaKi3GvQa1c3tDEeUTSe9z8xRhtddMhuqwQ3HoD3vXtFT59hex58Xe4_pNjNf6koEY7IC_NR0yE-_t8X-ejUe7J4dfrn_Q3vL-XzldJyAGp4gWK-5ojIRWwDJSc9BRIpEDGemg7Tptz7cNcSpasjP63_OfPd4P4q-ndeDQf42TfC6IZY367kf9jVeDScqChwZCwDSElsie4Ga9KTRDfcJApTTbAKBQM57MR6h9CURUPgdrAM3-fz-I7UWZjHy07dqeJPBhhcd8sbjKBZaCQ5u0RNax7qlpZqEnBOQpzQRQ4FM7ojxiLk-JkVYJIaymDPRg2fEf1T906iE2bj5ljIRZCB6LIoBGNEb19yRPlnpl4-_DhHXtd1Hj0r3nc0derlxuyhGE10XG7Y94mvqtfCOjZqUooU3K-YbK8zQs",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/auth/logout",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "dadan aja",
+									"type": "default"
+								},
+								{
+									"key": "email",
+									"value": "dadan.codot@gmail.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "123654_Bismillah",
+									"type": "default"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "123654_Bismillah",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{api_url}}/auth/register",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fitur",
+			"item": [
+				{
+					"name": "product-management",
+					"item": [
+						{
+							"name": "add-category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNTc4NjczZjYwMzgwYWNlODQyYWY4MzM0MmMzYzE5ZjJkZDM0OWEzYjM2MmE2NjFmODg4MzViZWE1YjJjNDMyYzIzMzgzMjZjODg5YjhkOGIiLCJpYXQiOjE2NzY3OTEzMDkuMzM0MDEyLCJuYmYiOjE2NzY3OTEzMDkuMzM0MDIsImV4cCI6MTcwODMyNzMwOS4xNzU2NzMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.TAZ5wI11WtWuFeklyvQG9u5t8kXbOlatOQwap5P68spdxN32Z1s0oLbzizB-4nbu6mq0MifUTuzLkpJObqMiKlbVjfqpvR-p0IWNOdJ1LrF2wpmbAD22joZrRRti7mUC4mwFTZQRLGG9YBS7gQxFBAl9I5a4Y3TobigT54KyZZ33OMkoRKkgOmZ4sXj3osW1nHeqSl4CCNYuRF3qxD9vKRiwMLs4g58Asrso1UIQhF366OMZIWcA_51FVjq_7rH2oAiEQeOcap2NhfbnQQ95AXloSjtebN3T_pHD8nOIM6h6DmSAbw3jV7tIZuZ-1cOKPNmq4lWjUEIyBGQF1SjSEGSyUEQTMDZ6Ro-XDhWddDit716YqAILmnfjAUXqLJWve58q7KaBvKuscvxBeeVn35Xrziv8er-Xis-4WfeN9GMVZo83pVRWhRZPr3RKrZoyt0hU6zHCTWB9-K-1yQ2JL69YtS9Q3ROLhGZB2SZ1gcDKOc2ek4sI6Pur6J9zyNTzdHfuUbi1ZHddw4IQi79m82ZVlMEO0qC3dXJeJkFX8AQmrTNKcKkIlQSPQ62o8D7IiEa8d2HEhZiYpNT24sOuQdgVNDwglKYDW006m33WkaQoAytND_us4Hahwio0tdDlGicM0rMLKGCvYfZ_fLywBPXQ5tym39GvdwlcHb7lxQM",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Apel",
+											"type": "text"
+										},
+										{
+											"key": "icon",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/category-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"category-management"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-product",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmM2NGQzMmZlYzY1NjYxMmMzMGY2MGJhZTAzZDQ5OWYwYjZhYTg2NmFiYTkyMjQ3MzIwNWJlZTYyODI0OTNmYWFmNTdiNTFiNzAwMjBiMjAiLCJpYXQiOjE2NzY4MTU2NTkuMTkxOTI1LCJuYmYiOjE2NzY4MTU2NTkuMTkxOTMsImV4cCI6MTcwODM1MTY1OC45OTU2MDYsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.eRlZaZ82-ebBih2c0L6BEDUQpefXMm_euSlB33VKPJsEagQSlyeTpMgwfMdMDdyO81e1DzhbpKqzyUZ-plHF7ieNvnxT97ui6uOANXrlphNBnn575E-90viGSnyEhceFjAonq1mntsR7gACYd2ap6-wHTC0e4BWlpy4mqBIAkqp9Sc57vOCsnyNSzS9fxCJVi3XbJ3v_3GKvB_BxaXqFY7Sj3m2BdZ_oAT79twXTxXrDcHFgxdxb12wvqkPCcT5A-Vo0pS4w2TtZInLOltnv6Q7NqR7_4zmcVFXKkNN4gBZpfmATh3M7jVPz5iMM5qbzvX4_K3Xw_ZpHS3vcE57zNB6eXMHkUqp8LglhqNXwSq0z4nwGQ7Yc4macicwW4fqyRJu2cRmSKMrDu5CH0EALr-9MGS1oEdWyametXfTONkFGxPJuQnGNkaACmo_Xrcy7077VgNwfPwjl3lnfM4BRHeUXOdHDGRSe2WRmlYG1uddk8bcTx0B-6pneIIUx2Mq6cIG_-YDTr4dixgQZC3UZq9FmhDcksC3wUwI5BgYGMvxkK5_EJcqq0Ut01QNLaDRr7DErmNjQSsoXZrU-yVU6ZH1hyhhS3UOM3IEYAlXyjLx99IosZl7DZpfOfWPM9Rc6BLeNh9XaRUMR0qHovThhRz9mB_HRIIHTp14joLEpXxw",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "name",
+											"value": "Test Product",
+											"type": "text"
+										},
+										{
+											"key": "size",
+											"value": "['L', 'XL', 'XXL']",
+											"type": "text"
+										},
+										{
+											"key": "buy_price",
+											"value": "135000",
+											"type": "text"
+										},
+										{
+											"key": "sell_price",
+											"value": "145000",
+											"type": "text"
+										},
+										{
+											"key": "stock",
+											"value": "13000",
+											"type": "text"
+										},
+										{
+											"key": "category_id",
+											"value": "2",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/product-management/24",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"product-management",
+										"24"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "user-management",
+					"item": [
+						{
+							"name": "user-management",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMGZjYTE2MjJlZjQyNmU1NzllYmNlZmU4MTJhNjlkM2Y5ZGU4NmY0NTg3NTcyYTQ5NTdjZTQyOWFkN2Q4YjZmZjdmNDBmMzZiNmFjODUyMzMiLCJpYXQiOjE2NzU2NjE5NzQuOTQzNDE4LCJuYmYiOjE2NzU2NjE5NzQuOTQzNDI3LCJleHAiOjE3MDcxOTc5NzQuNTYwNzksInN1YiI6IjE0Iiwic2NvcGVzIjpbXX0.NmxWC46claaxGQzfYm33xVRaRULEGmpQN6PKLA6seoALnmXU5-vjIoZaR8R5DEHxvv6BBYDcShW1lM4ksa3lpXU3q122fsnS1ilawWlWolN_4_GvImhRGA0XEQSG41bbswaAYVeRuK_XPXxthBlZ-omEXlZNuOhL7sI-j-DRC1nqrDKe3PphafVlw2HiNuOYjv8rcOagGhaWLQ8ZCX5hfJjZrtWRSuJhtjIQceDDakeD_ZsiFsdBPfRVbqT1sp6l4byUz2eJLsPiEpX0OOBzXmRBoeG2RKU8dJKKVNTciO9FYM7FPTHYIFUEZirtXMF85N9eMZN_KOLCuf3Gm9eG_Pmp9vUDpUZ9zU5zlARdNgyRapQjjtOg7YAXD5gI2D8LP_DSwXxG5dAIg8bbcUYuojEQeaeYcGmmIoAGbp1qaiUgME07tS1zuFj3vsdtv55iFrJHOexXaXaRBSnz451V-BbroV1KmAuF1IxFeY4B4PNgkaXn4AK70wjijO1oPmT45XbDwcdvopMHQ4F95FqQEV7mZI63tOhrdhYWab1Zb-4GlZ3mcqA_4zuFIPpybgsdyKjFsi68bM5PKHlb2Udxx0NQAfKhbpUgd1d4LSDf0Bw0bVdvVG8-YMiGSuH6MD2Z_1brchRvWf-OjcTrxqJNEz7CRw_RVIj01smLLD0zBxk",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "sukanta codot",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "sukanta.codot@gmail.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "Bismillah_123654",
+											"type": "text"
+										},
+										{
+											"key": "roles",
+											"value": "3",
+											"type": "text"
+										},
+										{
+											"key": "status",
+											"value": "INACTIVE",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/user-management/12",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"user-management",
+										"12"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "role-management",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZTMxOGY2YzYwMTZkZDNlMDg2MTdjODJhNjVhMmE5MjNmYTRmOGEzNjRhMWE3M2Q2Y2FkNjYwYmFiZTg2OWJiMzZkMzEwYTc1ZTg5MmE5MDUiLCJpYXQiOjE2NzUzMjg5NTUuMTMwNDU4LCJuYmYiOjE2NzUzMjg5NTUuMTMwNDY0LCJleHAiOjE3MDY4NjQ5NTQuODg2MTI5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.CQD2lWL0ONS64NbnbQ5wJa9OKePlllwAudaSTBmorFQm_nVYRO8UfJeftABiWELzZjSaMz9vxXghArdjD10U_R0D64XaiyrifKfiG7_INtpw_xrDyrg4emM6_ebr7KjY8olIAn-Nyerw0PCwv6oPKidBvcfcaX03YnMS2sInIMOmeHPqKayi1iXrTwNcHHdWLwXy6UM3a2-EunYO-sqvNnFcNFONn_XgY_IQOU9gpN1VZeIGcOal4XR7Bs9C9-VI7b_v4msrhH-I40Z2qNssrXNdjduyA32DdC2ObHg9E__ziANutyW9maJy6kOUviDQQ1H50K64c3Brr_mEOmDfZYMzDVGoRtvJ9_7-sqWV8nuPPhqeL6HNNB-Xk81ync4FY4xZjnwhT3bbKGGLqXYeNEg8iI5kGIGGzzMCWF3SKS1f7indQpZFcr019v4-NucdfSP5xoaP5bG8Ey55YsUS2f7I5ASjFfiVc84n_15ve3knm4f5oE0aN8E3-tSQzNnaGm49TCk5C_HI8PCFLAcDxtGFtEWIMo3Eo3j6BSpSwUhxRFOr-D9swT7GNsVtOsX2ts2MboUQDEi8uQzwzFElwgS07-hTdrtQOtlzOmxkPhWw3zNlqMagpqNk2gTiyda9Xu4AB3owo7rtfDqyRQ71_fdyVl-MaKaOK8lvtKrg2-8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "roles",
+											"value": "[\"CASHIER\"]",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/role-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"role-management"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user-role",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmYxYzZlMzY0YTljYWM3ODE2MzI1NWY2MTIwNzI2NjVkOTcxYzgxYjg3ZTZiZDZhMmM1NjgwNDdlYmQ5OGZhNDgyOWZiZThjOTA0YTA4MmYiLCJpYXQiOjE2NzQ3NzgyMzguMTk0NDcxLCJuYmYiOjE2NzQ3NzgyMzguMTk0NDc3LCJleHAiOjE3MDYzMTQyMzguMTgxNDMyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.nUaQ2HjY7YGkbOVobeZe4NM2bAeJkHZxkTOF6rrkmsCebcv3k3Fu_Qs_hq4bzEm16OLLUNclAn6Q8-q9aFitJsN59iNuSIandRaQXss_JhLbKaG53FhmHPzFEAvbCTAW9aTR_4PjT56NRZA9ivGScd6JUJiYQrS8fvGBYgcVT7u-ryTG0FY2-W6fpH_JWVqWuY-JI8pvy53PDhwRFgpL6Yx_kv1_QF0qAZIIMpe2FVeBGdb0-oyzRqkqk5Vn6rXn4qsEWQadUGfTuHOF0glXQBcDn6trjXu1a5LvkeAMwkX47QGpAouPdO9zmYIATSpth1_IMInJ0DXzlp1qunSOPMvlIzRiV2LibULxL0arsRnhlU9y5_PYZQSp5EEoqJjfsB1imsSZIg_o5v3UQcMAiQb0Mu-qV-tuKA38P5pgq1T6YSyDjMQqqXGn4chWD5i36t9hx_GXZL8P9ggBBT3z-M6pT6_ZBjdo82i5LO32q6UwMQFNPBXo7ibOGtBpHmI4BddulIv2tqsXzvjafPZBzTA2BsficZ9NzfMK4KbN0P7AVfzpG-Lm3ylZPoNZ0PGzcIcEkKtX6270YAZu9-cCtBL6SNaNZ9eKmmwMf-zWQ4rcLJHH_W8-lFWXdpkUZXLeh2iMkhs90TqHxrFBxPhhXPY0__xW9lKIS3PbfzODeiY",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_id",
+											"value": "1",
+											"type": "default"
+										},
+										{
+											"key": "role_id",
+											"value": "2",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/user-role",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"user-role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user-login",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDRkODhiNjJmYTQzZjQ2Zjg0M2QyZDRhM2IwZjczODdkNjNkMThkNGEzZjNiODk3NDQyMmU1YjdjMjE5MzhhZTkyNWE5OTVjNTM2ODcxNmEiLCJpYXQiOjE2NzUzNDM0MTAuMDQ3MjQ2LCJuYmYiOjE2NzUzNDM0MTAuMDQ3MjU0LCJleHAiOjE3MDY4Nzk0MDkuNjUyMDU0LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.NQktzLzGqltvwTdm0iuCOV40B7K4u8QQXlpKIZmdxkGZNzKMiajlYgo1LFLA2_RaGGB34Sh6Z4vTi1Z7TiU9UPVevXe9saovQc7kB9M0LktybJ-xFN9Gf7gtmA-ezW3wCCGU-0_HQMXpXMadDmpCVHd--yZ5POxs3pLZ2NQjlQR4gP6SN2CK8a_0hUkPwTosG6BYx3CN8dKQrtH8jWqhySHzbRd9DuTwrvTYxG4fsfSo8PJDUOAEQ1_7EX7wudQy5G6LAocdYOkFQyZo7H7CS0IP8uaXCQnGgOvkH3bA7USqyGe7HChEQuil66gXFSETSHOAXGuhFLKDedhCC2EGLsfT8pctX00Sket_b3glm14kyAGJgqgdvrylkBxf82uupP4VinkYDnBqBnz1_mYauwR0sRs9PrfVVQ-dTfALkWwG7C64O4gnspLZJH7J4JnJgNT_zhyXQvloIVNoNoYS1l84vxrcmuNoclILwKK5Xb42Q-7F8BiECeQXnmwNlTDM2JwbznYARSFrD4ACThiDFxOTSmCyc1r19Ex36HEzeqY__oppGkustOQkMtaw0aq8rG0zIX8HERa6AGf3xGf3Kmcfu4071OmPgVDxSmnC8vxQW3BXDLnmuZi6ZcE3FwErQ5XPCAlW6BKsKdpffN_I8u1K2MhwrgsR1uNahMV-EdI",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/user-login",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"user-login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "menu-management",
+					"item": [
+						{
+							"name": "submenu-management",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmRiMWJmNjFjZTYxZTU0MDVhOThkODQwZTY2MzliMDMxODg2ZTk2ZWNhNmVkMDNjMDNkZjM3YzZiZjk4NjViMzFlNzQxNzhlNGFmMmFlODciLCJpYXQiOjE2NzUxNzU2ODkuOTM5NDIsIm5iZiI6MTY3NTE3NTY4OS45Mzk0MjcsImV4cCI6MTY3NTI2MjA4OC45OTc4NTUsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.fbt71kU0tRoVqxPydl5Zl1VjlJnRaWPV8JiqFDZLIlJ5vmwoxPi6o_JY4iebAcyapQ7NWemBZm7fhkSysBUHQLaQAwPvGtgbVh6wNXwMexNbrRh6mC6RTDuINC6ZEgLIsPUOS0unGOdmJgbRKnFOBKY64UNrAyo-ogi_uGDtTgwb1tipbvNxiFb6DiNszMyMgRSYDJIwXaJ_ZxhwHMfscVhxX7ZrixGJDdS8ERsNh-ak_7jykeVm9_Vue9A_7g8fgCkC2M7dZCt38yVd1XZ8C5DhH2OV5_aU091eq7hkIzlAcgVP4kqAOpfjPlZIdfvHGsCn0y_eSp5uRLwMJtrBr4upJ646Q1Zc4EnrzJmY3tZfPBxax59AkkKE5TuCPQEhsrzsuCYcYsutDn7yaVGhXoKp9DwTUv2BztqTDmwnON0aUOi9JzFkNImHTYh9VVtV6RSb_uIopMyjIwQ-1ZJV9oRDLBEN8mus_BY1rKhKeieHmGH5kViKTurNk88ixVRns_1onHmB75Bf1IRitqWNHaRw0Iq4cVcm4wikaHOkz_nVOXRPfm7SzlUua_j_LRNDV9nl-IX40X-OuilxxejcYWBqr1uSB3bpTdze_O6JHEF8QTynNd89C97-XgYMSEHjtNZ8fblEevs3m06CaptrHrG7wVwLY99XCWip18O6vbs",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "parent_menu",
+											"value": "8",
+											"type": "default"
+										},
+										{
+											"key": "menu",
+											"value": "dashboard settings",
+											"type": "default"
+										},
+										{
+											"key": "link",
+											"value": "/dashboard-settings",
+											"type": "default"
+										},
+										{
+											"key": "icon",
+											"value": "fas fa-tools",
+											"type": "default"
+										},
+										{
+											"key": "is_active",
+											"value": "1",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/submenu-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"submenu-management"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "menu-management",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMGY2NTdjZDdmNzQ4MTg0ZTU0MmI1NTBkM2VmMjA2ZDViODUxNjFmYWMwY2ZmNzViMzEzMzFjNDNjNzY4Yzk2MDg0ZTgwM2RmZWYwNDdiY2QiLCJpYXQiOjE2NzUyMTgxMzYuMzY4MTkyLCJuYmYiOjE2NzUyMTgxMzYuMzY4MTk3LCJleHAiOjE3MDY3NTQxMzYuMTk3MzM1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.IxgeQhG-_DiIfgCPybxGzgPJ2ZeMnBkQnJ9CvekcdZ7F8o1ShiRBfDtC9Z1CrYTor3Pc_VDPoPPaZ3XhgaPK2dghhUW_qxrB2s3XkQppUIzx4BoQuS7KkVzpHEqvj5FXfUuuaG483chX5-cRb9yE2hv2IwsFNn_jc82kJKTk88-7ZHtR8jEJZEGoVaQvGDONNrER9hXd4SopASSEtXSzNL3olt95C763ezqmbnwD9qLnQpgSbt_LOcnub-w9i2CoQHeQruKzblQHrMebhHAUIw_RQKSElrBN3k5DhFHCmv8ejLJkGydd_-4Ny_h_8HjmwEBtDNzsOsvM9-1etbKFXbZvBriIxEucJ7Xtg-tuHexJWJ7MdwKVllCZSO7Tmh3O2gT-pd4JQzKrhkWk_7K7PEGvll-Zv0cUHlmAynu79eiQUJL4ZZf7_tI9UCEtOIv46ZIAARqHBFU4TKl121Qxt_XzXZNkyeAgB54atAZXtHqfDyyZls19bzTpzGhmofoLX4AGIthtRomWlw8_ufDGx0sR5N4zc1QxwTHy2TO5EFmeii13lazhCQ2p5oVgS6kKh7m0_ewYpmZAt0EXTyGnKHJv-jzGAF3pZabSoK0_qP-grDIcn9m_DmoEiD-3z-z_uIPly64oNI5i4e4Nbe79oNMMQmi-uh-KX_krIRka9KI",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "menu",
+											"value": "TESTINGS",
+											"type": "default"
+										},
+										{
+											"key": "roles",
+											"value": "[1,2]",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/menu-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"menu-management"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "access-menu",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNmVhNTU3YzM0YTU5M2RiODk2N2Y5NmQ5MDhlZDgzNzRmYWRkNTNiYTU5YWZjNDhiYWNiMDhhNDk0OWZmYjhjZThkNzIxNDQxZDI5MDE5NGQiLCJpYXQiOjE2NzY3MDUwNzcuNzc5NDM4LCJuYmYiOjE2NzY3MDUwNzcuNzc5NDQzLCJleHAiOjE3MDgyNDEwNzcuNTkwMzA4LCJzdWIiOiIxNCIsInNjb3BlcyI6W119.GLXWCA9_XetRqApXQGiVnZ8io6Ltm371m93_QUlF1Al9oRSI43dAehGU2gG4Vg0KV-1lJtEYYyXULcHlYcoUs4v9gzX6EnmjwEIzNkrCx5ft-oA82n9MGjZokR9KnM4uyLKnkHZ_8LUHhfgBEcxnJScej6VD0F2okQaRX9HQvRic-F5I16I36YN5siiaCQML7A4iyrTVvOm5PTPh-Gi1PEatBcbcf78ohvIyOMHVJc4PeALgVzmatbGo0bkZXG726Y8_vLW9HhGnmm3dZu5KcXn-3Bjn37r_EdK60ty1bwTADbLycIrL28I5s4ARpUkyvvaLcZhHbG9-jfQJZpDjB5ENeK6P7fzntZpduYi92DpZmU0Lj6OV5MKxxcSBH6LntZnY3MGTAFowi-1v0-6bb06edFpwApu90VF8cY1aw9P1Cys-Kc0xkCvgA1NlREsMGq3Lf1Bzmm2f2NhNhzcha799cHKEv2cn-zFU6HhvnZTJEmJ7L2yorR_-ZvHWafwMuEsG0RHnLdyUvHhFUqtLU33TBP8weTjZm9V1m1XUHBZP2uUOhMnEjdW0f1vKebNRdzBMfZEwS4RTgVI8Rvs_ljK_XiE1hexbox_9OKcj7RI2XFOG5SJAQ9iOeGn4IQXNyBsjJKqcXGaHz0Yrnaxe_2dLxB-dNw9ghTpcmR6JD2U",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/access-menu",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"access-menu"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Trash",
+					"item": [
+						{
+							"name": "move trash",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDRkODhiNjJmYTQzZjQ2Zjg0M2QyZDRhM2IwZjczODdkNjNkMThkNGEzZjNiODk3NDQyMmU1YjdjMjE5MzhhZTkyNWE5OTVjNTM2ODcxNmEiLCJpYXQiOjE2NzUzNDM0MTAuMDQ3MjQ2LCJuYmYiOjE2NzUzNDM0MTAuMDQ3MjU0LCJleHAiOjE3MDY4Nzk0MDkuNjUyMDU0LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.NQktzLzGqltvwTdm0iuCOV40B7K4u8QQXlpKIZmdxkGZNzKMiajlYgo1LFLA2_RaGGB34Sh6Z4vTi1Z7TiU9UPVevXe9saovQc7kB9M0LktybJ-xFN9Gf7gtmA-ezW3wCCGU-0_HQMXpXMadDmpCVHd--yZ5POxs3pLZ2NQjlQR4gP6SN2CK8a_0hUkPwTosG6BYx3CN8dKQrtH8jWqhySHzbRd9DuTwrvTYxG4fsfSo8PJDUOAEQ1_7EX7wudQy5G6LAocdYOkFQyZo7H7CS0IP8uaXCQnGgOvkH3bA7USqyGe7HChEQuil66gXFSETSHOAXGuhFLKDedhCC2EGLsfT8pctX00Sket_b3glm14kyAGJgqgdvrylkBxf82uupP4VinkYDnBqBnz1_mYauwR0sRs9PrfVVQ-dTfALkWwG7C64O4gnspLZJH7J4JnJgNT_zhyXQvloIVNoNoYS1l84vxrcmuNoclILwKK5Xb42Q-7F8BiECeQXnmwNlTDM2JwbznYARSFrD4ACThiDFxOTSmCyc1r19Ex36HEzeqY__oppGkustOQkMtaw0aq8rG0zIX8HERa6AGf3xGf3Kmcfu4071OmPgVDxSmnC8vxQW3BXDLnmuZi6ZcE3FwErQ5XPCAlW6BKsKdpffN_I8u1K2MhwrgsR1uNahMV-EdI",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/trashed?type=PRODUCT_DATA",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"trashed"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "PRODUCT_DATA"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "trash-management",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDRkODhiNjJmYTQzZjQ2Zjg0M2QyZDRhM2IwZjczODdkNjNkMThkNGEzZjNiODk3NDQyMmU1YjdjMjE5MzhhZTkyNWE5OTVjNTM2ODcxNmEiLCJpYXQiOjE2NzUzNDM0MTAuMDQ3MjQ2LCJuYmYiOjE2NzUzNDM0MTAuMDQ3MjU0LCJleHAiOjE3MDY4Nzk0MDkuNjUyMDU0LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.NQktzLzGqltvwTdm0iuCOV40B7K4u8QQXlpKIZmdxkGZNzKMiajlYgo1LFLA2_RaGGB34Sh6Z4vTi1Z7TiU9UPVevXe9saovQc7kB9M0LktybJ-xFN9Gf7gtmA-ezW3wCCGU-0_HQMXpXMadDmpCVHd--yZ5POxs3pLZ2NQjlQR4gP6SN2CK8a_0hUkPwTosG6BYx3CN8dKQrtH8jWqhySHzbRd9DuTwrvTYxG4fsfSo8PJDUOAEQ1_7EX7wudQy5G6LAocdYOkFQyZo7H7CS0IP8uaXCQnGgOvkH3bA7USqyGe7HChEQuil66gXFSETSHOAXGuhFLKDedhCC2EGLsfT8pctX00Sket_b3glm14kyAGJgqgdvrylkBxf82uupP4VinkYDnBqBnz1_mYauwR0sRs9PrfVVQ-dTfALkWwG7C64O4gnspLZJH7J4JnJgNT_zhyXQvloIVNoNoYS1l84vxrcmuNoclILwKK5Xb42Q-7F8BiECeQXnmwNlTDM2JwbznYARSFrD4ACThiDFxOTSmCyc1r19Ex36HEzeqY__oppGkustOQkMtaw0aq8rG0zIX8HERa6AGf3xGf3Kmcfu4071OmPgVDxSmnC8vxQW3BXDLnmuZi6ZcE3FwErQ5XPCAlW6BKsKdpffN_I8u1K2MhwrgsR1uNahMV-EdI",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/trashed/9/?type=PRODUCT_DATA",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"trashed",
+										"9",
+										""
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "PRODUCT_DATA"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TotalTrash",
+					"item": [
+						{
+							"name": "TOTAL_TRASH_QUERY",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZDg4MGJjNWViNTczYWM2ZTI0YzdiODMwNDJiM2YwOTY2Mjg2MTkzYTk4Nzc5N2U1ZDQwMjY3ODc2MGQxY2RmYmUxMjVhNDVmYzg3MTViNTIiLCJpYXQiOjE2NzY0NjQ0MTguMTE1MzYxLCJuYmYiOjE2NzY0NjQ0MTguMTE1MzcxLCJleHAiOjE3MDgwMDA0MTcuOTIzODA5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.CJE0dn97QBmBAxzxcndEEpmEtTvFkU0BQhzirQdSdG59YuYJZ7r3CgriNDmg1dtfO_LXyeAiZknuQDJZhhpxZxFcN1p3cBAfZspOngfP3F_nkmvnMeDl0tBaP9hppWr8z18oY-oWqX0wRE73QVjksivFaPVwFwGQaBMEucqT57Qw1z0XjpIBqTo3L8uspyl2-P5JIVzGmfMHtqQlc3fkvhl4p86zU4S6ST1rFIJR1bgXI6-OyhE735vCtNJoOWQw1bmD27VpkvCv3L6QqkZhPxm1EYLt4_nip6qonuN9L-CplM2vJlqwwpqIvukZaoHFZ-_GvOWnrmBwNbN08TvMnwBY1--zNsHI9x8PCNl3yCyjexYyb-vcJ6Z0-Zjnvcgclm2sGvLXDkemxeFeJ-iKiKGWQ0OQ2ql2g-WweZ27zWqDprPs6qAobjrYVb5LnGXczp0A5rR4_CfmWrhlAXbLjZO6LhCJ__VcOMTaO8hiQqYzMWBLU2Eak0sdda4RujoHGufNFZma4DxaFenXOT8Hplbn_vUXdWIqiUribkTtJO6EjjDjBlAxx426crG6FRyQ6f_DGRe2NLjKC94I7xkCBmMCVNCLDwkEpgq6HFhvWiXfVFLkeiDll3JudBHCwj4kKKU8O1m7e3eFS5ubB3j7WIUIdHFRYHBALEB6D72VfbY",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/total-trash?type=CATEGORY_DATA",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"total-trash"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "CATEGORY_DATA"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "barcode",
+					"item": [
+						{
+							"name": "barcode",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZDg4MGJjNWViNTczYWM2ZTI0YzdiODMwNDJiM2YwOTY2Mjg2MTkzYTk4Nzc5N2U1ZDQwMjY3ODc2MGQxY2RmYmUxMjVhNDVmYzg3MTViNTIiLCJpYXQiOjE2NzY0NjQ0MTguMTE1MzYxLCJuYmYiOjE2NzY0NjQ0MTguMTE1MzcxLCJleHAiOjE3MDgwMDA0MTcuOTIzODA5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.CJE0dn97QBmBAxzxcndEEpmEtTvFkU0BQhzirQdSdG59YuYJZ7r3CgriNDmg1dtfO_LXyeAiZknuQDJZhhpxZxFcN1p3cBAfZspOngfP3F_nkmvnMeDl0tBaP9hppWr8z18oY-oWqX0wRE73QVjksivFaPVwFwGQaBMEucqT57Qw1z0XjpIBqTo3L8uspyl2-P5JIVzGmfMHtqQlc3fkvhl4p86zU4S6ST1rFIJR1bgXI6-OyhE735vCtNJoOWQw1bmD27VpkvCv3L6QqkZhPxm1EYLt4_nip6qonuN9L-CplM2vJlqwwpqIvukZaoHFZ-_GvOWnrmBwNbN08TvMnwBY1--zNsHI9x8PCNl3yCyjexYyb-vcJ6Z0-Zjnvcgclm2sGvLXDkemxeFeJ-iKiKGWQ0OQ2ql2g-WweZ27zWqDprPs6qAobjrYVb5LnGXczp0A5rR4_CfmWrhlAXbLjZO6LhCJ__VcOMTaO8hiQqYzMWBLU2Eak0sdda4RujoHGufNFZma4DxaFenXOT8Hplbn_vUXdWIqiUribkTtJO6EjjDjBlAxx426crG6FRyQ6f_DGRe2NLjKC94I7xkCBmMCVNCLDwkEpgq6HFhvWiXfVFLkeiDll3JudBHCwj4kKKU8O1m7e3eFS5ubB3j7WIUIdHFRYHBALEB6D72VfbY",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "barcode",
+											"value": "PROD-flJiqW8SiK",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "Apel fuji blush",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/barcode",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"barcode"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "qrcode",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZDg4MGJjNWViNTczYWM2ZTI0YzdiODMwNDJiM2YwOTY2Mjg2MTkzYTk4Nzc5N2U1ZDQwMjY3ODc2MGQxY2RmYmUxMjVhNDVmYzg3MTViNTIiLCJpYXQiOjE2NzY0NjQ0MTguMTE1MzYxLCJuYmYiOjE2NzY0NjQ0MTguMTE1MzcxLCJleHAiOjE3MDgwMDA0MTcuOTIzODA5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.CJE0dn97QBmBAxzxcndEEpmEtTvFkU0BQhzirQdSdG59YuYJZ7r3CgriNDmg1dtfO_LXyeAiZknuQDJZhhpxZxFcN1p3cBAfZspOngfP3F_nkmvnMeDl0tBaP9hppWr8z18oY-oWqX0wRE73QVjksivFaPVwFwGQaBMEucqT57Qw1z0XjpIBqTo3L8uspyl2-P5JIVzGmfMHtqQlc3fkvhl4p86zU4S6ST1rFIJR1bgXI6-OyhE735vCtNJoOWQw1bmD27VpkvCv3L6QqkZhPxm1EYLt4_nip6qonuN9L-CplM2vJlqwwpqIvukZaoHFZ-_GvOWnrmBwNbN08TvMnwBY1--zNsHI9x8PCNl3yCyjexYyb-vcJ6Z0-Zjnvcgclm2sGvLXDkemxeFeJ-iKiKGWQ0OQ2ql2g-WweZ27zWqDprPs6qAobjrYVb5LnGXczp0A5rR4_CfmWrhlAXbLjZO6LhCJ__VcOMTaO8hiQqYzMWBLU2Eak0sdda4RujoHGufNFZma4DxaFenXOT8Hplbn_vUXdWIqiUribkTtJO6EjjDjBlAxx426crG6FRyQ6f_DGRe2NLjKC94I7xkCBmMCVNCLDwkEpgq6HFhvWiXfVFLkeiDll3JudBHCwj4kKKU8O1m7e3eFS5ubB3j7WIUIdHFRYHBALEB6D72VfbY",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "barcode",
+											"value": "CAT-HfWwi3HFIa",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "Apel",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/barcode",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"barcode"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TotalData",
+					"item": [
+						{
+							"name": "TOTAL_DATA_QUERY",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzc0NWI4ODQ2OWQ5ZTIyOTAwMmViN2NjNzIzNzQwYzk4YzM4ZmRlZjZiMjc5ZjM4YTkzYzcxZjg1NjMyNDhiOGMyYjZhMWYxYjlhZWEyNGEiLCJpYXQiOjE2NzY1NTU3MjIuOTUxMTEzLCJuYmYiOjE2NzY1NTU3MjIuOTUxMTE5LCJleHAiOjE3MDgwOTE3MjIuNTIyOTEyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ZUHfg8QBGo2ui3nZnI0uYvLRCYPOxjG_uvCpEywisCAaJUUg0GeGRSuWNB1ZiYyRkO2-8jh_XdEB9xl0OFj5pd4fvjkP3pCpALmWTyVQk2HhQZX7L1KsSvWX4dzq7-0g1r4wRGyYUke6XqwpuABLwXnMNrDqZZhI25e2kb3OCHcTFaiNYD2w7IIE3xhJXKAaeC40bV-YT6fQY5c7euBSJ3Pvlm_vvxBiCQR7JJJkQEHw3sG68_XreKn9oI_RsGJT1G7r5tzZg_UKRdkXP7P5BCMm6Qu0hVrGAfoeSSPKt-kaDVivkY3fszCBc48JGMiWjpcJWlN9t0XPawDFSZ3d9Upwh3iZXWjxOYb7R-exY3CB0X_uJTWHo29VZ8gkigDc0QnYSxHRaUTN_tdY4aX1CUy_mmEE0v7O4iSEoKYf7GYWcRlKa3rXEQX2Gw67OXBM0QE3Eo0-eb7zZjW4QO0fzuj6z83FryGPSK1rgyLS5H2bzbsKqmkij-wsNyU6mOdfiW8xxcNZtBXln8a19CcO3Uv2P4LdUfOFCWx2s2CtyFbpWDKFrSRnlrXzNkEDdC2_rPwFDccLSLEiboR6IM7R_7EIiMU-Iep3is-LXKI8v7SORCNMZxB_JcKT-CRWfoUMeGht9mo42RrwMPcr6dgIijujabwmZsGQMagP630TX9Q",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{api_url}}/fitur/total-data?type=TOTAL_CATEGORY",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"total-data"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "TOTAL_CATEGORY"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Customer",
+					"item": [
+						{
+							"name": "add-customer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmM2NGQzMmZlYzY1NjYxMmMzMGY2MGJhZTAzZDQ5OWYwYjZhYTg2NmFiYTkyMjQ3MzIwNWJlZTYyODI0OTNmYWFmNTdiNTFiNzAwMjBiMjAiLCJpYXQiOjE2NzY4MTU2NTkuMTkxOTI1LCJuYmYiOjE2NzY4MTU2NTkuMTkxOTMsImV4cCI6MTcwODM1MTY1OC45OTU2MDYsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.eRlZaZ82-ebBih2c0L6BEDUQpefXMm_euSlB33VKPJsEagQSlyeTpMgwfMdMDdyO81e1DzhbpKqzyUZ-plHF7ieNvnxT97ui6uOANXrlphNBnn575E-90viGSnyEhceFjAonq1mntsR7gACYd2ap6-wHTC0e4BWlpy4mqBIAkqp9Sc57vOCsnyNSzS9fxCJVi3XbJ3v_3GKvB_BxaXqFY7Sj3m2BdZ_oAT79twXTxXrDcHFgxdxb12wvqkPCcT5A-Vo0pS4w2TtZInLOltnv6Q7NqR7_4zmcVFXKkNN4gBZpfmATh3M7jVPz5iMM5qbzvX4_K3Xw_ZpHS3vcE57zNB6eXMHkUqp8LglhqNXwSq0z4nwGQ7Yc4macicwW4fqyRJu2cRmSKMrDu5CH0EALr-9MGS1oEdWyametXfTONkFGxPJuQnGNkaACmo_Xrcy7077VgNwfPwjl3lnfM4BRHeUXOdHDGRSe2WRmlYG1uddk8bcTx0B-6pneIIUx2Mq6cIG_-YDTr4dixgQZC3UZq9FmhDcksC3wUwI5BgYGMvxkK5_EJcqq0Ut01QNLaDRr7DErmNjQSsoXZrU-yVU6ZH1hyhhS3UOM3IEYAlXyjLx99IosZl7DZpfOfWPM9Rc6BLeNh9XaRUMR0qHovThhRz9mB_HRIIHTp14joLEpXxw",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "name",
+											"value": "Agus Kolangkaling",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/customer-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"customer-management"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Order",
+					"item": [
+						{
+							"name": "order-management",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmM2NGQzMmZlYzY1NjYxMmMzMGY2MGJhZTAzZDQ5OWYwYjZhYTg2NmFiYTkyMjQ3MzIwNWJlZTYyODI0OTNmYWFmNTdiNTFiNzAwMjBiMjAiLCJpYXQiOjE2NzY4MTU2NTkuMTkxOTI1LCJuYmYiOjE2NzY4MTU2NTkuMTkxOTMsImV4cCI6MTcwODM1MTY1OC45OTU2MDYsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.eRlZaZ82-ebBih2c0L6BEDUQpefXMm_euSlB33VKPJsEagQSlyeTpMgwfMdMDdyO81e1DzhbpKqzyUZ-plHF7ieNvnxT97ui6uOANXrlphNBnn575E-90viGSnyEhceFjAonq1mntsR7gACYd2ap6-wHTC0e4BWlpy4mqBIAkqp9Sc57vOCsnyNSzS9fxCJVi3XbJ3v_3GKvB_BxaXqFY7Sj3m2BdZ_oAT79twXTxXrDcHFgxdxb12wvqkPCcT5A-Vo0pS4w2TtZInLOltnv6Q7NqR7_4zmcVFXKkNN4gBZpfmATh3M7jVPz5iMM5qbzvX4_K3Xw_ZpHS3vcE57zNB6eXMHkUqp8LglhqNXwSq0z4nwGQ7Yc4macicwW4fqyRJu2cRmSKMrDu5CH0EALr-9MGS1oEdWyametXfTONkFGxPJuQnGNkaACmo_Xrcy7077VgNwfPwjl3lnfM4BRHeUXOdHDGRSe2WRmlYG1uddk8bcTx0B-6pneIIUx2Mq6cIG_-YDTr4dixgQZC3UZq9FmhDcksC3wUwI5BgYGMvxkK5_EJcqq0Ut01QNLaDRr7DErmNjQSsoXZrU-yVU6ZH1hyhhS3UOM3IEYAlXyjLx99IosZl7DZpfOfWPM9Rc6BLeNh9XaRUMR0qHovThhRz9mB_HRIIHTp14joLEpXxw",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "product_id",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "customer_id",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "user_id",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "qty",
+											"value": "2",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api_url}}/fitur/order-management",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"fitur",
+										"order-management"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Supplier",
+					"item": [
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Web Context",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/web/context",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"web",
+						"context"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/test",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
