@@ -191,7 +191,10 @@ class LoginController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return response()->json(['valid' => auth()->check()]);
+            return response()->json([
+                'message' => $th->getMessage(),
+                'valid' => auth()->check()
+            ]);
         }
     }
 }

@@ -25,7 +25,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $helpers = [];
     /**
      * Register any authentication / authorization services.
-     *
+     * @author puji ermanto<pujiermanto@gmail.com>
      * @return void
      */
 
@@ -38,9 +38,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $gate_data = [
             'user-management',
-            'donatur',
-            'campaign',
-            'blog',
+            'category-campaigns'
         ];
         self::__contstruct($gate_data);
     }

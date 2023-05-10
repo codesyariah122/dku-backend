@@ -136,8 +136,6 @@ class RedirectProviderController extends Controller
 
             $providerUser = Socialite::driver($provider)->stateless()->user();
 
-            var_dump($providerUser->getName());
-            die;
 
             if ($providerUser) {
 
@@ -161,6 +159,11 @@ class RedirectProviderController extends Controller
                 $current = Carbon::now()->setTimezone($userDetect['timezone']);
 
                 if (!$user) {
+                    $check_roles = Roles::whereName(json_encode(["USER"]))->get();
+
+                    // echo $check_roles[0]['id'];
+                    // die;
+
                     $newuser = new User;
                     $newuser->google_id = $providerUser->getId();
                     $newuser->provider_name = $provider;
@@ -175,7 +178,14 @@ class RedirectProviderController extends Controller
 
                     $token = $newuser->createToken('authToken')->accessToken;
 
-                    $roles = Roles::findOrFail(2);
+                    if (count($check_roles) > 0) {
+                        $roles = Roles::findOrFail($check_roles[0]['id']);
+                    } else {
+                        $roles = new Roles;
+                        $roles->name = json_encode(["USER"]);
+                        $roles->save();
+                    }
+
                     $newuser->roles()->sync($roles->id);
 
                     $logins = new Login;
@@ -228,11 +238,19 @@ class RedirectProviderController extends Controller
                     $userHasRegistration->last_login = $current;
                     $userHasRegistration->save();
 
-                    $user_profile_data = User::with('profiles')->findOrFail($userHasRegistration->id);
+                    $user_profile_data = User::whereId($userHasRegistration->id)
+                        ->with('profiles')
+                        ->get();
 
-                    $profile = Profile::whereId($user_profile_data['profiles'][0]['id'])->get();
-                    $profileHasRegistration = Profile::findOrFail($profile[0]['id']);
-                    // var_dump($profileHasRegistration); die;
+                    $profile_id = null;
+
+                    foreach ($user_profile_data as $profile_data) {
+                        $profile_id = $profile_data['profiles'][0]['id'];
+                    }
+                    // echo $profile_id;
+                    // die;
+
+                    $profileHasRegistration = Profile::findOrFail($profile_id);
                     $profileHasRegistration->city = $userDetect['city'];
                     $profileHasRegistration->province = $userDetect['regionName'];
                     $profileHasRegistration->country = $userDetect['country'];
@@ -244,9 +262,9 @@ class RedirectProviderController extends Controller
                     $token = $user->createToken(env('apiToken'))->accessToken;
 
                     $checkTokenLogin = Login::whereUserId($userHasRegistration->id)->get();
-                    $checkToken = Login::findOrFail($checkTokenLogin[0]['id']);
 
-                    if ($checkToken) {
+                    if (count($checkTokenLogin) > 0) {
+                        $checkToken = Login::findOrFail($checkTokenLogin[0]['id']);
                         $checkToken->user_token_login = $token;
                         $checkToken->save();
                         $login_id = $checkToken->id;

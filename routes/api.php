@@ -1,15 +1,26 @@
 <?php
+
 /**
  * @author: pujiermanto@gmail.com
  * @param SessionExpires at middleware
  * @param Flush Session Auto Logout
  * */
 
- namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
-use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController, ProductManagement, CategoryManagement, CustomerManagement, OrderManagement, SupplierManagement};
+use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController};
+use App\Http\Controllers\Api\Fitur\WebFiturController;
+
+/**
+ * @author Puji Eramnto <puji.eramnto@gmail.com>
+ * @return authentication middleware
+ */
+
+Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
+    Route::get('/user-login', [LoginController::class, 'userIsLogin']);
+});
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
@@ -17,9 +28,14 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // User management
     Route::resource('/user-management', UserManagement::class);
 
+    // Category Campaign Management
+    Route::resource('/category-campaigns', CategoryCampaignController::class);
+
     // Trashed data
-    Route::get('/trashed', [WebFiturController::class,
-        'trash']);
+    Route::get('/trashed', [
+        WebFiturController::class,
+        'trash'
+    ]);
     Route::put('/trashed/{id}', [WebFiturController::class, 'restoreTrash']);
     Route::delete('/trashed/{id}', [WebFiturController::class, 'deletePermanently']);
 

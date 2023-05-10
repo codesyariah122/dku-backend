@@ -1,9 +1,15 @@
 <?php
 
+/**
+ * Register any authentication / authorization services.
+ * @author puji ermanto<pujiermanto@gmail.com>
+ * @return Illuminate\Support\Facades\Gate
+ */
+
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Gate;
-use App\Models\User;
+use App\Models\{User, Roles};
 
 class FeatureHelpers
 {
@@ -20,9 +26,9 @@ class FeatureHelpers
             Gate::define($data, function ($user) {
                 $user_id = $user->id;
                 $roles = User::whereId($user_id)->with('roles')->get();
-                $role = json_decode($roles[0]->roles[0]->roles);
+                $role = json_decode($roles[0]->roles[0]->name);
 
-                return count(array_intersect(["ADMIN", "OWNER"], $role)) ? true :  false;
+                return count(array_intersect(["ADMIN"], $role)) ? true :  false;
             });
         endforeach;
     }
