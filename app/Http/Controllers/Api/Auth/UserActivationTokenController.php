@@ -16,7 +16,20 @@ class UserActivationTokenController extends Controller
                 ->first();
             $userData = User::whereActivationId($token)
                 ->with(['profiles'])
+                ->whereStatus('INACTIVE')
                 ->first();
+
+            if ($activationData === NULL) {
+                return response()->json([
+                    'message' => 'User of token activation is empty, please check again your token !!'
+                ]);
+            }
+
+            if ($userData === NULL) {
+                return response()->json([
+                    'message' => 'User is active!'
+                ]);
+            }
 
 
             return response()->json([

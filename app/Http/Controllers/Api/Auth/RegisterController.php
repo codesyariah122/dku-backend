@@ -60,7 +60,7 @@ class RegisterController extends Controller
 
             // saving profile user table
             $user_profile = new Profile;
-            $user_profile->username = trim(preg_replace('/\s+/', '_', $user->name));
+            $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name)));
             if ($request->file('photo')) {
                 $file = $request->file('photo')->store(trim(preg_replace('/\s+/', '', $user->name)) . '/image/profile', 'public');
                 $user_profile->photo = $file;
@@ -98,7 +98,7 @@ class RegisterController extends Controller
 
             $details = [
                 'title' => 'Kamu Telah Berhasil Registrasi Di Website Dompet Kebaikan Umat',
-                'url' => 'http://localhost:8000',
+                'url' => "http://localhost:3000/user/activation/{$user_activation->token}",
                 'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->name,
@@ -116,7 +116,8 @@ class RegisterController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "Halo {$user->name}, registrasi kamu berhasil, silahkan cek inbox <a href='https://{$domainEmail}' target='_blank' class='btn btn-link'>{$user->email}</a> untuk mengaktifkan akun kamu.",
-                'data'    => $new_user
+                'data'    => $new_user,
+                'activation_detail' => $details
             ]);
         } catch (\Throwable $th) {
             throw $th;

@@ -187,6 +187,9 @@ class RedirectProviderController extends Controller
                     }
 
                     $newuser->roles()->sync($roles->id);
+                    $update_user_role = User::findOrFail($newuser->id);
+                    $update_user_role->role = $roles->id;
+                    $update_user_role->save();
 
                     $logins = new Login;
                     $logins->user_id = $newuser->id;

@@ -17,8 +17,8 @@ class CreateLoginUserTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('login_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('login_id')->references('id')->on('logins')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->constrained()->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('login_id')->constrained()->references('id')->on('logins')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

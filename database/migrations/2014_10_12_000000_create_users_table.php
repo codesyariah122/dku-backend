@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->unsignedBigInteger('role')->unsigned()->nullable();
             $table->string('phone')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -24,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_login')->default(false);
             $table->string('activation_id', 64)->unique()->nullable();
             $table->rememberToken();
+            // $table->foreign('role')->constrained()->references('id')->on('roles')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -40,6 +40,9 @@ class AdministratorSeeder extends Seeder
         $roles->name = json_encode(["ADMIN"]);
         $roles->save();
         $administrator->roles()->sync($roles->id);
+        $update_user_role = User::findOrFail($administrator->id);
+        $update_user_role->role = $roles->id;
+        $update_user_role->save();
         $this->command->info("User admin created successfully");
     }
 }

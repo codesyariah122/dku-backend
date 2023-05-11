@@ -17,8 +17,8 @@ class CreateProfileUserTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('profile_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->constrained()->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('profile_id')->constrained()->references('id')->on('profiles')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

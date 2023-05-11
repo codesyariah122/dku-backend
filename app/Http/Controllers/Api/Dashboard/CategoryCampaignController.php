@@ -6,12 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\CategoryCampaign;
 use App\Events\EventNotification;
-use App\Helpers\UserHelpers;
 
 class CategoryCampaignController extends Controller
 {
@@ -23,9 +20,9 @@ class CategoryCampaignController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('category-campaigns')) return $next($request);
+            if (Gate::allows('category-campaigns-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'

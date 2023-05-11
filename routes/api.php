@@ -18,9 +18,6 @@ use App\Http\Controllers\Api\Fitur\WebFiturController;
  * @return authentication middleware
  */
 
-Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
-    Route::get('/user-login', [LoginController::class, 'userIsLogin']);
-});
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
@@ -29,18 +26,15 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::resource('/user-management', UserManagement::class);
 
     // Category Campaign Management
-    Route::resource('/category-campaigns', CategoryCampaignController::class);
+    Route::resource('/category-campaigns-management', CategoryCampaignController::class);
 
     // Trashed data
-    Route::get('/trashed', [
-        WebFiturController::class,
-        'trash'
-    ]);
+    Route::get('/trashed', [WebFiturController::class, 'trash']);
     Route::put('/trashed/{id}', [WebFiturController::class, 'restoreTrash']);
     Route::delete('/trashed/{id}', [WebFiturController::class, 'deletePermanently']);
 
     // Role management
-    Route::resource('/role-management', RolesManagement::class);
+    Route::resource('/roles-management', RolesManagement::class);
 
     // Barcode fitur
     Route::post('/barcode', [WebFiturController::class, 'barcode_fitur']);
