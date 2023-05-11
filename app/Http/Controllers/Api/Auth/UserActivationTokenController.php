@@ -31,7 +31,6 @@ class UserActivationTokenController extends Controller
                 ]);
             }
 
-
             return response()->json([
                 'message' => 'User Inactive Data',
                 'data' => $activationData,

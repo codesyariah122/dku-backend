@@ -232,6 +232,10 @@ class RedirectProviderController extends Controller
                     $activation_id = $user_activation->id;
                     $newuser->user_activations()->sync($activation_id);
 
+                    $new_user_activate = User::findOrFail($newuser->id);
+                    $new_user_activate->activation_id = $user_activation->token;
+                    $new_user_activate->save();
+
                     // return $this->respondWithToken($token);
                     return redirect(env('FRONTEND_APP_TEST') . '/auth/success?access_token=' . $token);
                 } else {
