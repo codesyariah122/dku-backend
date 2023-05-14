@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -120,10 +121,11 @@ class UserManagementController extends Controller
                     $image = $request->file('photo');
                     $nameImage = $image->getClientOriginalName();
                     $filename = pathinfo($nameImage, PATHINFO_FILENAME);
+                    $trimName = trim(preg_replace('/\s+/', '_', strtolower($new_user->name)));
 
                     $extension = $request->file('photo')->getClientOriginalExtension();
 
-                    $filenametostore = $filename . '_' . time() . '.' . $extension;
+                    $filenametostore = $trimName . '_' . Str::random(12) . '_' . time() . '.' . $extension;
 
                     $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
                     $thumbPath = public_path() . '/thumbnail_images/' . $filenametostore;
