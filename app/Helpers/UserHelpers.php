@@ -54,8 +54,8 @@ class UserHelpers
     public function adminEmail()
     {
         $admin = User::where('roles', json_encode(['ADMIN']))
-        ->where('email', env('MAIL_USERNAME'))
-        ->where('status', 'ACTIVE')->first();
+            ->where('email', env('MAIL_USERNAME'))
+            ->where('status', 'ACTIVE')->first();
 
         return $admin;
     }
@@ -69,8 +69,10 @@ class UserHelpers
 
     public function checkRoles($user)
     {
-        $roles = json_decode($user->roles[0]->roles);
-        if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+        $roles = json_decode($user->role);
+        // var_dump($user);
+        // die;
+        if ($roles !== 1) {
             return 1;
         }
 

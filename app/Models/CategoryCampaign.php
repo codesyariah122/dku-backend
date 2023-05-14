@@ -12,4 +12,9 @@ class CategoryCampaign extends Model
     use SoftDeletes;
 
     protected $table = 'category_campaigns';
+
+    public function campaigns()
+    {
+        return $this->belongsToMany('App\Models\Campaign');
+    }
 }

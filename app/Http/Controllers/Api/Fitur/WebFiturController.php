@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\ContextData;
 use \Milon\Barcode\DNS1D;
 use \Milon\Barcode\DNS2D;
-use App\Models\{User, CategoryCampaign};
+use App\Models\{User, Profile, CategoryCampaign};
 use App\Events\EventNotification;
-use App\Helpers\ProductPercentage;
+use Image;
 
 class WebFiturController extends Controller
 {
@@ -37,6 +37,7 @@ class WebFiturController extends Controller
             switch ($dataType):
                 case 'USER_DATA':
                     $deleted = User::onlyTrashed()
+                        ->with('profiles')
                         ->with('roles')
                         ->paginate(10);
                     break;
@@ -66,35 +67,31 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                    $deleted = User::withTrashed()
+                    $restored_user = User::withTrashed()
                         ->where('id', $id);
-                    $deleted->restore();
+                    $restored_user->restore();
                     $restored = User::findOrFail($id);
 
-                    $data_event = [
-                        'notif' => "{$restored->name}, has been restored!",
-                        'data' => $restored
-                    ];
-
-                    event(new EventNotification($data_event));
                     break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $deleted = CategoryCampaign::onlyTrashed()
+                    $restored_category_campaign = CategoryCampaign::onlyTrashed()
                         ->where('id', $id);
-                    $deleted->restore();
+                    $restored_category_campaign->restore();
                     $restored = CategoryCampaign::findOrFail($id);
-                    $data_event = [
-                        'notif' => "{$restored->name}, has been restored!",
-                        'data' => $restored
-                    ];
 
-                    event(new EventNotification($data_event));
                     break;
 
                 default:
                     $restored = [];
             endswitch;
+
+            $data_event = [
+                'notif' => "{$restored->name}, has been restored!",
+                'data' => $restored
+            ];
+
+            event(new EventNotification($data_event));
 
             return response()->json([
                 'message' => 'Restored data on trashed Success!',
@@ -112,9 +109,18 @@ class WebFiturController extends Controller
             switch ($dataType):
                 case 'USER_DATA':
                     $deleted = User::onlyTrashed()
-                        ->where('id', $id)->first();
-                    // $deleted->roles()->delete();
+                        ->with('profiles')
+                        ->where('id', $id)
+                        ->first();
+
+                    if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
+                        $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
+                        unlink($old_photo);
+                    }
+
+                    $deleted->profiles()->delete();
                     $deleted->forceDelete();
+
                     break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
@@ -122,15 +128,15 @@ class WebFiturController extends Controller
                         ->where('id', $id)->first();
                     // $deleted->categories()->delete();
                     $deleted->forceDelete();
+
                     break;
 
                 default:
                     $deleted = [];
             endswitch;
 
-
             $data_event = [
-                'notif' => "Data has been restored!",
+                'notif' => "Data has been deleted!",
                 'data' => $deleted
             ];
 
@@ -141,7 +147,10 @@ class WebFiturController extends Controller
                 'data' => $deleted
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage(),
+            ]);
         }
     }
 
@@ -199,6 +208,60 @@ class WebFiturController extends Controller
                 ]);
         } catch (\Throwable $th) {
             throw $th;
+        }
+    }
+
+    public function upload_profile_picture(Request $request, $id)
+    {
+        try {
+            $update_user = User::with('profiles')->findOrFail($id);
+            $user_photo = $update_user->profiles[0]->photo;
+            $image = $request->file('photo');
+
+            if ($image !== '' && $image !== NULL) {
+                $nameImage = $image->getClientOriginalName();
+                $filename = pathinfo($nameImage, PATHINFO_FILENAME);
+
+                $extension = $request->file('photo')->getClientOriginalExtension();
+
+                $filenametostore = $filename . '_' . time() . '.' . $extension;
+
+                $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
+                $thumbPath = public_path() . '/thumbnail_images/' . $filenametostore;
+
+                if ($user_photo !== '' && $user_photo !== NULL) {
+                    $old_photo = public_path() . '/' . $user_photo;
+                    unlink($old_photo);
+                }
+
+                Image::make($thumbImage)->save($thumbPath);
+                // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
+                $new_profile = Profile::findOrFail($update_user->profiles[0]->id);
+                $new_profile->photo = "thumbnail_images/" . $filenametostore;
+                $new_profile->save();
+
+                $profile_has_update = Profile::with('users')->findOrFail($update_user->profiles[0]->id);
+
+                $data_event = [
+                    'notif' => "{$update_user->name} photo, has been updated!",
+                    'data' => $profile_has_update
+                ];
+
+                event(new EventNotification($data_event));
+
+                return response()->json([
+                    'message' => 'Profile photo has been updated',
+                    'data' => $profile_has_update
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'please choose files!!'
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ]);
         }
     }
 }

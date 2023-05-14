@@ -6,22 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
-use App\Models\Roles;
-use App\Events\EventNotification;
+use App\Models\SubMenu;
+use App\Models\Menu;
 
-class RoleUserManagementController extends Controller
+class SubMenuManagementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('roles-management')) return $next($request);
+            if (Gate::allows('submenu-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'
@@ -32,17 +26,13 @@ class RoleUserManagementController extends Controller
     public function index()
     {
         try {
-            $user_roles = Roles::whereNull('deleted_at')
-                ->paginate(10);
+            $menu = Menu::with('sub_menus')->get();
             return response()->json([
-                'message' => 'List user roles',
-                'data' => $user_roles
+                'message' => 'List all menus',
+                'data' => $menu
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 
@@ -66,45 +56,42 @@ class RoleUserManagementController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
+                'parent_menu' => 'required',
+                'menu' => 'required',
+                'link' => 'required',
+                'icon' => 'required',
+                'roles' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
 
-            $roles = json_encode([$request->name]);
-            $check_roles = in_array($request->name, json_decode($roles, true)) ? $request->name : null;
+            $menu = Menu::whereId($request->parent_menu)->get();
 
+            // var_dump($menu[0]->id);
+            // die;
 
-            $check_ready = Roles::whereName(json_encode([$check_roles]))->get();
+            $menu_id = $menu[0]->id;
 
+            $sub_menu = new SubMenu;
+            $sub_menu->menu = $request->menu;
+            $sub_menu->link = $request->link;
+            $sub_menu->icon = $request->icon;
+            $sub_menu->is_active = 0;
+            $sub_menu->roles = json_encode($request->roles);
+            $sub_menu->save();
+            $sub_menu->menus()->sync($menu_id);
 
-            if (count($check_ready) > 0) {
-                return response()->json([
-                    'message' => "{$request->name}, its already taken!"
-                ]);
-            }
-
-            $new_roles = new Roles;
-            $new_roles->name = json_encode([$request->name]);
-            $new_roles->save();
-
-            $data_event = [
-                'notif' => "{$new_roles->name}, berhasil ditambahkan!",
-                'data' => $new_roles
-            ];
-
-            event(new EventNotification($data_event));
+            $new_menu = Menu::whereId($menu_id)
+                ->with('sub_menus')
+                ->get();
 
             return response()->json([
-                'message' => 'added roles successfully',
-                'data' => $new_roles
+                'message' => 'New sub menu added',
+                'data' => $new_menu
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 

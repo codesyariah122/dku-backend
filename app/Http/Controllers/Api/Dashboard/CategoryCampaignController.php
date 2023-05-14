@@ -85,6 +85,13 @@ class CategoryCampaignController extends Controller
             $new_category->slug = Str::slug($request->name);
             $new_category->save();
 
+            $data_event = [
+                'notif' => "{$new_category->name}, berhasil ditambahkan!",
+                'data' => $new_category
+            ];
+
+            event(new EventNotification($data_event));
+
             return response()->json([
                 'message' => 'added new category campaign successfully',
                 'data' => $new_category

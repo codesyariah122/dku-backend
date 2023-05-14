@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Helpers\FeatureHelpers;
 use Auth;
-use App\Models\User;
-use App\Models\Profile;
-use App\Models\Login;
+use App\Models\{User, Profile, Login, Menu};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -34,11 +32,39 @@ class AuthServiceProvider extends ServiceProvider
         $this->helpers = $data;
     }
 
+    /**
+     * @author puji ermanto<pujiermanto@gmail.com
+     * @return authentication
+     * @todo
+     * - Grab database for roles permissions
+     * - Permissions access list from database
+     */
     public function set_data()
     {
+        // $list_menu = Menu::with('sub_menus')->get();
+
+        // if (count($list_menu) > 0) {
+        //     $gate_data = [];
+        //     foreach ($list_menu as $menu) :
+        //         array_push($gate_data, $menu->route_access);
+        //     endforeach;
+        // } else {
+        //     $gate_data = [
+        //         'user-management',
+        //         'category-campaigns',
+        //         'roles-management',
+        //         'menu-management',
+        //         'submenu-management',
+        //     ];
+        // }
+
         $gate_data = [
             'user-management',
-            'category-campaigns'
+            'category-campaigns-management',
+            'campaign-management',
+            'roles-management',
+            'menu-management',
+            'submenu-management',
         ];
         self::__contstruct($gate_data);
     }

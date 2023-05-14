@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use App\Models\Roles;
+use App\Models\{Menu, Roles};
 use App\Events\EventNotification;
 
-class RoleUserManagementController extends Controller
+class MenuManagementController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,22 +21,20 @@ class RoleUserManagementController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('roles-management')) return $next($request);
+            if (Gate::allows('menu-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'
             ]);
         });
     }
-
     public function index()
     {
         try {
-            $user_roles = Roles::whereNull('deleted_at')
-                ->paginate(10);
+            $menus = Menu::whereNull('deleted_at')->get();
             return response()->json([
-                'message' => 'List user roles',
-                'data' => $user_roles
+                'message' => 'List of menus',
+                'data' => count($menus) > 0 ? $menus : null
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -66,45 +64,29 @@ class RoleUserManagementController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
+                'menu' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
 
-            $roles = json_encode([$request->name]);
-            $check_roles = in_array($request->name, json_decode($roles, true)) ? $request->name : null;
-
-
-            $check_ready = Roles::whereName(json_encode([$check_roles]))->get();
-
-
-            if (count($check_ready) > 0) {
+            $check_already = Menu::whereMenu($request->menu)->get();
+            if (count($check_already) > 0) {
                 return response()->json([
-                    'message' => "{$request->name}, its already taken!"
+                    'message' => "{$request->menu}, sudah tersedia!"
                 ]);
             }
-
-            $new_roles = new Roles;
-            $new_roles->name = json_encode([$request->name]);
-            $new_roles->save();
-
-            $data_event = [
-                'notif' => "{$new_roles->name}, berhasil ditambahkan!",
-                'data' => $new_roles
-            ];
-
-            event(new EventNotification($data_event));
+            $menu = new Menu;
+            $menu->menu = $request->menu;
+            $menu->roles = $request->roles;
+            $menu->save();
 
             return response()->json([
-                'message' => 'added roles successfully',
-                'data' => $new_roles
+                'message' => 'Added new menu',
+                'data' => $menu
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 

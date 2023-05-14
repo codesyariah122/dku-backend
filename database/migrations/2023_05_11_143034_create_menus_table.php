@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategoryCampaignsTable extends Migration
+class CreateMenusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateCategoryCampaignsTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_campaigns', function (Blueprint $table) {
+        Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug');
+            $table->string('menu');
+            $table->json('roles');
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ class CreateCategoryCampaignsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_campaigns');
+        Schema::dropIfExists('menus');
     }
 }

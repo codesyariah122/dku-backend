@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use App\Models\Roles;
+use App\Models\{Campaign, CategoryCampaign};
 use App\Events\EventNotification;
 
-class RoleUserManagementController extends Controller
+class CampaignManagementController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,7 +21,7 @@ class RoleUserManagementController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('roles-management')) return $next($request);
+            if (Gate::allows('category-campaigns-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'
@@ -32,11 +32,11 @@ class RoleUserManagementController extends Controller
     public function index()
     {
         try {
-            $user_roles = Roles::whereNull('deleted_at')
+            $category_campaigns = Campaign::whereNull('deleted_at')
                 ->paginate(10);
             return response()->json([
-                'message' => 'List user roles',
-                'data' => $user_roles
+                'message' => 'List data campaigns',
+                'data' => $category_campaigns
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -53,7 +53,6 @@ class RoleUserManagementController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -66,40 +65,41 @@ class RoleUserManagementController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
+                'title' => 'required',
+                'description' => 'required',
+                'donation_target' => 'required',
+                'is_headline' => 'required',
+                'without_limit' => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
 
-            $roles = json_encode([$request->name]);
-            $check_roles = in_array($request->name, json_decode($roles, true)) ? $request->name : null;
-
-
-            $check_ready = Roles::whereName(json_encode([$check_roles]))->get();
-
-
-            if (count($check_ready) > 0) {
-                return response()->json([
-                    'message' => "{$request->name}, its already taken!"
-                ]);
-            }
-
-            $new_roles = new Roles;
-            $new_roles->name = json_encode([$request->name]);
-            $new_roles->save();
-
-            $data_event = [
-                'notif' => "{$new_roles->name}, berhasil ditambahkan!",
-                'data' => $new_roles
+            $req = [
+                'title' => $request->title,
+                'description' => htmlspecialchars($request->description),
+                'donation_target' => $request->donation_target,
+                'is_headline' => $request->is_headline,
+                'without_limit' => $request->without_limit,
             ];
 
-            event(new EventNotification($data_event));
+            $new_campaign = new Campaign;
+            $new_campaign->title = $req['title'];
+            $new_campaign->slug = Str::slug(strtolower($req['title']));
+            $new_campaign->description = $req['description'];
+            $new_campaign->donation_target = $req['donation_target'];
 
-            return response()->json([
-                'message' => 'added roles successfully',
-                'data' => $new_roles
-            ]);
+            // $data_event = [
+            //     'notif' => "{$new_category->name}, berhasil ditambahkan!",
+            //     'data' => $new_category
+            // ];
+
+            // event(new EventNotification($data_event));
+
+            // return response()->json([
+            //     'message' => 'added new category campaign successfully',
+            //     'data' => $new_category
+            // ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -150,6 +150,26 @@ class RoleUserManagementController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $delete_category = Campaign::findOrFail($id);
+            $delete_category->delete();
+            $data_event = [
+                'notif' => "{$delete_category->name}, success move to trash, please check trash!",
+                'data' => $delete_category
+            ];
+
+            event(new EventNotification($data_event));
+
+            return response()->json([
+                'success' => true,
+                'message' => "Category Campaign {$delete_category->name} success move to trash, please check trash",
+                'data' => $delete_category
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

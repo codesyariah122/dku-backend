@@ -209,7 +209,6 @@ class RedirectProviderController extends Controller
                     ];
 
                     event(new EventNotification($data_event));
-
                     // saving profile table
                     $profile = new Profile;
                     $profile->username = trim(preg_replace('/\s+/', '_', strtolower($providerUser->getName())));

@@ -6,18 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Roles extends Model
+class Campaign extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    public function users()
-    {
-        return $this->belongsToMany('App\Models\User');
-    }
+    protected $table = 'campaigns';
 
-    public function menus()
+    public function category_campaigns()
     {
-        return $this->belongsToMany('App\Models\Menu');
+        return $this->belongsToMany('App\Models\CategoryCampaign');
     }
 }
