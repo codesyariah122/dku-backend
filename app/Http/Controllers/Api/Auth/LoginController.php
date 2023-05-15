@@ -128,7 +128,10 @@ class LoginController extends Controller
                 endif;
             }
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'error' => true,
+                'messge' => $th->getMessage()
+            ]);
         }
     }
 
@@ -170,7 +173,7 @@ class LoginController extends Controller
         }
     }
 
-    public function userIsLogin(Request $request)
+    public function userProfile(Request $request)
     {
         try {
             $user = $request->user();

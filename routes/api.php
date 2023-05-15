@@ -13,14 +13,10 @@ use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController};
 use App\Http\Controllers\Api\Fitur\WebFiturController;
 
-/**
- * @author Puji Eramnto <puji.eramnto@gmail.com>
- * @return authentication middleware
- */
-
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
-    Route::get('/user-login', [LoginController::class, 'userIsLogin']);
+    // User profile
+    Route::get('/user-profile', [LoginController::class, 'userProfile']);
 
     // User management
     Route::resource('/user-management', UserManagementController::class);

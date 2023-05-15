@@ -236,7 +236,7 @@ class RedirectProviderController extends Controller
                     $new_user_activate->save();
 
                     // return $this->respondWithToken($token);
-                    return redirect(env('FRONTEND_APP_TEST') . '/auth/success?access_token=' . $token);
+                    return redirect(env('FRONTEND_APP') . '/auth/success?access_token=' . $token);
                 } else {
                     $userHasRegistration = User::findOrFail($user->id);
                     $userHasRegistration->is_login = 1;
@@ -284,7 +284,7 @@ class RedirectProviderController extends Controller
 
                     // sync pivot table
                     $userHasRegistration->logins()->sync($login_id);
-                    return redirect(env('FRONTEND_APP_TEST') . '/auth/success?access_token=' . $token);
+                    return redirect(env('FRONTEND_APP') . '/auth/success?access_token=' . $token);
                 }
             }
         } catch (\Exception $e) {
@@ -313,7 +313,7 @@ class RedirectProviderController extends Controller
             //         $newLogins->user_token_login = $token;
             //         $newLogins->save();
             //         $updateUserLogin->logins()->sync($newLogins->id);
-            //         return redirect(env('FRONTEND_APP_TEST') . '/auth/success?access_token=' . $token);
+            //         return redirect(env('FRONTEND_APP') . '/auth/success?access_token=' . $token);
             //     } else {
             //         $loginUserUpdate = Login::findOrFail($loginUpdate[0]['id']);
             //         // $loginUserUpdate->user_id = $haveUser[0]['id'];
@@ -321,7 +321,7 @@ class RedirectProviderController extends Controller
             //         $loginUserUpdate->save();
             //         $updateUserLogin->logins()->sync($loginUserUpdate->id);
 
-            //         return redirect(env('FRONTEND_APP_TEST') . '/auth/success?access_token=' . $token);
+            //         return redirect(env('FRONTEND_APP') . '/auth/success?access_token=' . $token);
             //     }
             // } else {
             //     return $this->sendError(self::UNAUTHORIZED, null, ['error' => $e->getMessage()]);

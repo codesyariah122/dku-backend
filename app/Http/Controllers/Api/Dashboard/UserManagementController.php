@@ -117,7 +117,6 @@ class UserManagementController extends Controller
                 $new_profile->username = $request->username ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($request->name)));
 
                 if ($request->file('photo')) {
-
                     $image = $request->file('photo');
                     $nameImage = $image->getClientOriginalName();
                     $filename = pathinfo($nameImage, PATHINFO_FILENAME);
@@ -132,7 +131,6 @@ class UserManagementController extends Controller
                     Image::make($thumbImage)->save($thumbPath);
 
                     // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
-
                     $new_profile->photo = "thumbnail_images/" . $filenametostore;
                 }
 
