@@ -154,12 +154,12 @@ class LoginController extends Controller
             $delete_login = Login::whereUserId($user->id);
             $delete_login->delete();
 
-            // $data_event = [
-            //     'notif' => "{$user->name}, telah keluar!",
-            //     'data' => $user
-            // ];
+            $data_event = [
+                'notif' => "{$user->name}, telah keluar!",
+                'data' => $user
+            ];
 
-            // event(new EventNotification($data_event));
+            event(new EventNotification($data_event));
 
             if ($removeToken) {
                 return response()->json([

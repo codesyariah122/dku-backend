@@ -211,6 +211,19 @@ class WebFiturController extends Controller
         }
     }
 
+    public function user_is_online(Request $request)
+    {
+        try {
+            $user_is_online = User::whereIsLogin(1)->get();
+            return response()->json([
+                'message' => 'User is online',
+                'data' => count($user_is_online)
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function upload_profile_picture(Request $request, $id)
     {
         try {

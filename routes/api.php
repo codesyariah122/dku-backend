@@ -52,6 +52,9 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // Total Data
     Route::get('/total-data', [WebFiturController::class, 'totalData']);
 
+    // User is online
+    Route::get('/user-online', [WebFiturController::class, 'user_is_online']);
+
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
 });
 
