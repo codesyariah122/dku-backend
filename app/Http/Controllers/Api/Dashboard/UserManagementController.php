@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Image;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\{User, Profile, UserRole, Roles};
 use App\Events\EventNotification;
 use App\Helpers\UserHelpers;
-use Image;
 
 class UserManagementController extends Controller
 {
@@ -127,11 +127,11 @@ class UserManagementController extends Controller
                     $filenametostore = $trimName . '_' . Str::random(12) . '_' . time() . '.' . $extension;
 
                     $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
-                    $thumbPath = public_path() . '/thumbnail_images/' . $filenametostore;
+                    $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
                     Image::make($thumbImage)->save($thumbPath);
 
                     // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
-                    $new_profile->photo = "thumbnail_images/" . $filenametostore;
+                    $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 }
 
 
@@ -251,6 +251,31 @@ class UserManagementController extends Controller
 
             $update_profile = Profile::findOrFail($user->profiles[0]->id);
             $update_profile->username = trim(preg_replace('/\s+/', '_', $request->username ? $request->username : $user->name));
+
+            if ($update_user->profiles[0]->photo !== "" && $update_user->profiles[0]->photo !== NULL) {
+                $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
+                unlink($old_photo);
+            }
+
+            if ($request->file('photo')) {
+                $image = $request->file('photo');
+                $nameImage = $image->getClientOriginalName();
+                $filename = pathinfo($nameImage, PATHINFO_FILENAME);
+                $trimName = trim(preg_replace('/\s+/', '_', strtolower($new_user->name)));
+
+
+                $extension = $request->file('photo')->getClientOriginalExtension();
+
+                $filenametostore = $trimName . '_' . Str::random(12) . '_' . time() . '.' . $extension;
+
+                $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
+                $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
+                Image::make($thumbImage)->save($thumbPath);
+
+                // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
+                $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
+            }
+
             $update_profile->about = $request->about;
             $update_profile->address = $request->address;
             $update_profile->post_code = $request->post_code;

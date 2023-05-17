@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Image;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use App\Models\{Campaign, CategoryCampaign};
@@ -100,6 +101,13 @@ class CampaignManagementController extends Controller
             $new_campaign->description = $req['description'];
             $new_campaign->donation_target = $req['donation_target'];
             $new_campaign->is_headline = $req['is_headline'];
+
+            if ($request->file('banner')) {
+                $image = $request->file('banner');
+                $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
+                $new_campaign->banner = $file;
+            }
+
             $new_campaign->without_limit = $req['without_limit'];
             $new_campaign->save();
 

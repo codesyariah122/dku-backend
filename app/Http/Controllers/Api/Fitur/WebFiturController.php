@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\ContextData;
 use \Milon\Barcode\DNS1D;
 use \Milon\Barcode\DNS2D;
-use App\Models\{User, Profile, CategoryCampaign};
+use App\Models\{Campaign, User, Profile, CategoryCampaign};
 use App\Events\EventNotification;
 use Image;
 
@@ -47,6 +47,11 @@ class WebFiturController extends Controller
                         ->paginate(10);
                     break;
 
+                case 'CAMPAIGN_DATA':
+                    $deleted = Campaign::onlyTrashed()
+                        ->paginate(10);
+                    break;
+
                 default:
                     $deleted = [];
                     break;
@@ -79,6 +84,13 @@ class WebFiturController extends Controller
                         ->where('id', $id);
                     $restored_category_campaign->restore();
                     $restored = CategoryCampaign::findOrFail($id);
+
+                    break;
+                case 'CAMPAIGN_DATA':
+                    $restored_campaign = Campaign::onlyTrashed()
+                        ->where('id', $id);
+                    $restored_campaign->restore();
+                    $restored = Campaign::findOrFail($id);
 
                     break;
 
@@ -127,6 +139,18 @@ class WebFiturController extends Controller
                     $deleted = CategoryCampaign::onlyTrashed()
                         ->where('id', $id)->first();
                     // $deleted->categories()->delete();
+                    $deleted->forceDelete();
+
+                    break;
+
+                case 'CAMPAIGN_DATA':
+                    $deleted = Campaign::onlyTrashed()
+                        ->where('id', $id)->first();
+                    // $deleted->categories()->delete();
+                    if ($deleted->banner !== "" && $deleted->banner !== NULL) {
+                        $old_photo = public_path() . '/' . $deleted->banner;
+                        unlink($old_photo);
+                    }
                     $deleted->forceDelete();
 
                     break;

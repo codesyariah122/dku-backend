@@ -61,10 +61,7 @@ class RegisterController extends Controller
             // saving profile user table
             $user_profile = new Profile;
             $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name)));
-            if ($request->file('photo')) {
-                $file = $request->file('photo')->store(trim(preg_replace('/\s+/', '', $user->name)) . '/image/profile', 'public');
-                $user_profile->photo = $file;
-            }
+
             $user_profile->about = $request->about ? $request->about : null;
             $user_profile->save();
             $profile_id = $user_profile->id;
