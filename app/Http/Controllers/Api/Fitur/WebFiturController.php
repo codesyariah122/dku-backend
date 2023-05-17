@@ -4,10 +4,7 @@ namespace App\Http\Controllers\Api\Fitur;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Helpers\ContextData;
-use \Milon\Barcode\DNS1D;
-use \Milon\Barcode\DNS2D;
 use App\Models\{Campaign, User, Profile, CategoryCampaign};
 use App\Events\EventNotification;
 use Image;
