@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCampaignsCategoryCampaignsTable extends Migration
+class CreateCampaignCategoryCampaignTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateCampaignsCategoryCampaignsTable extends Migration
      */
     public function up()
     {
-        Schema::create('campaigns_category_campaigns', function (Blueprint $table) {
+        Schema::create('campaign_category_campaign', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->unsignedBigInteger('category_campaign_id')->nullable();
             $table->unsignedBigInteger('campaign_id')->nullable();
-            $table->foreign('category_id')->constrained()->references('id')->on('category_campaigns')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('category_campaign_id')->constrained()->references('id')->on('category_campaigns')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('campaign_id')->constrained()->references('id')->on('campaigns')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ class CreateCampaignsCategoryCampaignsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('campaigns_category_campaigns');
+        Schema::dropIfExists('campaign_category_campaign');
     }
 }

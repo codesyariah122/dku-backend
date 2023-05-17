@@ -71,6 +71,7 @@ class CampaignManagementController extends Controller
                 'is_headline' => 'required',
                 'without_limit' => 'required',
             ]);
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
@@ -81,25 +82,46 @@ class CampaignManagementController extends Controller
                 'donation_target' => $request->donation_target,
                 'is_headline' => $request->is_headline,
                 'without_limit' => $request->without_limit,
+                'category_campaign' => $request->category_campaign
             ];
+
+            $check_already_campaign = Campaign::whereTitle($req['title'])->get();
+            // var_dump($check_already_campaign);
+            // die;
+            if (count($check_already_campaign) > 0) {
+                return response()->json([
+                    'message' => "{$req['title']}, is already been taken!!"
+                ]);
+            }
 
             $new_campaign = new Campaign;
             $new_campaign->title = $req['title'];
             $new_campaign->slug = Str::slug(strtolower($req['title']));
             $new_campaign->description = $req['description'];
             $new_campaign->donation_target = $req['donation_target'];
+            $new_campaign->is_headline = $req['is_headline'];
+            $new_campaign->without_limit = $req['without_limit'];
+            $new_campaign->save();
 
-            // $data_event = [
-            //     'notif' => "{$new_category->name}, berhasil ditambahkan!",
-            //     'data' => $new_category
-            // ];
+            $category_campaign = CategoryCampaign::findOrFail($req['category_campaign']);
 
-            // event(new EventNotification($data_event));
+            $new_campaign->category_campaigns()->sync($category_campaign->id);
 
-            // return response()->json([
-            //     'message' => 'added new category campaign successfully',
-            //     'data' => $new_category
-            // ]);
+            $campaign_barcode = Campaign::findOrFail($new_campaign->id);
+            $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
+            $campaign_barcode->save();
+
+            $data_event = [
+                'notif' => "{$new_campaign->name}, berhasil ditambahkan!",
+                'data' => $new_campaign
+            ];
+
+            event(new EventNotification($data_event));
+
+            return response()->json([
+                'message' => 'added new campaign successfully',
+                'data' => $new_campaign
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
