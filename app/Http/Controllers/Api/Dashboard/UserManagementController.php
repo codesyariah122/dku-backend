@@ -130,8 +130,19 @@ class UserManagementController extends Controller
                     $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
                     Image::make($thumbImage)->save($thumbPath);
 
-                    // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
                     $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
+                } else {
+                    $path = 'thumbnail_images/users/';
+                    $fontPath = public_path('fonts/Oliciy.ttf');
+                    $trimName = trim(preg_replace('/\s+/', ' ', strtoupper($new_user->name)));
+                    $char = strtoupper($new_user->name[0]);
+                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                    $dest = $path . $newAvatarName;
+
+                    $createAvatar = makeAvatar($fontPath, $dest, $char);
+                    $photo = $createAvatar == true ? $newAvatarName : '';
+
+                    $new_profile->photo = $path . $photo;
                 }
 
 
@@ -273,7 +284,7 @@ class UserManagementController extends Controller
                 Image::make($thumbImage)->save($thumbPath);
 
                 // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
-                $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
+                $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
             }
 
             $update_profile->about = $request->about;
