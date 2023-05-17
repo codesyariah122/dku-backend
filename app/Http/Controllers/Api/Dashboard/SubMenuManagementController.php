@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use App\Models\SubMenu;
@@ -58,7 +59,6 @@ class SubMenuManagementController extends Controller
             $validator = Validator::make($request->all(), [
                 'parent_menu' => 'required',
                 'menu' => 'required',
-                'link' => 'required',
                 'icon' => 'required',
                 'roles' => 'required'
             ]);
@@ -75,9 +75,9 @@ class SubMenuManagementController extends Controller
 
             $sub_menu = new SubMenu;
             $sub_menu->menu = $request->menu;
-            $sub_menu->link = $request->link;
+            $sub_menu->link = Str::slug($request->menu);
             $sub_menu->icon = $request->icon;
-            $sub_menu->is_active = 0;
+            $sub_menu->is_active = 1;
             $sub_menu->roles = json_encode($request->roles);
             $sub_menu->save();
             $sub_menu->menus()->sync($menu_id);
