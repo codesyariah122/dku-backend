@@ -71,6 +71,13 @@ class LoginController extends Controller
                     } else {
                         if ($this->forbidenIsUserLogin($user[0]->is_login)) {
                             $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
+
+                            $data_event = [
+                                'notif' => "Seseorang, baru saja mencoba mengakses akun Anda!"
+                            ];
+
+                            event(new EventNotification($data_event));
+
                             return response()->json([
                                 'is_login' => true,
                                 'message' => "Akun sedang digunakan {$last_login}",
