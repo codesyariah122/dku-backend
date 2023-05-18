@@ -20,6 +20,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
 
     // User management
     Route::resource('/user-management', UserManagementController::class);
+    Route::post('/update-user-with-photo/{id}', [UserManagementController::class, 'update_with_profile_picture']);
 
     // Upload photo
     Route::post('/upload-photo/{id}', [WebFiturController::class, 'upload_profile_picture']);
