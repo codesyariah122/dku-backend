@@ -43,6 +43,7 @@ class UserManagementController extends Controller
         });;
         $this->helpers = new UserHelpers;
     }
+
     public function index()
     {
         try {

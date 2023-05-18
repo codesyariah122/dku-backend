@@ -50,6 +50,12 @@ class LoginController extends Controller
             $user = User::whereNull('deleted_at')
                 ->where('email', $request->email)->get();
 
+            $user_agent = $request->server('HTTP_USER_AGENT');
+            $ip_client = $request->getClientIp() !== '127.0.0.1' ? $request->getClientIp() : '103.147.8.112';
+            $geo = Http::get("http://ip-api.com/json/{$ip_client}")->json();
+
+            // var_dump($geo);
+            // die;
 
             if (count($user) === 0) {
                 return response()->json([
@@ -113,6 +119,20 @@ class LoginController extends Controller
                         $user_login->last_login = Carbon::now();
                         $user_login->save();
                         $user_id = $user_login->id;
+
+                        $user_for_profile_query = User::with('profiles')->findOrFail($user_id);
+                        $user_profile_id = $user_for_profile_query->profiles[0]->id;
+                        $user_profile = Profile::findOrFail($user_profile_id);
+                        // var_dump($user_profile);
+                        $user_profile->user_agent = $user_agent;
+                        $user_profile->city = $geo['city'];
+                        $user_profile->province = $geo['regionName'];
+                        $user_profile->country = $geo['country'];
+                        $user_profile->country_flag = "https://flagsapi.com/{$geo['countryCode']}/shiny/64.png";
+                        $user_profile->longitude = $geo['lon'];
+                        $user_profile->latitude = $geo['lat'];
+                        $user_profile->ip_address = $ip_client;
+                        $user_profile->save();
 
                         $logins = new Login;
                         $logins->user_id = $user_id;
