@@ -127,7 +127,7 @@ class UserManagementController extends Controller
 
                     $extension = $request->file('photo')->getClientOriginalExtension();
 
-                    $filenametostore = $trimName . '_' . Str::random(12) . '_' . time() . '.' . $extension;
+                    $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
 
                     $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
                     $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
@@ -280,7 +280,7 @@ class UserManagementController extends Controller
 
                 $extension = $request->file('photo')->getClientOriginalExtension();
 
-                $filenametostore = $trimName . '_' . Str::random(12) . '_' . time() . '.' . $extension;
+                $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
 
                 $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
                 $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
@@ -306,7 +306,7 @@ class UserManagementController extends Controller
                     $path = 'thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = strtoupper($user_update->name[0]);
-                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                    $newAvatarName = rand(12, 34353) . time() . '.png';
                     $dest = $path . $newAvatarName;
 
                     $createAvatar = makeAvatar($fontPath, $dest, $char);
