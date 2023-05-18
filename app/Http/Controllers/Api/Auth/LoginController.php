@@ -78,20 +78,22 @@ class LoginController extends Controller
                             'data' => $user_activation
                         ]);
                     } else {
+                        // var_dump($user[0]->email);
+                        // die;
                         if ($this->forbidenIsUserLogin($user[0]->is_login)) {
-
                             $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
                             $details = [
                                 'name' => $user[0]->name,
                                 'title' => "Seseorang, baru saja mencoba mengakses akun Anda!",
-                                'message' => "Seseorang mencoba mengakses akun anda melalui alamat email : {$user[0]->email}",
+                                'message' => "Seseorang mencoba mengakses akun anda melalui <br/> alamat email : {$user[0]->email} <br/> Device : {$user_agent}",
                                 'url' => "http://localhost:3000/user/settings/security/{$user[0]->id}",
                             ];
 
                             Mail::to($user[0]->email)->send(new EmailNotificationSecurity($details));
 
                             $data_event = [
-                                'notif' => "Seseorang, baru saja mencoba mengakses akun Anda!"
+                                'notif' => "Seseorang, baru saja mencoba mengakses akun Anda!",
+                                'emailForbaiden' => $user[0]->email,
                             ];
 
                             event(new EventNotification($data_event));
