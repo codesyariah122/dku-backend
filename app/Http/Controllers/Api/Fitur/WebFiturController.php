@@ -208,13 +208,20 @@ class WebFiturController extends Controller
 
             switch ($type) {
                 case "TOTAL_USER":
+                    $msg_title = 'User Data';
                     $totalData = User::whereNull('deleted_at')
                         ->get();
                     $totals = count($totalData);
                     break;
 
                 case 'CATEGORY_CAMPAIGN':
+                    $msg_title = 'Category Campaign Data';
                     $totalData = CategoryCampaign::whereNull('deleted_at')->get();
+                    $totals = count($totalData);
+                    break;
+                case "TOTAL_CAMPAIGN":
+                    $msg_title = 'Campaign Data';
+                    $totalData = Campaign::whereNull('deleted_at')->get();
                     $totals = count($totalData);
                     break;
 
@@ -224,7 +231,7 @@ class WebFiturController extends Controller
 
             return response()
                 ->json([
-                    'message' => "Total {$type}",
+                    'message' => "Total {$msg_title}",
                     'total' => $totals
                 ]);
         } catch (\Throwable $th) {
@@ -261,7 +268,7 @@ class WebFiturController extends Controller
                 $filenametostore = $filename . '_' . time() . '.' . $extension;
 
                 $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
-                $thumbPath = public_path() . '/thumbnail_images/' . $filenametostore;
+                $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
 
                 if ($user_photo !== '' && $user_photo !== NULL) {
                     $old_photo = public_path() . '/' . $user_photo;
@@ -271,7 +278,7 @@ class WebFiturController extends Controller
                 Image::make($thumbImage)->save($thumbPath);
                 // $file = $image->store(trim(preg_replace('/\s+/', '', trim(preg_replace('/\s+/', '_', strtolower($request->name))))) . '/thumbnail', 'public');
                 $new_profile = Profile::findOrFail($update_user->profiles[0]->id);
-                $new_profile->photo = "thumbnail_images/" . $filenametostore;
+                $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 $new_profile->save();
 
                 $profile_has_update = Profile::with('users')->findOrFail($update_user->profiles[0]->id);

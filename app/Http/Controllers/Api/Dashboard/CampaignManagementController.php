@@ -120,7 +120,7 @@ class CampaignManagementController extends Controller
             $campaign_barcode->save();
 
             $data_event = [
-                'notif' => "{$new_campaign->name}, berhasil ditambahkan!",
+                'notif' => "{$new_campaign->title}, berhasil ditambahkan!",
                 'data' => $new_campaign
             ];
 

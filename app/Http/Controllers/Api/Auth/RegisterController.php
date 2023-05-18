@@ -29,6 +29,13 @@ class RegisterController extends Controller
         $this->email_domain = new UserHelpers;
     }
 
+    public function initials($name)
+    {
+        preg_match('/(?:\w+\. )?(\w+).*?(\w+)(?: \w+\.)?$/', $name, $result);
+        $initial = strtoupper($result[1][0] . $result[2][0]);
+        return $initial;
+    }
+
     public function register(Request $request)
     {
         try {
@@ -63,9 +70,10 @@ class RegisterController extends Controller
             $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name)));
 
             // Make Profile avatar
+            $initial = $this->initials($user->name);
             $path = 'thumbnail_images/users/';
             $fontPath = public_path('fonts/Oliciy.ttf');
-            $char = strtoupper($user->name[0]);
+            $char = $initial;
             $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
             $dest = $path . $newAvatarName;
 

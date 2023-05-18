@@ -16,12 +16,20 @@ use App\Helpers\UserHelpers;
 
 class UserManagementController extends Controller
 {
+    private $helpers;
+
     /**
      * Display a listing of the resource.
-     *
+     * @author: Puji Ermanto <puuji.ermanto@gmail.com>
      * @return \Illuminate\Http\Response
      */
-    private $helpers;
+
+    public function initials($name)
+    {
+        preg_match('/(?:\w+\. )?(\w+).*?(\w+)(?: \w+\.)?$/', $name, $result);
+        $initial = strtoupper($result[1][0] . $result[2][0]);
+        return $initial;
+    }
 
     public function __construct()
     {
@@ -135,9 +143,10 @@ class UserManagementController extends Controller
 
                     $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 } else {
+                    $initial = $this->initials($new_user->name);
                     $path = 'thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
-                    $char = strtoupper($new_user->name[0]);
+                    $char = $initial;
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
                     $dest = $path . $newAvatarName;
 
@@ -258,6 +267,7 @@ class UserManagementController extends Controller
 
             $update_user = User::findOrFail($user->id);
             $update_user->name = $request->name ? $request->name : $user->name;
+
             $update_user->email = $request->email ? $request->email : $user->email;
             $update_user->phone = $request->phone ? $request->phone : $user->phone;
             $update_user->status = $request->status ? $request->status : $user->status;
@@ -290,9 +300,14 @@ class UserManagementController extends Controller
                 $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
             } else {
                 if ($request->name) {
+                    if ($update_user->profiles[0]->photo !== "" && $update_user->profiles[0]->photo !== NULL) {
+                        $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
+                        unlink($old_photo);
+                    }
+                    $initial = $this->initials($update_user->name);
                     $path = 'thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
-                    $char = strtoupper($update_user->name[0]);
+                    $char = $initial;
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
                     $dest = $path . $newAvatarName;
 
@@ -327,6 +342,14 @@ class UserManagementController extends Controller
             $update_profile->save();
 
             $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
+            $type_data_update = $update_profile->photo !== $new_user_updated[0]->profiles[0]->photo ? 'photo' : 'data';
+
+            $data_event = [
+                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
+                'data' => $new_user_updated
+            ];
+
+            event(new EventNotification($data_event));
 
             return response()->json([
                 'message' => "Update user {$user->name}, berhasil",

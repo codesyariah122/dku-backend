@@ -13,7 +13,7 @@ if (!function_exists('makeAvatar')) {
         $blue = rand(0, 255);
         imagecolorallocate($image, $red, $green, $blue);
         $textcolor = imagecolorallocate($image, 255, 255, 255);
-        imagettftext($image, 100, 0, 50, 150, $textcolor, $fontPath, $char);
+        imagettftext($image, 50, 0, 50, 125, $textcolor, $fontPath, $char);
         imagepng($image, $path);
         imagedestroy($image);
         return $path;

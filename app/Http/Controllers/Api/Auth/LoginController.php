@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\{Hash, Validator, Http};
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\{User, Profile, Login};
 use App\Helpers\UserHelpers;
 use App\Events\EventNotification;
+use App\Mail\EmailNotificationSecurity;
 
 
 class LoginController extends Controller
@@ -20,10 +22,11 @@ class LoginController extends Controller
      * @param  mixed $request
      * @return void
      */
-    private $helper;
+    private $helper, $email_domain;
 
     public function __construct()
     {
+        $this->email_domain = new UserHelpers;
         $this->helper = new UserHelpers;
     }
 
@@ -70,7 +73,16 @@ class LoginController extends Controller
                         ]);
                     } else {
                         if ($this->forbidenIsUserLogin($user[0]->is_login)) {
+
                             $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
+                            $details = [
+                                'name' => $user[0]->name,
+                                'title' => "Seseorang, baru saja mencoba mengakses akun Anda!",
+                                'message' => "Seseorang mencoba mengakses akun anda melalui alamat email : {$user[0]->email}",
+                                'url' => "http://localhost:3000/user/settings/security/{$user[0]->id}",
+                            ];
+
+                            Mail::to($user[0]->email)->send(new EmailNotificationSecurity($details));
 
                             $data_event = [
                                 'notif' => "Seseorang, baru saja mencoba mengakses akun Anda!"
