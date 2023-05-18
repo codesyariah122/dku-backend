@@ -62,6 +62,18 @@ class RegisterController extends Controller
             $user_profile = new Profile;
             $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name)));
 
+            // Make Profile avatar
+            $path = 'thumbnail_images/users/';
+            $fontPath = public_path('fonts/Oliciy.ttf');
+            $char = strtoupper($user->name[0]);
+            $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+            $dest = $path . $newAvatarName;
+
+            $createAvatar = makeAvatar($fontPath, $dest, $char);
+            $photo = $createAvatar == true ? $newAvatarName : '';
+
+            // store into database field photo
+            $user_profile->photo = $path . $photo;
             $user_profile->about = $request->about ? $request->about : null;
             $user_profile->save();
             $profile_id = $user_profile->id;

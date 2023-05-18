@@ -134,7 +134,6 @@ class UserManagementController extends Controller
                 } else {
                     $path = 'thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
-                    $trimName = trim(preg_replace('/\s+/', ' ', strtoupper($new_user->name)));
                     $char = strtoupper($new_user->name[0]);
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
                     $dest = $path . $newAvatarName;
@@ -142,6 +141,7 @@ class UserManagementController extends Controller
                     $createAvatar = makeAvatar($fontPath, $dest, $char);
                     $photo = $createAvatar == true ? $newAvatarName : '';
 
+                    // store into database field photo
                     $new_profile->photo = $path . $photo;
                 }
 
