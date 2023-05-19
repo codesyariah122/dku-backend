@@ -85,8 +85,9 @@ class LoginController extends Controller
                             $details = [
                                 'name' => $user[0]->name,
                                 'title' => "Seseorang, baru saja mencoba mengakses akun Anda!",
-                                'message' => "Seseorang mencoba mengakses akun anda melalui <br/> alamat email : {$user[0]->email} <br/> Device : {$user_agent}",
-                                'url' => "http://localhost:3000/user/settings/security/{$user[0]->id}",
+                                'message' => "Seseorang mencoba mengakses akun anda melalui alamat email : {$user[0]->email}",
+                                'url' => "https://dev.dompetkebaikanumat.com/user/settings/security/{$user[0]->id}",
+                                'user_agent' => $user_agent
                             ];
 
                             Mail::to($user[0]->email)->send(new EmailNotificationSecurity($details));

@@ -5,6 +5,8 @@
 
 Dear {{ $details['name'] }}, {{ $details['message'] }}
 
+Device : {{$details['user_agent']}}
+
 @component('mail::button', ['url' => $details['url']])
     Check Your Activity
 @endcomponent
