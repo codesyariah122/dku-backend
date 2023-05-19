@@ -9,7 +9,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $owner = Profile::whereUsername('dku_webadmin')->with('users')->get();
+        $owner = Profile::whereId(1)->with('users')->get();
         $context = [
             'seo' => [
                 'title' => 'DKU WEB',

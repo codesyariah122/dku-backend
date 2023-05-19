@@ -155,6 +155,7 @@ class LoginController extends Controller
                         $data_event = [
                             'type' => 'login',
                             'email' => $user[0]->email,
+                            'role' => $user[0]->role,
                             'notif' => "{$user[0]->name}, baru saja login!",
                             'data' => $userIsLogin
                         ];
