@@ -336,46 +336,6 @@ class WebFiturController extends Controller
             $update_profile = Profile::findOrFail($user_profiles->profiles[0]->id);
             $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', $request->name)) : $user_profiles->profiles[0]->username;
 
-            if ($request->name) {
-
-                $user_image_path = url($update_user->profiles[0]->photo);
-                $check_photo_db = env('APP_URL') . '/' . $update_user->profiles[0]->photo;
-
-                if ($user_image_path !== $check_photo_db) {
-                    $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
-                    unlink($old_photo);
-
-                    $initial = $this->initials($update_user->name);
-                    $path = 'thumbnail_images/users/';
-                    $fontPath = public_path('fonts/Oliciy.ttf');
-                    $char = $initial;
-                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
-                    $dest = $path . $newAvatarName;
-
-                    $createAvatar = makeAvatar($fontPath, $dest, $char);
-                    $photo = $createAvatar == true ? $newAvatarName : '';
-
-                    // store into database field photo
-                    $update_profile->photo = $path . $photo;
-                } else {
-                    $update_profile->photo = $update_user->profiles[0]->photo;
-                }
-            } else {
-                $user_update = User::findOrFail($id);
-                $path = 'thumbnail_images/users/';
-                $fontPath = public_path('fonts/Oliciy.ttf');
-                $char = strtoupper($user_update->name[0]);
-                $newAvatarName = rand(12, 34353) . time() . '.png';
-                $dest = $path . $newAvatarName;
-
-                $createAvatar = makeAvatar($fontPath, $dest, $char);
-                $photo = $createAvatar == true ? $newAvatarName : '';
-
-                // store into database field photo
-                $update_profile->photo = $path . $photo;
-            }
-
-
             $update_profile->about = $request->about ? $request->about : $user_profiles->profiles[0]->about;
             $update_profile->address = $request->address ? $request->address : $user_profiles->profiles[0]->address;
             $update_profile->post_code = $request->post_code ? $request->post_code : $user_profiles->profiles[0]->post_code;
