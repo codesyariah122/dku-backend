@@ -326,6 +326,22 @@ class WebFiturController extends Controller
         try {
             $prepare_profile = Profile::whereUsername($username)->with('users')->first();
             $check_avatar = explode('_', $prepare_profile->photo);
+
+            // var_dump($prepare_profile->users[0]->id);
+            // die;
+
+            $handle_duplicate = User::whereName($request->name)->get();
+
+            // echo count($handle_duplicate);
+            // die;
+
+            if (count($handle_duplicate) > 0) {
+                return response()->json([
+                    'duplicate' => true,
+                    'message' => "Error update {$request->name}, this data is duplicate"
+                ]);
+            }
+
             $user_id = $prepare_profile->users[0]->id;
             $update_user = User::findOrFail($user_id);
             $update_user->name = $request->name ? $request->name : $update_user->name;
@@ -383,6 +399,7 @@ class WebFiturController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
+                'error' => true,
                 'message' => $th->getMessage()
             ]);
         }
