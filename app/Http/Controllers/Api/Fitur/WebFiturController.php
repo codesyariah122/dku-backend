@@ -332,9 +332,6 @@ class WebFiturController extends Controller
 
             $handle_duplicate = User::whereName($request->name)->get();
 
-            // echo count($handle_duplicate);
-            // die;
-
             if (count($handle_duplicate) > 0) {
                 return response()->json([
                     'duplicate' => true,

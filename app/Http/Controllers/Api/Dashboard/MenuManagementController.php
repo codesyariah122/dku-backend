@@ -79,6 +79,7 @@ class MenuManagementController extends Controller
             $menu = new Menu;
             $menu->menu = $request->menu;
             $menu->roles = $request->roles;
+            $menu->icon = $request->icon;
             $menu->save();
 
             $data_event = [
