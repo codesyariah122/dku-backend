@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use App\Models\SubMenu;
 use App\Models\Menu;
+use App\Events\MenuSubMenuManagement;
 
 class SubMenuManagementController extends Controller
 {
@@ -81,6 +82,14 @@ class SubMenuManagementController extends Controller
             $sub_menu->roles = json_encode($request->roles);
             $sub_menu->save();
             $sub_menu->menus()->sync($menu_id);
+
+            $data_event = [
+                'type' => 'sub-menu',
+                'notif' => "{$sub_menu->menu}, berhasil ditambahkan!",
+                'data' => $sub_menu
+            ];
+
+            event(new MenuSubMenuManagement($data_event));
 
             $new_menu = Menu::whereId($menu_id)
                 ->with('sub_menus')

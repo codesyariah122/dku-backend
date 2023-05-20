@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Helpers\ContextData;
 use App\Models\{Campaign, User, Profile, CategoryCampaign};
-use App\Events\EventNotification;
+use App\Events\{EventNotification, UpdateProfileEvent};
 use App\Helpers\UserHelpers;
 use Image;
 
@@ -298,11 +298,12 @@ class WebFiturController extends Controller
                 $profile_has_update = Profile::with('users')->findOrFail($update_user->profiles[0]->id);
 
                 $data_event = [
+                    'type' => 'update-photo',
                     'notif' => "{$update_user->name} photo, has been updated!",
                     'data' => $profile_has_update
                 ];
 
-                event(new EventNotification($data_event));
+                event(new UpdateProfileEvent($data_event));
 
                 return response()->json([
                     'message' => 'Profile photo has been updated',
@@ -320,11 +321,13 @@ class WebFiturController extends Controller
         }
     }
 
-    public function update_user_profile(Request $request, $id)
+    public function update_user_profile(Request $request, $username)
     {
         try {
-
-            $update_user = User::findOrFail($id);
+            $prepare_profile = Profile::whereUsername($username)->with('users')->first();
+            $check_avatar = explode('_', $prepare_profile->photo);
+            $user_id = $prepare_profile->users[0]->id;
+            $update_user = User::findOrFail($user_id);
             $update_user->name = $request->name ? $request->name : $update_user->name;
             $update_user->email = $request->email ? $request->email : $update_user->email;
             $update_user->phone = $request->phone ? $request->phone : $update_user->phone;
@@ -336,6 +339,24 @@ class WebFiturController extends Controller
             $update_profile = Profile::findOrFail($user_profiles->profiles[0]->id);
             $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', $request->name)) : $user_profiles->profiles[0]->username;
 
+            if ($check_avatar[2] === "avatar.png") {
+                $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
+                unlink($old_photo);
+
+                $initial = $this->initials($update_user->name);
+                $path = 'thumbnail_images/users/';
+                $fontPath = public_path('fonts/Oliciy.ttf');
+                $char = $initial;
+                $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                $dest = $path . $newAvatarName;
+
+                $createAvatar = makeAvatar($fontPath, $dest, $char);
+                $photo = $createAvatar == true ? $newAvatarName : '';
+
+                $update_profile->photo = $path . $photo;
+            }
+
+
             $update_profile->about = $request->about ? $request->about : $user_profiles->profiles[0]->about;
             $update_profile->address = $request->address ? $request->address : $user_profiles->profiles[0]->address;
             $update_profile->post_code = $request->post_code ? $request->post_code : $user_profiles->profiles[0]->post_code;
@@ -346,6 +367,15 @@ class WebFiturController extends Controller
             $update_profile->save();
 
             $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
+
+            $data_event = [
+                'type' => 'update-profile',
+                'notif' => "{$update_user->name}, has been updated!",
+                'data' => $new_user_updated
+            ];
+
+            event(new UpdateProfileEvent($data_event));
+
 
             return response()->json([
                 'message' => "Update user {$update_user->name}, berhasil",

@@ -200,6 +200,7 @@ class LoginController extends Controller
             $delete_login->delete();
 
             $data_event = [
+                'type' => 'logout',
                 'notif' => "{$user->name}, telah keluar!",
                 'data' => $user
             ];

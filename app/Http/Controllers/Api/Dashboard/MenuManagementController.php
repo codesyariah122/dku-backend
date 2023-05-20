@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use App\Models\{Menu, Roles};
-use App\Events\EventNotification;
+use App\Events\MenuSubMenuManagement;
 
 class MenuManagementController extends Controller
 {
@@ -80,6 +80,14 @@ class MenuManagementController extends Controller
             $menu->menu = $request->menu;
             $menu->roles = $request->roles;
             $menu->save();
+
+            $data_event = [
+                'type' => 'menu',
+                'notif' => "{$menu->menu}, berhasil ditambahkan!",
+                'data' => $menu
+            ];
+
+            event(new MenuSubMenuManagement($data_event));
 
             return response()->json([
                 'message' => 'Added new menu',

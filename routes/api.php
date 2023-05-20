@@ -23,7 +23,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::post('/update-user-with-photo/{id}', [UserManagementController::class, 'update_with_profile_picture']);
 
     // Edit profile user
-    Route::put('/update-profile/{id}', [WebFiturController::class, 'update_user_profile']);
+    Route::put('/update-profile/{username}', [WebFiturController::class, 'update_user_profile']);
 
     // Upload photo
     Route::post('/upload-photo/{id}', [WebFiturController::class, 'upload_profile_picture']);
