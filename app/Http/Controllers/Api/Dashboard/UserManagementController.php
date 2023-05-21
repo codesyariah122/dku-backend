@@ -261,108 +261,108 @@ class UserManagementController extends Controller
                     'error' => true,
                     'message' => 'Request body cannot be empty'
                 ]);
-            } else {
-                $user = User::with('profiles')->findOrFail($id);
-
-                $update_user = User::findOrFail($user->id);
-                $update_user->name = $request->name ? $request->name : $user->name;
-
-                $update_user->email = $request->email ? $request->email : $user->email;
-                $update_user->phone = $request->phone ? $request->phone : $user->phone;
-                $update_user->status = $request->status ? $request->status : $user->status;
-                $update_user->save();
-
-                $update_profile = Profile::findOrFail($user->profiles[0]->id);
-                $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
-                $user_photo = $update_user->profiles[0]->photo;
-
-                if ($request->name && $request->file('photo') !== NULL) {
-                    $image = $request->file('photo');
-
-                    if ($image !== '' && $image !== NULL) {
-                        $extension = $request->file('photo')->getClientOriginalExtension();
-
-                        $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
-
-                        $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
-                        $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
-
-                        if ($user_photo !== '' && $user_photo !== NULL) {
-                            $old_photo = public_path() . '/' . $user_photo;
-                            unlink($old_photo);
-                        }
-
-                        Image::make($thumbImage)->save($thumbPath);
-                        $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
-                    }
-                } else if ($request->name) {
-                    $user_image_path = url($update_user->profiles[0]->photo);
-                    $check_photo_db = env('APP_URL') . '/' . $update_user->profiles[0]->photo;
-
-                    if ($user_image_path !== $check_photo_db) {
-                        $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
-                        unlink($old_photo);
-
-                        $initial = $this->initials($update_user->name);
-                        $path = 'thumbnail_images/users/';
-                        $fontPath = public_path('fonts/Oliciy.ttf');
-                        $char = $initial;
-                        $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
-                        $dest = $path . $newAvatarName;
-
-                        $createAvatar = makeAvatar($fontPath, $dest, $char);
-                        $photo = $createAvatar == true ? $newAvatarName : '';
-
-                        $update_profile->photo = $path . $photo;
-                    } else {
-                        $update_profile->photo = $update_user->profiles[0]->photo;
-                    }
-                } else {
-                    $image = $request->file('photo');
-
-                    if ($image !== '' && $image !== NULL) {
-                        $extension = $request->file('photo')->getClientOriginalExtension();
-
-                        $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
-
-                        $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
-                        $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
-
-                        if ($user_photo !== '' && $user_photo !== NULL) {
-                            $old_photo = public_path() . '/' . $user_photo;
-                            unlink($old_photo);
-                        }
-
-                        Image::make($thumbImage)->save($thumbPath);
-                        $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
-                    }
-                }
-
-                $update_profile->about = $request->about ? $request->about : $update_profile->about;
-                $update_profile->address = $request->address ? $request->address : $update_profile->about;
-                $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;
-                $update_profile->post_code = $request->post_code ? $request->post_code : $update_profile->post_code;
-                $update_profile->city = $request->city ? $request->city : $update_profile->city;
-                $update_profile->district = $request->district ? $request->district : $update_profile->district;
-                $update_profile->province = $request->province ? $request->province : $update_profile->province;
-                $update_profile->country = $request->country ? $request->country : $update_profile->country;
-                $update_profile->save();
-
-                $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
-                $type_data_update = $update_profile->photo !== $new_user_updated[0]->profiles[0]->photo ? 'photo' : 'data';
-
-                $data_event = [
-                    'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
-                    'data' => $new_user_updated
-                ];
-
-                event(new EventNotification($data_event));
-
-                return response()->json([
-                    'message' => "Update user {$user->name}, berhasil",
-                    'data' => $new_user_updated
-                ]);
             }
+
+            $user = User::with('profiles')->findOrFail($id);
+
+            $update_user = User::findOrFail($user->id);
+            $update_user->name = $request->name ? $request->name : $user->name;
+
+            $update_user->email = $request->email ? $request->email : $user->email;
+            $update_user->phone = $request->phone ? $request->phone : $user->phone;
+            $update_user->status = $request->status ? $request->status : $user->status;
+            $update_user->save();
+
+            $update_profile = Profile::findOrFail($user->profiles[0]->id);
+            $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
+            $user_photo = $update_user->profiles[0]->photo;
+
+            if ($request->name !== "" && $request->file('photo') !== NULL) {
+                $image = $request->file('photo');
+
+                if ($image !== '' && $image !== NULL) {
+                    $extension = $request->file('photo')->getClientOriginalExtension();
+
+                    $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
+
+                    $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
+                    $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
+
+                    if ($user_photo !== '' && $user_photo !== NULL) {
+                        $old_photo = public_path() . '/' . $user_photo;
+                        unlink($old_photo);
+                    }
+
+                    Image::make($thumbImage)->save($thumbPath);
+                    $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
+                }
+            } else if ($request->name !== "") {
+                $user_image_path = url($update_user->profiles[0]->photo);
+                $check_photo_db = env('APP_URL') . '/' . $update_user->profiles[0]->photo;
+
+                if ($user_image_path === $check_photo_db) {
+                    $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
+                    unlink($old_photo);
+
+                    $initial = $this->initials($request->name);
+                    $path = 'thumbnail_images/users/';
+                    $fontPath = public_path('fonts/Oliciy.ttf');
+                    $char = $initial;
+                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                    $dest = $path . $newAvatarName;
+
+                    $createAvatar = makeAvatar($fontPath, $dest, $char);
+                    $photo = $createAvatar == true ? $newAvatarName : '';
+
+                    $update_profile->photo = $path . $photo;
+                } else {
+                    $update_profile->photo = $update_user->profiles[0]->photo;
+                }
+            } else {
+                $image = $request->file('photo');
+
+                if ($image !== '' && $image !== NULL) {
+                    $extension = $request->file('photo')->getClientOriginalExtension();
+
+                    $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
+
+                    $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
+                    $thumbPath = public_path() . '/thumbnail_images/users/' . $filenametostore;
+
+                    if ($user_photo !== '' && $user_photo !== NULL) {
+                        $old_photo = public_path() . '/' . $user_photo;
+                        unlink($old_photo);
+                    }
+
+                    Image::make($thumbImage)->save($thumbPath);
+                    $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
+                }
+            }
+
+            $update_profile->about = $request->about ? $request->about : $update_profile->about;
+            $update_profile->address = $request->address ? $request->address : $update_profile->about;
+            $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;
+            $update_profile->post_code = $request->post_code ? $request->post_code : $update_profile->post_code;
+            $update_profile->city = $request->city ? $request->city : $update_profile->city;
+            $update_profile->district = $request->district ? $request->district : $update_profile->district;
+            $update_profile->province = $request->province ? $request->province : $update_profile->province;
+            $update_profile->country = $request->country ? $request->country : $update_profile->country;
+            $update_profile->save();
+
+            $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
+            $type_data_update = $update_profile->photo !== $new_user_updated[0]->profiles[0]->photo ? 'photo' : 'data';
+
+            $data_event = [
+                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
+                'data' => $new_user_updated
+            ];
+
+            event(new EventNotification($data_event));
+
+            return response()->json([
+                'message' => "Update user {$user->name}, berhasil",
+                'data' => $new_user_updated
+            ]);
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,
