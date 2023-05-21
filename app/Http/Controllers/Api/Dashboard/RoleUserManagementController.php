@@ -33,6 +33,7 @@ class RoleUserManagementController extends Controller
     {
         try {
             $user_roles = Roles::whereNull('deleted_at')
+                ->with('users')
                 ->paginate(10);
             return response()->json([
                 'message' => 'List user roles',
