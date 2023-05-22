@@ -109,6 +109,7 @@ class RegisterController extends Controller
                 ->get();
 
             $data_event = [
+                'type' => 'register',
                 'notif' => "{$new_user[0]->name}, berhasil mendaftar!",
                 'data' => $new_user
             ];
@@ -170,6 +171,7 @@ class RegisterController extends Controller
                 $new_user_active = User::findOrFail($id);
 
                 $data_event = [
+                    'type' => 'activation',
                     'notif' => "{$user_activation->name}, berhasil diaktivasi!",
                     'data' => $user_activation
                 ];

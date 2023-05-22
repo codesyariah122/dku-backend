@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 use App\Models\Roles;
-use App\Events\EventNotification;
+use App\Events\DataManagementEvent;
 
 class RoleUserManagementController extends Controller
 {
@@ -91,11 +90,12 @@ class RoleUserManagementController extends Controller
             $new_roles->save();
 
             $data_event = [
+                'type' => 'added',
                 'notif' => "{$new_roles->name}, berhasil ditambahkan!",
                 'data' => $new_roles
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'message' => 'added roles successfully',
@@ -151,6 +151,32 @@ class RoleUserManagementController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $delete_role = Roles::whereNull('deleted_at')->findOrFail($id);
+
+            if ($delete_role->deleted_at !== NULL) {
+                $delete_role->profiles()->delete();
+            }
+            $delete_role->delete();
+
+            $data_event = [
+                'type' => 'removed',
+                'notif' => "Roles {$delete_role['name']}, success move to trash!",
+                'data' => $delete_role
+            ];
+
+            event(new DataManagementEvent($data_event));
+
+            return response()->json([
+                'success' => true,
+                'message' => "User {$delete_role['name']} success move to trash",
+                'data' => $delete_role
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ]);
+        }
     }
 }

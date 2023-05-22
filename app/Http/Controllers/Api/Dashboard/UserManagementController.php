@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\{User, Profile, UserRole, Roles};
-use App\Events\EventNotification;
+use App\Events\DataManagementEvent;
 use App\Helpers\UserHelpers;
 
 class UserManagementController extends Controller
@@ -175,11 +175,12 @@ class UserManagementController extends Controller
                     ->get();
 
                 $data_event = [
+                    'type' => 'added',
                     'notif' => "{$add_new_user[0]->name}, successfully added!",
                     'data' => $add_new_user
                 ];
 
-                event(new EventNotification($data_event));
+                event(new DataManagementEvent($data_event));
 
                 return response()->json([
                     'success' => true,
@@ -353,11 +354,12 @@ class UserManagementController extends Controller
             $type_data_update = $update_profile->photo !== $new_user_updated[0]->profiles[0]->photo ? 'photo' : 'data';
 
             $data_event = [
+                'type' => 'updated',
                 'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
                 'data' => $new_user_updated
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'message' => "Update user {$user->name}, berhasil",
@@ -396,6 +398,15 @@ class UserManagementController extends Controller
             $update_profile->save();
 
             $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
+            $type_data_update = 'data';
+
+            $data_event = [
+                'type' => 'updated',
+                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
+                'data' => $new_user_updated
+            ];
+
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'message' => "Update user {$user->name}, berhasil",
@@ -426,11 +437,12 @@ class UserManagementController extends Controller
             $delete_user->delete();
 
             $data_event = [
+                'type' => 'removed',
                 'notif' => "{$delete_user['name']}, success move to trash!",
                 'data' => $delete_user
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'success' => true,

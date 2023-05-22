@@ -41,23 +41,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function set_data()
     {
-        // $list_menu = Menu::with('sub_menus')->get();
-
-        // if (count($list_menu) > 0) {
-        //     $gate_data = [];
-        //     foreach ($list_menu as $menu) :
-        //         array_push($gate_data, $menu->route_access);
-        //     endforeach;
-        // } else {
-        //     $gate_data = [
-        //         'user-management',
-        //         'category-campaigns',
-        //         'roles-management',
-        //         'menu-management',
-        //         'submenu-management',
-        //     ];
-        // }
-
         $gate_data = [
             'user-management',
             'category-campaigns-management',
