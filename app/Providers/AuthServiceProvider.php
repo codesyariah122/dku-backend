@@ -44,7 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         $gate_data = [
             'user-management',
             'category-campaigns-management',
-            'campaign-management',
+            'campaigns-management',
             'roles-management',
             'menu-management',
             'submenu-management',

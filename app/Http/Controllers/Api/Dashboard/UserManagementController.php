@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Image;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\{User, Profile, UserRole, Roles};
-use App\Events\DataManagementEvent;
+use App\Events\{DataManagementEvent, UpdateProfileEvent};
 use App\Helpers\UserHelpers;
 
 class UserManagementController extends Controller
@@ -295,7 +296,7 @@ class UserManagementController extends Controller
             if ($request->name !== "" && $request->file('photo') !== NULL) {
                 $image = $request->file('photo');
 
-                if ($image !== '' && $image !== NULL) {
+                if ($image !== '' || $image !== NULL) {
                     $extension = $request->file('photo')->getClientOriginalExtension();
 
                     $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
@@ -312,10 +313,11 @@ class UserManagementController extends Controller
                     $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 }
             } else if ($request->name !== "") {
-                $user_image_path = url($update_user->profiles[0]->photo);
+                $user_image_path = file_exists(public_path($update_user->profiles[0]->photo));
                 $check_photo_db = env('APP_URL') . '/' . $update_user->profiles[0]->photo;
 
-                if ($user_image_path === $check_photo_db) {
+
+                if ($user_image_path) {
                     $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
                     unlink($old_photo);
 
@@ -373,7 +375,7 @@ class UserManagementController extends Controller
                 'data' => $new_user_updated
             ];
 
-            event(new DataManagementEvent($data_event));
+            event(new UpdateProfileEvent($data_event));
 
             return response()->json([
                 'message' => "Update user {$user->name}, berhasil",
@@ -420,7 +422,7 @@ class UserManagementController extends Controller
                 'data' => $new_user_updated
             ];
 
-            event(new DataManagementEvent($data_event));
+            event(new UpdateProfileEvent($data_event));
 
             return response()->json([
                 'message' => "Update user {$user->name}, berhasil",

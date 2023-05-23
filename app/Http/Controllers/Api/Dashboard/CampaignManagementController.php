@@ -9,7 +9,7 @@ use Image;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use App\Models\{Campaign, CategoryCampaign};
-use App\Events\EventNotification;
+use App\Events\{EventNotification, DataManagementEvent};
 
 class CampaignManagementController extends Controller
 {
@@ -22,7 +22,7 @@ class CampaignManagementController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('category-campaigns-management')) return $next($request);
+            if (Gate::allows('campaigns-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'
@@ -33,11 +33,12 @@ class CampaignManagementController extends Controller
     public function index()
     {
         try {
-            $category_campaigns = Campaign::whereNull('deleted_at')
+            $campaigns = Campaign::whereNull('deleted_at')
+                ->orderBy('id', 'DESC')
                 ->paginate(10);
             return response()->json([
                 'message' => 'List data campaigns',
-                'data' => $category_campaigns
+                'data' => $campaigns
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -122,11 +123,12 @@ class CampaignManagementController extends Controller
             $campaign_barcode->save();
 
             $data_event = [
+                'type' => 'added',
                 'notif' => "{$new_campaign->title}, berhasil ditambahkan!",
                 'data' => $new_campaign
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'message' => 'added new campaign successfully',
@@ -186,11 +188,12 @@ class CampaignManagementController extends Controller
             $delete_category = Campaign::findOrFail($id);
             $delete_category->delete();
             $data_event = [
+                'type' => 'removed',
                 'notif' => "{$delete_category->name}, success move to trash, please check trash!",
                 'data' => $delete_category
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'success' => true,
