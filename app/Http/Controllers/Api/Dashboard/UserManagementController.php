@@ -96,10 +96,12 @@ class UserManagementController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * @author: Puji Ermanto <puuji.ermanto@gmail.com>
      */
     public function store(Request $request)
     {
         try {
+
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:25',
                 'email' => 'required|email|unique:users,email',
@@ -115,6 +117,7 @@ class UserManagementController extends Controller
                 'photo' => 'image|mimes:jpg,png,jpeg|max:1048'
                 // 'username' => 'required|string|regex:/\w*$/|unique:profiles,username|max:10',
             ]);
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
@@ -282,7 +285,17 @@ class UserManagementController extends Controller
 
             $user = User::with('profiles')->findOrFail($id);
 
+            /**
+             * @return \Illuminate\Support\Facades\Validation\Validation
+             * @param \Illuminate\Http\Request $request
+             * @author Puji Ermanto <puuji.ermanto@gmail.com>
+             */
+
             $validator = Validator::make($request->all(), [
+                'name' => [
+                    Rule::unique('users')->ignore($id)
+                ],
+
                 'username' => [
                     'required',
                     'string',
