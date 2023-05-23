@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\{User, Profile, UserRole, Roles};
@@ -281,16 +282,29 @@ class UserManagementController extends Controller
 
             $user = User::with('profiles')->findOrFail($id);
 
+            $validator = Validator::make($request->all(), [
+                'username' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('profiles')->ignore($id),
+                ],
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
             $update_user = User::findOrFail($user->id);
             $update_user->name = $request->name ? $request->name : $user->name;
-
             $update_user->email = $request->email ? $request->email : $user->email;
             $update_user->phone = $request->phone ? $request->phone : $user->phone;
             $update_user->status = $request->status ? $request->status : $user->status;
             $update_user->save();
 
             $update_profile = Profile::findOrFail($user->profiles[0]->id);
-            $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
+
+            $update_profile->username = $request->username !== "" ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($update_user->name)));
             $user_photo = $update_user->profiles[0]->photo;
 
             if ($request->name !== "" && $request->file('photo') !== NULL) {
@@ -313,16 +327,17 @@ class UserManagementController extends Controller
                     $update_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 }
             } else if ($request->name !== "") {
+
                 $user_image_path = file_exists(public_path($update_user->profiles[0]->photo));
                 $check_photo_db = env('APP_URL') . '/' . $update_user->profiles[0]->photo;
+                $exist_photo = env('APP_URL') . '/' . $user_photo;
 
-
-                if ($user_image_path) {
+                if ($user_image_path && $check_photo_db === $exist_photo) {
                     $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
                     unlink($old_photo);
 
                     $initial = $this->initials($request->name);
-                    $path = 'thumbnail_images/users/';
+                    $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
@@ -330,11 +345,11 @@ class UserManagementController extends Controller
 
                     $createAvatar = makeAvatar($fontPath, $dest, $char);
                     $photo = $createAvatar == true ? $newAvatarName : '';
-
-                    $update_profile->photo = $path . $photo;
+                    $save_path = 'thumbnail_images/users/';
+                    $update_profile->photo = $save_path . $photo;
                 } else {
                     $initial = $this->initials($request->name);
-                    $path = 'thumbnail_images/users/';
+                    $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
@@ -343,7 +358,8 @@ class UserManagementController extends Controller
                     $createAvatar = makeAvatar($fontPath, $dest, $char);
                     $photo = $createAvatar == true ? $newAvatarName : '';
                     // $update_profile->photo = $update_user->profiles[0]->photo;
-                    $update_profile->photo = $path . $photo;
+                    $save_path = 'thumbnail_images/users/';
+                    $update_profile->photo = $save_path . $photo;
                 }
             } else {
                 $image = $request->file('photo');
@@ -366,6 +382,7 @@ class UserManagementController extends Controller
                 }
             }
 
+
             $update_profile->about = $request->about ? $request->about : $update_profile->about;
             $update_profile->address = $request->address ? $request->address : $update_profile->about;
             $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;
@@ -375,6 +392,7 @@ class UserManagementController extends Controller
             $update_profile->province = $request->province ? $request->province : $update_profile->province;
             $update_profile->country = $request->country ? $request->country : $update_profile->country;
             $update_profile->save();
+
 
             $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
             $type_data_update = $update_profile->photo !== $new_user_updated[0]->profiles[0]->photo ? 'photo' : 'data';
@@ -421,23 +439,29 @@ class UserManagementController extends Controller
             $update_profile->district = $request->district ? $request->district : $update_profile->district;
             $update_profile->province = $request->province ? $request->province : $update_profile->province;
             $update_profile->country = $request->country ? $request->country : $update_profile->country;
-            $update_profile->save();
+            if ($update_profile->save()) {
 
-            $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
-            $type_data_update = 'data';
+                $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
+                $type_data_update = 'data';
 
-            $data_event = [
-                'type' => 'updated',
-                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
-                'data' => $new_user_updated
-            ];
+                $data_event = [
+                    'type' => 'updated',
+                    'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
+                    'data' => $new_user_updated
+                ];
 
-            event(new UpdateProfileEvent($data_event));
+                event(new UpdateProfileEvent($data_event));
 
-            return response()->json([
-                'message' => "Update user {$user->name}, berhasil",
-                'data' => $new_user_updated
-            ]);
+                return response()->json([
+                    'message' => "Update user {$user->name}, berhasil",
+                    'data' => $new_user_updated
+                ]);
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'messge' => 'Duplicate username field !!'
+                ]);
+            }
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,
