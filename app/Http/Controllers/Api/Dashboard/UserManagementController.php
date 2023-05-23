@@ -285,12 +285,6 @@ class UserManagementController extends Controller
 
             $user = User::with('profiles')->findOrFail($id);
 
-            /**
-             * @return \Illuminate\Support\Facades\Validation\Validation
-             * @param \Illuminate\Http\Request $request
-             * @author Puji Ermanto <puuji.ermanto@gmail.com>
-             */
-
             $validator = Validator::make($request->all(), [
                 'name' => [
                     Rule::unique('users')->ignore($id)
