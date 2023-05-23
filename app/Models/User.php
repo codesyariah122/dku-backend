@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Roles');
     }
 
+    public function campaigns()
+    {
+        return $this->belongsToMany('App\Models\Campaign');
+    }
+
     public function user_activations()
     {
         return $this->belongsToMany('App\Models\UserActivation');

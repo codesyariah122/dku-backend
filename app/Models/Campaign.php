@@ -13,6 +13,11 @@ class Campaign extends Model
 
     protected $table = 'campaigns';
 
+    public function users()
+    {
+        return $this->belongsToMany('App\Models\User');
+    }
+
     public function category_campaigns()
     {
         return $this->belongsToMany('App\Models\CategoryCampaign');

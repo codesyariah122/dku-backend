@@ -107,13 +107,15 @@ class CampaignManagementController extends Controller
                 $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
                 $new_campaign->banner = $file;
             }
-
+            $new_campaign->author = $request->user()->name;
+            $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
             $new_campaign->save();
 
             $category_campaign = CategoryCampaign::findOrFail($req['category_campaign']);
 
             $new_campaign->category_campaigns()->sync($category_campaign->id);
+            $new_campaign->users()->sync($request->user()->id);
 
             $campaign_barcode = Campaign::findOrFail($new_campaign->id);
             $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
