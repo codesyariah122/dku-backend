@@ -333,7 +333,17 @@ class UserManagementController extends Controller
 
                     $update_profile->photo = $path . $photo;
                 } else {
-                    $update_profile->photo = $update_user->profiles[0]->photo;
+                    $initial = $this->initials($request->name);
+                    $path = 'thumbnail_images/users/';
+                    $fontPath = public_path('fonts/Oliciy.ttf');
+                    $char = $initial;
+                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                    $dest = $path . $newAvatarName;
+
+                    $createAvatar = makeAvatar($fontPath, $dest, $char);
+                    $photo = $createAvatar == true ? $newAvatarName : '';
+                    // $update_profile->photo = $update_user->profiles[0]->photo;
+                    $update_profile->photo = $path . $photo;
                 }
             } else {
                 $image = $request->file('photo');
