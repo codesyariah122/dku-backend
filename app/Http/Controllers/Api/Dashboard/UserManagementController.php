@@ -44,14 +44,28 @@ class UserManagementController extends Controller
         $this->helpers = new UserHelpers;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $users = User::whereNull('deleted_at')
-                ->with('profiles')
-                ->with('roles')
-                ->orderBy('id', 'DESC')
-                ->paginate(5);
+            $user_type = $request->query('role');
+
+            if ($user_type == 'USER') {
+                $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->whereRole(3)
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+            } else {
+                $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->whereIn('role', [1, 2])
+                    ->orderBy('id', 'DESC')
+                    ->paginate(5);
+            }
 
             return response()->json([
                 'message' => 'User data lists',

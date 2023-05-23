@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Fitur;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Helpers\ContextData;
 use App\Models\{Campaign, User, Profile, CategoryCampaign};
 use App\Events\{EventNotification, UpdateProfileEvent};
@@ -151,10 +152,11 @@ class WebFiturController extends Controller
                 case 'CAMPAIGN_DATA':
                     $deleted = Campaign::onlyTrashed()
                         ->where('id', $id)->first();
-                    // $deleted->categories()->delete();
-                    if ($deleted->banner !== "" && $deleted->banner !== NULL) {
-                        $old_photo = public_path() . '/' . $deleted->banner;
-                        unlink($old_photo);
+
+                    $file_path = $deleted->banner;
+
+                    if (Storage::exists($file_path)) {
+                        Storage::disk('public')->delete($file_path);
                     }
                     $deleted->forceDelete();
 
