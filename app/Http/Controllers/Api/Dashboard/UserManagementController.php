@@ -160,7 +160,7 @@ class UserManagementController extends Controller
                     $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 } else {
                     $initial = $this->initials($new_user->name);
-                    $path = 'thumbnail_images/users/';
+                    $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
                     $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
@@ -168,9 +168,9 @@ class UserManagementController extends Controller
 
                     $createAvatar = makeAvatar($fontPath, $dest, $char);
                     $photo = $createAvatar == true ? $newAvatarName : '';
-
                     // store into database field photo
-                    $new_profile->photo = $path . $photo;
+                    $save_path = 'thumbnail_images/users/';
+                    $new_profile->photo = $save_path . $photo;
                 }
 
 
