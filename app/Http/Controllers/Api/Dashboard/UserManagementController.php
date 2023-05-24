@@ -285,7 +285,6 @@ class UserManagementController extends Controller
                 ]);
             }
 
-            $user = User::with('profiles')->findOrFail($id);
 
             /**
              * @return \Illuminate\Support\Facades\Validation\Validation
@@ -293,7 +292,7 @@ class UserManagementController extends Controller
              * @author Puji Ermanto <puuji.ermanto@gmail.com>
              */
 
-            $username = trim(preg_replace('/\s+/', '_', strtolower($request->name)));
+            $username = $request->username !== NULL ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($request->name)));
 
             $existingProfile = Profile::where('username', $username)->first();
 
@@ -321,6 +320,8 @@ class UserManagementController extends Controller
             // if ($validator->fails()) {
             //     return response()->json($validator->errors(), 400);
             // }
+
+            $user = User::with('profiles')->findOrFail($id);
 
             $update_user = User::findOrFail($user->id);
             $update_user->name = $request->name ? $request->name : $user->name;
@@ -457,7 +458,7 @@ class UserManagementController extends Controller
             $update_user->save();
 
             $update_profile = Profile::findOrFail($user->profiles[0]->id);
-            $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
+            $update_profile->username = $request->name !== NULL ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
             $update_profile->about = $request->about ? $request->about : $update_profile->about;
             $update_profile->address = $request->address ? $request->address : $update_profile->about;
             $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;
