@@ -108,6 +108,7 @@ class CampaignManagementController extends Controller
                 $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
                 $new_campaign->banner = $file;
             }
+            $new_campaign->publish = 1;
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
