@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Image;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -285,22 +287,40 @@ class UserManagementController extends Controller
 
             $user = User::with('profiles')->findOrFail($id);
 
-            $validator = Validator::make($request->all(), [
-                'name' => [
-                    Rule::unique('users')->ignore($id)
-                ],
+            /**
+             * @return \Illuminate\Support\Facades\Validation\Validation
+             * @param \Illuminate\Http\Request $request
+             * @author Puji Ermanto <puuji.ermanto@gmail.com>
+             */
 
-                'username' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    Rule::unique('profiles')->ignore($id),
-                ],
-            ]);
+            $username = trim(preg_replace('/\s+/', '_', strtolower($request->name)));
 
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
+            $existingProfile = Profile::where('username', $username)->first();
+
+            if ($existingProfile) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Duplicate entry: ' . $username,
+                    'data' => $existingProfile
+                ], 409);
             }
+
+            // $validator = Validator::make($request->all(), [
+            //     'name' => [
+            //         Rule::unique('users')->ignore($id)
+            //     ],
+
+            //     'username' => [
+            //         'required',
+            //         'string',
+            //         'max:255',
+            //         Rule::unique('profiles')->ignore($id),
+            //     ],
+            // ]);
+
+            // if ($validator->fails()) {
+            //     return response()->json($validator->errors(), 400);
+            // }
 
             $update_user = User::findOrFail($user->id);
             $update_user->name = $request->name ? $request->name : $user->name;
@@ -309,9 +329,9 @@ class UserManagementController extends Controller
             $update_user->status = $request->status ? $request->status : $user->status;
             $update_user->save();
 
-            $update_profile = Profile::findOrFail($user->profiles[0]->id);
 
-            $update_profile->username = $request->username !== "" ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($update_user->name)));
+            $update_profile = Profile::findOrFail($user->profiles[0]->id);
+            $update_profile->username = $username;
             $user_photo = $update_user->profiles[0]->photo;
 
             if ($request->name !== "" && $request->file('photo') !== NULL) {
