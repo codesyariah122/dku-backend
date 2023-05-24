@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\ContextData;
-use App\Models\{Campaign, User, Profile, CategoryCampaign};
+use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign};
 use App\Events\{EventNotification, UpdateProfileEvent};
-use App\Helpers\UserHelpers;
+use App\Helpers\{UserHelpers, WebFeatureHelpers, FeatureHelpers};
 use Image;
 
 class WebFiturController extends Controller
@@ -81,8 +81,23 @@ class WebFiturController extends Controller
                     $restored_user = User::withTrashed()
                         ->where('id', $id);
                     $restored_user->restore();
+                    $restored_user->profiles()->restore();
                     $restored = User::findOrFail($id);
+                    break;
 
+                case 'ROLE_USER':
+                    $restored_role = Roles::withTrashed()
+                        ->where('id', $id);
+                    $restored_users = User::withTrashed()
+                        ->whereRole($id)->get();
+
+                    foreach ($restored_users as $user) :
+                        $user->restore();
+                    endforeach;
+
+                    $restored_role->restore();
+                    $restored = Roles::with('users')
+                        ->findOrFail($id);
                     break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
@@ -92,6 +107,7 @@ class WebFiturController extends Controller
                     $restored = CategoryCampaign::findOrFail($id);
 
                     break;
+
                 case 'CAMPAIGN_DATA':
                     $restored_campaign = Campaign::onlyTrashed()
                         ->where('id', $id);
@@ -116,7 +132,10 @@ class WebFiturController extends Controller
                 'data' => $restored
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage(),
+            ]);
         }
     }
 
@@ -211,6 +230,32 @@ class WebFiturController extends Controller
         }
     }
 
+    public function totalDataSendResponse($data)
+    {
+        switch ($data['type']):
+            case 'TOTAL_USER':
+                return response()->json([
+                    'message' => $data['message'],
+                    'total' => $data['total'],
+                    'data' => $data['users'],
+                ], 200);
+                break;
+            case 'CATEGORY_CAMPAIGN':
+                return response()->json([
+                    'message' => $data['message'],
+                    'total' => $data['total'],
+                ], 200);
+                break;
+            case 'TOTAL_CAMPAIGN':
+                return response()->json([
+                    'message' => $data['message'],
+                    'total' => $data['total'],
+                    'data' => $data['campaigns']
+                ], 200);
+                break;
+        endswitch;
+    }
+
     public function totalData(Request $request)
     {
         try {
@@ -218,49 +263,67 @@ class WebFiturController extends Controller
 
             switch ($type) {
                 case "TOTAL_USER":
-                    $msg_title = 'User Data';
                     $totalData = User::whereNull('deleted_at')
+                        ->where('role', '!=', 3)
                         ->get();
                     $totals = count($totalData);
+                    $user_per_role = new WebFeatureHelpers;
+                    $admin = $user_per_role->get_total_user('ADMIN');
+                    $author = $user_per_role->get_total_user('AUTHOR');
+                    $user = $user_per_role->get_total_user('USER');
+                    $user_online = $user_per_role->user_online();
+                    $sendResponse = [
+                        'type' => 'TOTAL_USER',
+                        'message' => 'Total data user',
+                        'total' => $totals,
+                        'users' => [
+                            'user_online' => $user_online,
+                            'admin_dashboard' => $admin,
+                            'author' => $author,
+                            'user_donation' => $user,
+                        ]
+                    ];
+                    return $this->totalDataSendResponse($sendResponse);
                     break;
 
                 case 'CATEGORY_CAMPAIGN':
                     $msg_title = 'Category Campaign Data';
                     $totalData = CategoryCampaign::whereNull('deleted_at')->get();
                     $totals = count($totalData);
+                    $sendResponse = [
+                        'type' => 'CATEGORY_CAMPAIGN',
+                        'message' => 'Total data campaign',
+                        'total' => $totals
+                    ];
+                    return $this->totalDataSendResponse($sendResponse);
                     break;
+
                 case "TOTAL_CAMPAIGN":
-                    $msg_title = 'Campaign Data';
                     $totalData = Campaign::whereNull('deleted_at')->get();
                     $totals = count($totalData);
+                    $dataCampaign = new WebFeatureHelpers;
+                    $publish = $dataCampaign->publish_campaign();
+                    $most_view = $dataCampaign->most_viewed_campaign();
+                    $sendResponse = [
+                        'type' => 'TOTAL_CAMPAIGN',
+                        'message' => 'Total campaign',
+                        'total' => $totals,
+                        'campaigns' => [
+                            'publish' => $publish,
+                            'most_viewer' => $most_view
+                        ]
+                    ];
+                    return $this->totalDataSendResponse($sendResponse);
                     break;
 
                 default:
                     $totalData = [];
             }
-
-            return response()
-                ->json([
-                    'message' => "Total {$msg_title}",
-                    'total' => $totals
-                ]);
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    public function user_is_online(Request $request)
-    {
-        try {
-            $user_is_online = User::whereIsLogin(1)->get();
-            return response()->json([
-                'message' => 'User is online',
-                'data' => count($user_is_online)
-            ]);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
 
     public function initials($name)
     {
@@ -328,10 +391,6 @@ class WebFiturController extends Controller
         try {
             $prepare_profile = Profile::whereUsername($username)->with('users')->first();
             $check_avatar = explode('_', $prepare_profile->photo);
-
-            // var_dump($prepare_profile->users[0]->id);
-            // die;
-
             $handle_duplicate = User::whereName($request->name)->get();
 
             if (count($handle_duplicate) > 0) {

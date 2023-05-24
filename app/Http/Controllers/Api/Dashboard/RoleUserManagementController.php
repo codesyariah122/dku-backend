@@ -153,10 +153,8 @@ class RoleUserManagementController extends Controller
     {
         try {
             $delete_role = Roles::whereNull('deleted_at')->findOrFail($id);
+            $delete_role->users()->delete();
 
-            if ($delete_role->deleted_at !== NULL) {
-                $delete_role->profiles()->delete();
-            }
             $delete_role->delete();
 
             $data_event = [
