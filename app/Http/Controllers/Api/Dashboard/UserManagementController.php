@@ -507,11 +507,16 @@ class UserManagementController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $delete_user = User::whereNull('deleted_at')->findOrFail($id);
+            $delete_user = User::with('profiles')
+                ->whereNull('deleted_at')
+                ->findOrFail($id);
 
-            if ($delete_user->deleted_at !== NULL) {
-                $delete_user->profiles()->delete();
-            }
+            $profile_id = $delete_user->profiles[0]->id;
+
+            $profile_delete = Profile::whereNull('deleted_at')
+                ->findOrFail($profile_id);
+
+            $profile_delete->delete();
             $delete_user->delete();
 
             $data_event = [

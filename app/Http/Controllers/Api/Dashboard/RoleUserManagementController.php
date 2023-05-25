@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use App\Models\Roles;
+use App\Models\{Roles, User, Profile};
 use App\Events\DataManagementEvent;
 
 class RoleUserManagementController extends Controller
@@ -152,10 +152,28 @@ class RoleUserManagementController extends Controller
     public function destroy($id)
     {
         try {
-            $delete_role = Roles::whereNull('deleted_at')->findOrFail($id);
-            $delete_role->users()->delete();
+            /**
+             * Display a listing of the resource.
+             *@author puji ermanto<pujiermanto@gmail.com>
+             * @return \Illuminate\Http\Response
+             */
+            $delete_role = Roles::with(['users' => function ($query) {
+                return $query->whereNull('deleted_at')->with('profiles')->get();
+            }])
+                ->whereNull('deleted_at')
+                ->findOrFail($id);
+
+            foreach ($delete_role->users as $user) {
+                foreach ($user->profiles as $profile) {
+                    $prepareProfile = Profile::whereNull('deleted_at')
+                        ->findOrFail($profile->id);
+                    $prepareProfile->delete();
+                }
+            }
 
             $delete_role->delete();
+
+            $delete_role->users()->delete();
 
             $data_event = [
                 'type' => 'removed',

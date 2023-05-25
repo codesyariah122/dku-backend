@@ -34,6 +34,7 @@ class CategoryCampaignController extends Controller
     {
         try {
             $category_campaigns = CategoryCampaign::whereNull('deleted_at')
+                ->with('campaigns')
                 ->paginate(10);
             return response()->json([
                 'message' => 'List category campaigns',

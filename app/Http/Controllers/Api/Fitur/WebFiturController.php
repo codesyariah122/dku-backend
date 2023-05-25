@@ -48,6 +48,12 @@ class WebFiturController extends Controller
                         ->paginate(10);
                     break;
 
+                case 'ROLE_USER':
+                    $deleted = Roles::onlyTrashed()
+                        ->with('users')
+                        ->paginate(10);
+                    break;
+
                 case 'CATEGORY_CAMPAIGN_DATA':
                     $deleted = CategoryCampaign::onlyTrashed()
                         ->paginate(10);
@@ -79,24 +85,41 @@ class WebFiturController extends Controller
             switch ($dataType):
                 case 'USER_DATA':
                     $restored_user = User::withTrashed()
-                        ->where('id', $id);
+                        ->with('profiles')
+                        ->findOrFail($id);
                     $restored_user->restore();
                     $restored_user->profiles()->restore();
                     $restored = User::findOrFail($id);
                     break;
 
                 case 'ROLE_USER':
-                    $restored_role = Roles::withTrashed()
-                        ->where('id', $id);
-                    $restored_users = User::withTrashed()
-                        ->whereRole($id)->get();
+                    $restored_role = Roles::with(['users' => function ($user) {
+                        return $user->withTrashed()->with('profiles')->get();
+                    }])
+                        ->withTrashed()
+                        ->findOrFail(intval($id));
 
-                    foreach ($restored_users as $user) :
-                        $user->restore();
-                    endforeach;
+
+                    $prepare_userToProfiles = User::withTrashed()
+                        ->where('role', intval($id))
+                        ->with(['profiles' => function ($query) {
+                            $query->withTrashed();
+                        }])
+                        ->get();
+
+                    foreach ($prepare_userToProfiles as $user) {
+                        foreach ($user->profiles as $profile) {
+                            $profile->restore();
+                        }
+                    }
 
                     $restored_role->restore();
-                    $restored = Roles::with('users')
+                    $restored_role->users()->restore();
+
+
+                    $restored = Roles::with(['users' => function ($query) {
+                        $query->with('profiles');
+                    }])
                         ->findOrFail($id);
                     break;
 
