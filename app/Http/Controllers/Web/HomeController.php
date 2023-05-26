@@ -22,10 +22,11 @@ class HomeController extends Controller
             ],
             'user' => count($owner) > 0 ? $owner : null
         ];
-        return response()->json([
-            env('APP_NAME'),
-            $context['web']['about'],
-            $context['user'][0]['address']
-        ]);
+        // return response()->json([
+        //     env('APP_NAME'),
+        //     $context['web']['about'],
+        //     $context['user'][0]['address']
+        // ]);
+        return view('home.index');
     }
 }

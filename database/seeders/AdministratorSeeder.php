@@ -35,7 +35,7 @@ class AdministratorSeeder extends Seeder
         $administrator_profile = new Profile;
         $administrator_profile->username = trim(preg_replace('/\s+/', '_', strtolower($administrator->name)));
         $initial = $this->initials($administrator->name);
-        $path = 'thumbnail_images/users/';
+        $path = public_path().'/thumbnail_images/users/';
         $fontPath = public_path('fonts/Oliciy.ttf');
         $char = $initial;
         $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
@@ -43,9 +43,9 @@ class AdministratorSeeder extends Seeder
 
         $createAvatar = makeAvatar($fontPath, $dest, $char);
         $photo = $createAvatar == true ? $newAvatarName : '';
-
+        $path_toSave = 'thumbnail_images/users/';
         // store into database field photo
-        $administrator_profile->photo = $path . $photo;
+        $administrator_profile->photo = $path_toSave . $photo;
         $administrator_profile->about = "Dompet Kebaikan Umat merupakan sebuah lembaga filantropi yang bergerak dalam penghimpunan dan pengelolaan dana sosial untuk membantu masyarakat kategori mustahik menjadi masyarakat sejahtera melalui pemberdayaan umat (Empowering Program) dan kemanusiaan. Pemberdayaan bergulir melalui pengelolaan dana infak, sedekah dan wakaf serta dana sosial lainnya yang terkelola secara modern dan Amanah. Bersama Anda #SahabatKU raih amalsholeh dengan jembatan kebaikan dalam menuntaskan permasalahan sosial seperti kesehatan, pendidikan, tanggap bencana, dakwah dan pemberdayaan..";
         $administrator_profile->address = 'Komplek Bandung Indah Raya C-5 No.20, RT.004/RW001, Mekarjaya, Kec. Rancasari, Kota Bandung, Jawa Barat 40292';
         $administrator_profile->city = 'Bandung';
