@@ -64,7 +64,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
 });
 
-Route::middleware('cors')->prefix('v1/auth')->group(function () {
+Route::middleware(['cors'])->prefix('v1/auth')->group(function () {
     Route::post('/registration', [RegisterController::class, 'register']);
     Route::get('/user-inactive/{token}', [UserActivationTokenController::class, 'activation_data']);
     Route::put('/activation/{user_id}', [RegisterController::class, 'activation']);

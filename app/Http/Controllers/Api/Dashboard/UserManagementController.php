@@ -224,6 +224,7 @@ class UserManagementController extends Controller
                 event(new DataManagementEvent($data_event));
 
                 return new UserManagementCollection($users);
+
             } else {
                 return new UserManagementCollection([]);
             }
@@ -241,25 +242,27 @@ class UserManagementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($username)
     {
         try {
-            $user_detail = User::whereId($id)
-            ->with('profiles')
-            ->with('roles')
-            ->get();
+            $user_detail = Profile::whereUsername($username)
+                ->with(['users' => function($query) {
+                    $query->with('roles');
+                }])
+                ->get();
 
-            if (count($user_detail) % 2 == 1) {
+
+            if (count($user_detail) % 2 === 1) {
                 return response()->json([
                     'success' => true,
                     'message' => 'User detail data',
                     'data' => $user_detail
                 ]);
+            } else {                
+                return response()->json([
+                    'message' => 'User not found'
+                ]);
             }
-
-            return response()->json([
-                'message' => 'User not found'
-            ]);
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,

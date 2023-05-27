@@ -20,12 +20,16 @@ class UserManagementCollection extends ResourceCollection
                 return $profile->username;
             });
         });
+        $roles = $users->map(function($user) {
+            return $user->roles;
+        });
 
         return [
             'success' => true,
             'message' => 'User data lists',
             'data' => $users,
-            'profiles' => $profiles
+            'profiles' => $profiles,
+            'roles' => $roles
         ];
     }
 
