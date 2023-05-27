@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Resources\UserManagementCollection;
 use Image;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -35,6 +36,17 @@ class UserManagementController extends Controller
         return $initial;
     }
 
+    private function username($name)
+    {
+        $initials = Str::of($name)->explode(' ')->map(function ($part) {
+            return Str::substr($part, 0, 1);
+        })->implode('');
+
+        $randomNumber = mt_rand(100, 999);
+
+        return $initials . $randomNumber;
+    }
+
     public function __construct()
     {
         $this->middleware('auth:api');
@@ -55,26 +67,23 @@ class UserManagementController extends Controller
 
             if ($user_type == 'USER') {
                 $users = User::whereNull('deleted_at')
-                    ->with('profiles')
-                    ->with('roles')
-                    ->with('logins')
-                    ->whereRole(3)
-                    ->orderBy('id', 'DESC')
-                    ->paginate(10);
+                ->with('profiles')
+                ->with('roles')
+                ->with('logins')
+                ->whereRole(3)
+                ->orderBy('id', 'DESC')
+                ->paginate(10);
             } else {
                 $users = User::whereNull('deleted_at')
-                    ->with('profiles')
-                    ->with('roles')
-                    ->with('logins')
-                    ->whereIn('role', [1, 2])
-                    ->orderBy('id', 'DESC')
-                    ->paginate(5);
+                ->with('profiles')
+                ->with('roles')
+                ->with('logins')
+                ->whereIn('role', [1, 2])
+                ->orderBy('id', 'DESC')
+                ->paginate(5);
             }
 
-            return response()->json([
-                'message' => 'User data lists',
-                'data' => $users
-            ]);
+            return new UserManagementCollection($users);
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,
@@ -103,21 +112,32 @@ class UserManagementController extends Controller
     public function store(Request $request)
     {
         try {
-
             $validator = Validator::make($request->all(), [
-                'name' => 'required|max:25',
+                // 'name' => [
+                //     'required',
+                //     'max:25',
+                //     'string',
+                //     Rule::unique('users')
+                // ],
+                'name' => 'required|max:25|string',
                 'email' => 'required|email|unique:users,email',
                 'password'  => [
                     'required', Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
                 ],
                 'role' => 'required',
                 'status' => 'required',
-                'photo' => 'image|mimes:jpg,png,jpeg|max:1048'
-                // 'username' => 'required|string|regex:/\w*$/|unique:profiles,username|max:10',
+                'photo' => 'image|mimes:jpg,png,jpeg|max:1048',
+                // 'username' => [
+                //     'required',
+                //     'string',
+                //     'max:255',
+                //     Rule::unique('profiles')->ignore($username),
+                // ],
+                'username' => 'unique:profiles,username|max:10',
             ]);
 
             if ($validator->fails()) {
@@ -147,7 +167,7 @@ class UserManagementController extends Controller
                 $new_user->status = $request->status;
                 $new_user->save();
                 $new_profile = new Profile;
-                $new_profile->username = $request->username ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($request->name)));
+                $new_profile->username = $this->username($new_user->name);
 
                 if ($request->file('photo')) {
                     $image = $request->file('photo');
@@ -190,29 +210,22 @@ class UserManagementController extends Controller
                 $role_user->save();
                 // $new_user->roles()->sync($role_user->id);
 
-                $add_new_user = User::whereId($new_user->id)
-                    ->with('profiles')
-                    ->with('roles')
-                    ->get();
+                $users = User::whereId($new_user->id)
+                ->with('profiles')
+                ->with('roles')
+                ->get();
 
                 $data_event = [
                     'type' => 'added',
-                    'notif' => "{$add_new_user[0]->name}, successfully added!",
-                    'data' => $add_new_user
+                    'notif' => "{$users[0]->name}, successfully added!",
+                    'data' => $users
                 ];
 
                 event(new DataManagementEvent($data_event));
 
-                return response()->json([
-                    'success' => true,
-                    'message' => "{$add_new_user[0]->name}, successfully added!",
-                    'data' => $add_new_user
-                ]);
+                return new UserManagementCollection($users);
             } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User roles is not defined!'
-                ]);
+                return new UserManagementCollection([]);
             }
         } catch (\Throwable $th) {
             return response()->json([
@@ -232,9 +245,9 @@ class UserManagementController extends Controller
     {
         try {
             $user_detail = User::whereId($id)
-                ->with('profiles')
-                ->with('roles')
-                ->get();
+            ->with('profiles')
+            ->with('roles')
+            ->get();
 
             if (count($user_detail) % 2 == 1) {
                 return response()->json([
@@ -508,13 +521,13 @@ class UserManagementController extends Controller
     {
         try {
             $delete_user = User::with('profiles')
-                ->whereNull('deleted_at')
-                ->findOrFail($id);
+            ->whereNull('deleted_at')
+            ->findOrFail($id);
 
             $profile_id = $delete_user->profiles[0]->id;
 
             $profile_delete = Profile::whereNull('deleted_at')
-                ->findOrFail($profile_id);
+            ->findOrFail($profile_id);
 
             $profile_delete->delete();
             $delete_user->delete();

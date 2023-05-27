@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Fitur\WebFiturController;
 
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
+
     // User profile
     Route::get('/user-profile', [LoginController::class, 'userProfile']);
 
@@ -63,7 +64,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
 });
 
-Route::prefix('v1/auth')->group(function () {
+Route::middleware('cors')->prefix('v1/auth')->group(function () {
     Route::post('/registration', [RegisterController::class, 'register']);
     Route::get('/user-inactive/{token}', [UserActivationTokenController::class, 'activation_data']);
     Route::put('/activation/{user_id}', [RegisterController::class, 'activation']);
@@ -76,7 +77,8 @@ Route::prefix('v1/auth')->group(function () {
     Route::get('/{provider}/callback', [RedirectProviderController::class, 'handleProviderCallback']);
 });
 
-Route::prefix('v1')->group(function () {
+Route::middleware('cors')->prefix('v1')->group(function () {
+    Route::post('/subscribe', [SubscriberController::class, 'subscribe']);
     Route::get('/test', function () {
         return response()->json([
             'message' => 'test api'
@@ -91,4 +93,3 @@ Route::prefix('v1/web')->group(function () {
 
 
 // Fitur no authentication content
-Route::post('/subscribe', [SubscriberController::class, 'subscribe']);

@@ -51,7 +51,8 @@ class LoginController extends Controller
                 ->where('email', $request->email)->get();
 
             $user_agent = $request->server('HTTP_USER_AGENT');
-            $ip_client = $request->getClientIp() !== '127.0.0.1' ? $request->getClientIp() : '103.147.8.112';
+
+            $ip_client = $request->getClientIp() !== '172.22.0.1' && $request->getClientIp() !== '127.0.0.1' ? $request->getClientIp() : '103.147.8.112';
             $geo = Http::get("http://ip-api.com/json/{$ip_client}")->json();
 
             // var_dump($geo);
