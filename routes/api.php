@@ -71,6 +71,9 @@ Route::middleware(['cors'])->prefix('v1/auth')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:api');
 
+    // User donation login
+    Route::post('/user-dontaion/login', [LoginController::class, 'user_donation_login']);
+
     // provider oauth
     Route::get('/redirect/{provider}', [RedirectProviderController::class, 'redirectToProvider']);
 
