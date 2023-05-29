@@ -18,12 +18,12 @@ class CreateCampaignsTable extends Migration
             $table->string('title');
             $table->string('slug');
             $table->longText('description');
-            $table->unsignedBigInteger('views')->unsigned()->default(0)->nullable();
-            $table->double('donation_target', 10, 2)->unsigned()->default(0)->nullable();
-            $table->enum('is_headline', ['Y', 'N']);
+            // $table->unsignedBigInteger('views')->unsigned()->default(0)->nullable();
+            $table->unsignedBigInteger('donation_target')->unsigned()->default(0)->nullable();
+            $table->enum('is_headline', ['Y', 'N'])->default('N');
             $table->string('banner')->nullable();
             $table->unsignedBigInteger('total_trf')->unsigned()->default(0)->nullable();
-            $table->boolean('publish')->default(false);
+            $table->enum('publish', ['Y', 'N'])->default('N');
             $table->string('barcode')->nullable();
             $table->string('created_by')->nullable();
             $table->string('author')->nullable();

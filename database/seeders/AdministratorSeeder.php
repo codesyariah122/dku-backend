@@ -23,7 +23,7 @@ class AdministratorSeeder extends Seeder
     public function run()
     {
         $administrator = new User;
-        $administrator->name = "Dku_WebAdmin";
+        $administrator->name = "super admin";
         $administrator->email = "dompetkebaikanumat@gmail.com";
         $administrator->phone = "6281770683568";
         // $administrator->roles = json_encode(["ADMIN"]);

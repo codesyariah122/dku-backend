@@ -22,4 +22,9 @@ class Campaign extends Model
     {
         return $this->belongsToMany('App\Models\CategoryCampaign');
     }
+
+    public function viewers()
+    {
+        return $this->belongsToMany('App\Models\Viewer');
+    }
 }

@@ -15,33 +15,33 @@ class WebFeatureHelpers
     {
         switch ($role):
             case 'ADMIN':
-                $total = User::whereNull('deleted_at')
-                    ->whereRole(1)
-                    ->get();
-                return count($total);
-                break;
+            $total = User::whereNull('deleted_at')
+            ->whereRole(1)
+            ->get();
+            return count($total);
+            break;
             case 'AUTHOR':
-                $total = User::whereNull('deleted_at')
-                    ->whereRole(2)
-                    ->get();
-                return count($total);
-                break;
+            $total = User::whereNull('deleted_at')
+            ->whereRole(2)
+            ->get();
+            return count($total);
+            break;
 
             case 'USER':
-                $total = User::whereNull('deleted_at')
-                    ->whereRole(3)
-                    ->get();
-                return count($total);
-                break;
+            $total = User::whereNull('deleted_at')
+            ->whereRole(3)
+            ->get();
+            return count($total);
+            break;
             default:
-                return 0;
+            return 0;
         endswitch;
     }
 
     public function user_online()
     {
         $user_is_online = User::whereIsLogin(1)
-            ->get();
+        ->get();
         return count($user_is_online);
     }
 
@@ -55,13 +55,17 @@ class WebFeatureHelpers
     {
         $result = [];
         $max_views = Campaign::max('views');
-        $data_views = Campaign::whereViews($max_views)->get();
-        foreach ($data_views as $view) {
-            $result = [
-                'title' => $view->title,
-                'views' => $view->views,
-            ];
-        }
+        $data_views = Campaign::with('viewers')->whereViews($max_views)
+                    ->firstOrFail();
+        $display_data_viewers = Campaign::with('viewers')
+            ->findOrFail($data_views->id);
+        
+        $result = [
+            'title' => $data_views->title,
+            'views' => $data_views->views,
+            'data' => $display_data_viewers
+        ];
+
         return $result;
     }
 }

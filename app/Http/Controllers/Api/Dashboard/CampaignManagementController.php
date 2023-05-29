@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Image;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use App\Models\{Campaign, CategoryCampaign};
+use App\Models\{Campaign, CategoryCampaign, User};
 use App\Events\{EventNotification, DataManagementEvent};
 
 class CampaignManagementController extends Controller
@@ -108,16 +108,17 @@ class CampaignManagementController extends Controller
                 $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
                 $new_campaign->banner = $file;
             }
-            $new_campaign->publish = 1;
+            $new_campaign->publish = 'Y';
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
             $new_campaign->save();
 
             $category_campaign = CategoryCampaign::findOrFail($req['category_campaign']);
+            $campaign_user = User::findOrFail($request->user()->id);
 
             $new_campaign->category_campaigns()->sync($category_campaign->id);
-            $new_campaign->users()->sync($request->user()->id);
+            $new_campaign->users()->sync($campaign_user->id);
 
             $campaign_barcode = Campaign::findOrFail($new_campaign->id);
             $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
@@ -131,9 +132,13 @@ class CampaignManagementController extends Controller
 
             event(new DataManagementEvent($data_event));
 
+            $saving_campaigns = Campaign::with('category_campaigns')
+                ->with('users')
+                ->findOrFail($new_campaign->id);
+
             return response()->json([
                 'message' => 'added new campaign successfully',
-                'data' => $new_campaign
+                'data' => $saving_campaigns
             ]);
         } catch (\Exception $e) {
             return response()->json([

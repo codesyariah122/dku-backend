@@ -11,7 +11,7 @@ namespace App\Http\Controllers\Api\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController};
-use App\Http\Controllers\Api\Fitur\WebFiturController;
+use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController};
 
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
@@ -87,6 +87,7 @@ Route::middleware('cors')->prefix('v1')->group(function () {
             'message' => 'test api'
         ]);
     });
+    Route::put('/campaign/{slug}', [CampaignViewerController::class, 'viewer']);
 });
 
 
