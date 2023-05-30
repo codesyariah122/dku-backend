@@ -154,10 +154,10 @@ class LoginController extends Controller
                         $user[0]->logins()->sync($login_id);
 
                         $userIsLogin = User::whereId($user_login->id)
-                        ->with('profiles')
-                        ->with('roles')
-                        ->with('logins')
-                        ->get();
+                            ->with('profiles')
+                            ->with('roles')
+                            ->with('logins')
+                            ->get();
 
 
                         $data_event = [

@@ -26,7 +26,7 @@ class CampaignViewerController extends Controller
     {
         try {
             $ip_address = $this->helpers->getIpAddr();
-            // $ip_address = '103.147.8.112';
+            // $ip_address = '106.113.21.111';
             $campaign = Campaign::whereSlug($slug)->firstOrFail();
             $check_viewer = Viewer::whereIpAddress($ip_address)->get();
 
@@ -64,6 +64,14 @@ class CampaignViewerController extends Controller
                 $campaign_with_viewer = Campaign::with('viewers')
                                         ->findOrFail($update_campaign_viewer->id);
             }
+
+            $data_event = [
+                'type' => 'added',
+                'notif' => "Update viewer for campaign, {$campaign_with_viewer->title}!",
+                'data' => $campaign_with_viewer
+            ];
+
+            event(new CampaignViewerEvent($data_event));
 
             return response()->json([
                 'success' => true,
