@@ -139,35 +139,26 @@ class RegisterController extends Controller
     public function activation(Request $request, $id)
     {
         try {
-            if ($request->activation_id) {
-                $checkUserActivation = User::findOrFail($id);
-                $username = $checkUserActivation->profiles[0]->username;
-                $activation_data = UserActivation::findOrFail($request->activation_id);
+            $activation_id = $request->activation_id;
+            $check_user_activation = User::whereActivationId($activation_id)->firstOrFail();
+            $check_activation = UserActivation::Where('token', $activation_id)->firstOrFail();
 
+            if($check_user_activation->activation_id === $check_activation->token) {
+                $user_id = $check_user_activation->id;
+                $user_activation = User::findOrFail($user_id);
 
-                if ($checkUserActivation->status === "ACTIVE") {
-                    return response()->json([
-                        'active' => true,
-                        'message' => 'Your account has been ACTIVE !',
-                        'redirect_link' => env('FRONTEND_APP') . '/profile/' . $username
-                    ]);
-                }
-
-                if ($activation_data->token !== $checkUserActivation->activation_id) {
-                    return response()->json([
-                        'valid' => false,
-                        'message' => 'Activation id not valid !!'
-                    ]);
-                }
-                $user_activation = User::findOrFail($id);
                 $user_activation->status = 'ACTIVE';
                 $user_activation->save();
-                $new_user_active = User::findOrFail($id);
+
+                $new_user_active = User::with('user_activations')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->findOrFail($user_id);
 
                 $data_event = [
                     'type' => 'activation',
-                    'notif' => "{$user_activation->name}, berhasil diaktivasi!",
-                    'data' => $user_activation
+                    'notif' => "{$new_user_active->name}, berhasil diaktivasi!",
+                    'data' => $new_user_active
                 ];
 
                 event(new EventNotification($data_event));
@@ -177,12 +168,14 @@ class RegisterController extends Controller
                     'message' => "Hallo, {$new_user_active->name}, akun kamu berhasil diaktivasi!",
                     'data' => $new_user_active
                 ], 200);
+
             } else {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Activation id not found !!'
+                    'valid' => false,
+                    'message' => 'Activation id not valid !!'
                 ]);
             }
+
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
