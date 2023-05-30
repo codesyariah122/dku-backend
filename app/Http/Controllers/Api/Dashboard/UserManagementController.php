@@ -21,31 +21,8 @@ use App\Helpers\UserHelpers;
 
 class UserManagementController extends Controller
 {
-    private $helpers;
 
-    /**
-     * Display a listing of the resource.
-     * @author: Puji Ermanto <puuji.ermanto@gmail.com>
-     * @return \Illuminate\Http\Response
-     */
-
-    public function initials($name)
-    {
-        preg_match('/(?:\w+\. )?(\w+).*?(\w+)(?: \w+\.)?$/', $name, $result);
-        $initial = strtoupper($result[1][0] . $result[2][0]);
-        return $initial;
-    }
-
-    private function username($name)
-    {
-        $initials = Str::of($name)->explode(' ')->map(function ($part) {
-            return Str::substr($part, 0, 1);
-        })->implode('');
-
-        $randomNumber = mt_rand(100, 999);
-
-        return $initials . $randomNumber;
-    }
+    private $helpers, $initials, $username;
 
     public function __construct()
     {
@@ -58,6 +35,8 @@ class UserManagementController extends Controller
             ]);
         });;
         $this->helpers = new UserHelpers;
+        $this->initials = new UserHelpers;
+        $this->username = new UserHelpers;
     }
 
     public function index(Request $request)
@@ -102,13 +81,6 @@ class UserManagementController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     * @author: Puji Ermanto <puuji.ermanto@gmail.com>
-     */
     public function store(Request $request)
     {
         try {
@@ -167,7 +139,7 @@ class UserManagementController extends Controller
                 $new_user->status = $request->status;
                 $new_user->save();
                 $new_profile = new Profile;
-                $new_profile->username = $this->username($new_user->name);
+                $new_profile->username = $this->username->get_username($new_user->name);
 
                 if ($request->file('photo')) {
                     $image = $request->file('photo');
@@ -185,7 +157,7 @@ class UserManagementController extends Controller
 
                     $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 } else {
-                    $initial = $this->initials($new_user->name);
+                    $initial = $this->initials->get_initials($new_user->name);
                     $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
@@ -208,7 +180,9 @@ class UserManagementController extends Controller
                 $role_user->user_id = $new_user->id;
                 $role_user->roles_id = $role_id;
                 $role_user->save();
-                // $new_user->roles()->sync($role_user->id);
+                // $new_user->roles()->sync([$role_user->id]);
+
+
 
                 $users = User::whereId($new_user->id)
                 ->with('profiles')
@@ -302,13 +276,7 @@ class UserManagementController extends Controller
             }
 
 
-            /**
-             * @return \Illuminate\Support\Facades\Validation\Validation
-             * @param \Illuminate\Http\Request $request
-             * @author Puji Ermanto <puuji.ermanto@gmail.com>
-             */
-
-            $username = $request->username !== NULL ? $request->username : trim(preg_replace('/\s+/', '_', strtolower($request->name)));
+            $username = $request->username !== NULL ? $request->username : $this->username->get_username($request->name);
 
             $existingProfile = Profile::where('username', $username)->first();
 
@@ -380,7 +348,7 @@ class UserManagementController extends Controller
                     $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
                     unlink($old_photo);
 
-                    $initial = $this->initials($request->name);
+                    $initial = $this->initials->get_initials($request->name);
                     $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
@@ -392,7 +360,7 @@ class UserManagementController extends Controller
                     $save_path = 'thumbnail_images/users/';
                     $update_profile->photo = $save_path . $photo;
                 } else {
-                    $initial = $this->initials($request->name);
+                    $initial = $this->initials->get_initials($request->name);
                     $path = public_path() . '/thumbnail_images/users/';
                     $fontPath = public_path('fonts/Oliciy.ttf');
                     $char = $initial;
@@ -474,7 +442,7 @@ class UserManagementController extends Controller
             $update_user->save();
 
             $update_profile = Profile::findOrFail($user->profiles[0]->id);
-            $update_profile->username = $request->name !== NULL ? trim(preg_replace('/\s+/', '_', strtolower($request->name))) : $update_profile->username;
+            $update_profile->username = $request->name !== NULL ? $this->username->get_username($request->name) : $update_profile->username;
             $update_profile->about = $request->about ? $request->about : $update_profile->about;
             $update_profile->address = $request->address ? $request->address : $update_profile->about;
             $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;

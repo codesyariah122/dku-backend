@@ -2,7 +2,7 @@
 
 /**
  * @author: pujiermanto@gmail.com
- * @param For Percentage Products with Relationship Table
+ * @param For Percentage Campaigns with Relationship Table
  * */
 
 namespace App\Helpers;

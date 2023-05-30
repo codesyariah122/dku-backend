@@ -94,6 +94,3 @@ Route::middleware('cors')->prefix('v1')->group(function () {
 Route::prefix('v1/web')->group(function () {
     Route::get('/context', [WebFiturController::class, 'web_data']);
 });
-
-
-// Fitur no authentication content

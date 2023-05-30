@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\User;
 
 class UserHelpers
@@ -77,5 +78,23 @@ class UserHelpers
         }
 
         return 0;
+    }
+
+    public function get_initials($name)
+    {
+        preg_match('/(?:\w+\. )?(\w+).*?(\w+)(?: \w+\.)?$/', $name, $result);
+        $initial = strtoupper($result[1][0] . $result[2][0]);
+        return $initial;
+    }
+
+    public function get_username($name)
+    {
+        $initials = Str::of($name)->explode(' ')->map(function ($part) {
+            return Str::substr($part, 0, 1);
+        })->implode('');
+
+        $randomNumber = mt_rand(100, 999);
+
+        return $initials . $randomNumber;
     }
 }

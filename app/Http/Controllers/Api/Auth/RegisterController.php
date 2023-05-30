@@ -22,18 +22,13 @@ class RegisterController extends Controller
      * @param  mixed $request
      * @return void
      */
-    private $email_domain;
+    private $email_domain, $initials, $username;
 
     public function __construct()
     {
         $this->email_domain = new UserHelpers;
-    }
-
-    public function initials($name)
-    {
-        preg_match('/(?:\w+\. )?(\w+).*?(\w+)(?: \w+\.)?$/', $name, $result);
-        $initial = strtoupper($result[1][0] . $result[2][0]);
-        return $initial;
+        $this->initials = new UserHelpers;
+        $this->username = new UserHelpers;
     }
 
     public function register(Request $request)
@@ -59,6 +54,7 @@ class RegisterController extends Controller
             $user = new User;
             $user->name = strip_tags($request->name);
             $user->email = strip_tags($request->email);
+            $user->role = 3;
             $user->phone = $request->phone ? $helper->formatPhoneNumber($request->phone) : null;
             $user->password = Hash::make($request->password);
             $user->status = 'INACTIVE';
@@ -67,10 +63,10 @@ class RegisterController extends Controller
 
             // saving profile user table
             $user_profile = new Profile;
-            $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name)));
+            $user_profile->username = trim(preg_replace('/\s+/', '_', strtolower($user->name).time()));
 
             // Make Profile avatar
-            $initial = $this->initials($user->name);
+            $initial = $this->initials->get_initials($user->name);
             $path = 'thumbnail_images/users/';
             $fontPath = public_path('fonts/Oliciy.ttf');
             $char = $initial;
@@ -98,9 +94,7 @@ class RegisterController extends Controller
             $new_user_activate->activation_id = $user_activation->token;
             $new_user_activate->save();
 
-            $roles = new Roles;
-            $roles->name = json_encode(["USER"]);
-            $roles->save();
+            $roles = Roles::findOrFail(intval($user->role));
             $user->roles()->sync($roles->id);
 
             $new_user = User::with('profiles')
