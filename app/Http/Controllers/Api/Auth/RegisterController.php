@@ -139,6 +139,33 @@ class RegisterController extends Controller
     public function activation(Request $request, $id)
     {
         try {
+            $check_user_admin = User::with('roles')->findOrFail($id);
+            $roles = json_decode($check_user_admin->roles[0]->name);
+            $check_admin_roles = count(array_intersect(["ADMIN", "AUTHOR"],$roles));
+
+            if($check_admin_roles > 0) {
+                $activation_user_admin = User::whereStatus('INACTIVE')
+                    ->whereId($id)
+                    ->firstOrFail();
+                $activation_user_admin->status = "ACTIVE";
+                $activation_user_admin->save();
+                
+                $data_event = [
+                    'type' => 'activation',
+                    'notif' => "{$activation_user_admin->name}, berhasil diaktivasi!",
+                    'data' => $activation_user_admin
+                ];
+
+                event(new EventNotification($data_event));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Hallo, {$activation_user_admin->name}, akun kamu berhasil diaktivasi!",
+                    'data' => $activation_user_admin
+                ], 200);
+
+            }
+
             $activation_id = $request->activation_id;
             $check_user_activation = User::whereActivationId($activation_id)->firstOrFail();
             $check_activation = UserActivation::Where('token', $activation_id)->firstOrFail();

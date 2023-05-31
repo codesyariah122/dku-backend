@@ -28,7 +28,7 @@ class FeatureHelpers
                 $roles = User::whereId($user_id)->with('roles')->get();
                 $role = json_decode($roles[0]->roles[0]->name);
 
-                return count(array_intersect(["ADMIN", "AUTHOR"], $role)) ? true :  false;
+                return count(array_intersect(["ADMIN", "AUTHOR"], $role)) > 0 ? true :  false;
             });
         endforeach;
     }
