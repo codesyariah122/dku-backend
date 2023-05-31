@@ -141,7 +141,7 @@ class RegisterController extends Controller
         try {
             $check_user_admin = User::with('roles')->findOrFail($id);
             $roles = json_decode($check_user_admin->roles[0]->name);
-            $check_admin_roles = count(array_intersect(["ADMIN", "AUTHOR"],$roles));
+            $check_admin_roles = count(array_intersect(["ADMIN", "AUTHOR", "USER"],$roles));
 
             if($check_admin_roles > 0) {
                 $activation_user_admin = User::whereStatus('INACTIVE')

@@ -209,6 +209,11 @@ class LoginController extends Controller
                 ->with('roles')
                 ->get();
 
+            $checking_no_storage = User::whereRole(['1', '2'])
+                ->whereIsLogin(1)
+                ->get();
+
+
             if(count($check_userRole) > 0) {
                 $user = User::whereNull('deleted_at')
                 ->where('email', $request->email)
