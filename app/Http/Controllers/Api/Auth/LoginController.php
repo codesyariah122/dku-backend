@@ -209,11 +209,6 @@ class LoginController extends Controller
                 ->with('roles')
                 ->get();
 
-            $checking_no_storage = User::whereRole(['1', '2'])
-                ->whereIsLogin(1)
-                ->get();
-
-
             if(count($check_userRole) > 0) {
                 $user = User::whereNull('deleted_at')
                 ->where('email', $request->email)
@@ -244,8 +239,7 @@ class LoginController extends Controller
                                 'data' => $user_activation
                             ]);
                         } else {
-                        // var_dump($user[0]->email);
-                        // die;
+
                             if ($this->forbidenIsUserLogin($user[0]->is_login)) {
                                 $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
                                 $details = [
@@ -292,7 +286,6 @@ class LoginController extends Controller
                             $user_for_profile_query = User::with('profiles')->findOrFail($user_id);
                             $user_profile_id = $user_for_profile_query->profiles[0]->id;
                             $user_profile = Profile::findOrFail($user_profile_id);
-                        // var_dump($user_profile);
                             $user_profile->user_agent = $user_agent;
                             $user_profile->city = $geo['city'];
                             $user_profile->province = $geo['regionName'];
@@ -309,7 +302,6 @@ class LoginController extends Controller
                             $logins->save();
                             $login_id = $logins->id;
 
-                        // sync pivot table
                             $user[0]->logins()->sync($login_id);
 
                             $userIsLogin = User::whereId($user_login->id)

@@ -16,8 +16,9 @@ class ApiKeySeeder extends Seeder
      */
     public function run()
     {
+        $user = User::whereName('super admin')->firstOrFail();
         $token = new ApiKeys;
-        $token->user_id = 1;
+        $token->user_id = $user->id;
         $token->token = Str::random(32);
         $token->save();
         $this->command->info("Token has been created");

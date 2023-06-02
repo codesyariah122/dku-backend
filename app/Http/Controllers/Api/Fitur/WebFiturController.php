@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\ContextData;
 use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign};
-use App\Events\{EventNotification, UpdateProfileEvent};
+use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
 use App\Helpers\{UserHelpers, WebFeatureHelpers, FeatureHelpers};
 use Image;
 
@@ -144,11 +144,12 @@ class WebFiturController extends Controller
             endswitch;
 
             $data_event = [
+                'type' => 'added',
                 'notif' => "{$restored->name}, has been restored!",
                 'data' => $restored
             ];
 
-            event(new EventNotification($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'message' => 'Restored data on trashed Success!',
@@ -236,8 +237,13 @@ class WebFiturController extends Controller
                     $countTrash = User::onlyTrashed()
                         ->get();
                     break;
+                case 'CAMPAIGN_DATA':
+                    $countTrash = Campaign::onlyTrashed()
+                        ->get();
+                    break;
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $countTrash = CategoryCampaign::onlyTrashed()->get();
+                    $countTrash = CategoryCampaign::onlyTrashed()
+                    ->get();
                     break;
                 default:
                     $countTrash = [];

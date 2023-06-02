@@ -54,9 +54,7 @@ class AdministratorSeeder extends Seeder
         $administrator_profile->post_code = '40292';
         $administrator_profile->save();
         $administrator->profiles()->sync($administrator_profile->id);
-        $roles = new Roles;
-        $roles->name = json_encode(["ADMIN"]);
-        $roles->save();
+        $roles = Roles::findOrFail(1);
         $administrator->roles()->sync($roles->id);
         $update_user_role = User::findOrFail($administrator->id);
         $update_user_role->role = $roles->id;

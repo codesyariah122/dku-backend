@@ -59,7 +59,7 @@ class UserManagementController extends Controller
                 ->with('logins')
                 ->whereIn('role', [1, 2])
                 ->orderBy('id', 'DESC')
-                ->paginate(5);
+                ->paginate(10);
             }
 
             return new UserManagementCollection($users);
