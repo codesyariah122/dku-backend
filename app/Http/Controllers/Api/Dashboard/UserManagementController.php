@@ -134,7 +134,7 @@ class UserManagementController extends Controller
                 $new_user = new User;
                 $new_user->name = $request->name;
                 $new_user->email = $request->email;
-                $new_user->role = $request->role;
+                $new_user->role = intval($request->role);
                 $new_user->password = Hash::make($request->password);
                 $new_user->status = $request->status;
                 $new_user->save();
