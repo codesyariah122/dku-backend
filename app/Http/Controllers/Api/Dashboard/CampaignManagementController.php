@@ -36,6 +36,7 @@ class CampaignManagementController extends Controller
             $campaigns = Campaign::whereNull('deleted_at')
                 ->orderBy('id', 'DESC')
                 ->paginate(10);
+            
             return response()->json([
                 'message' => 'List data campaigns',
                 'data' => $campaigns

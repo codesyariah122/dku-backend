@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\{User, Profile, Roles};
+use App\Models\{User, Profile, Roles, Campaign, CategoryCampaign};
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,12 +18,18 @@ class DatabaseSeeder extends Seeder
         // $this->call(AdministratorSeeder::class);
         // $this->call(ApiKeySeeder::class);
         // User::factory()->count(100)->create();
-        User::factory()
-        ->count(5)
-        ->has(Profile::factory())
+        // User::factory()
+        // ->count(5)
+        // ->has(Profile::factory())
+        // ->create()
+        // ->each(function ($user) {
+        //     $user->roles()->sync(Roles::whereIn('id', [1, 2])->get());
+        // });
+        Campaign::factory()
+        ->count(15)
         ->create()
-        ->each(function ($user) {
-            $user->roles()->sync(Roles::whereIn('id', [1, 2])->get());
+        ->each(function ($campaign) {
+            $campaign->category_campaigns()->sync(CategoryCampaign::whereIn('id', [1, 2, 3, 4])->get());
         });
     }
 }
