@@ -23,13 +23,13 @@ class DatabaseSeeder extends Seeder
         // ->has(Profile::factory())
         // ->create()
         // ->each(function ($user) {
-        //     $user->roles()->sync(Roles::whereIn('id', [1, 2])->get());
+        //     $user->roles()->sync(Roles::whereIn('id', [1])->get());
         // });
         Campaign::factory()
         ->count(15)
         ->create()
         ->each(function ($campaign) {
-            $campaign->category_campaigns()->sync(CategoryCampaign::whereIn('id', [1, 2, 3, 4])->get());
+            $campaign->category_campaigns()->sync(CategoryCampaign::whereIn('id', [2])->get());
         });
     }
 }
