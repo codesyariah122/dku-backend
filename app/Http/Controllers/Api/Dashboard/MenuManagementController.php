@@ -91,6 +91,7 @@ class MenuManagementController extends Controller
             event(new MenuSubMenuManagement($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'Added new menu',
                 'data' => $menu
             ]);

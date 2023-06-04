@@ -26,9 +26,9 @@ class DatabaseSeeder extends Seeder
         //     $user->roles()->sync(Roles::whereIn('id', [1])->get());
         // });
         Campaign::factory()
-        ->count(15)
+        ->count(10)
         ->create()
-        ->each(function ($campaign) {
+        ->each(function($campaign) {
             $campaign->category_campaigns()->sync(CategoryCampaign::whereIn('id', [2])->get());
         });
     }

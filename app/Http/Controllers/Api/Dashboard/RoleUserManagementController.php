@@ -98,6 +98,7 @@ class RoleUserManagementController extends Controller
             event(new DataManagementEvent($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'added roles successfully',
                 'data' => $new_roles
             ]);

@@ -8,10 +8,11 @@ class UserManagementCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
-     *
+     * @author Puji Ermanto <pujiermanto@gmail.com>
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
+    
     public function toArray($request)
     {
         $users = collect($this->collection);

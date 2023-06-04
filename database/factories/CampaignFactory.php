@@ -14,16 +14,18 @@ class CampaignFactory extends Factory
      *
      * @return array
      */
+
     protected $model = Campaign::class;
 
     public function definition()
     {
-        $user = User::findOrFail(3);
+        $user = User::findOrFail(2);
 
-        $faker = Faker::create('id_ID');
-        $title = $this->faker->sentence(5);
-        $content = $faker->realText(200, 2); 
-        $htmlContent = "<p>" . str_replace("\n", "</p><p>", $content) . "</p>";
+        $faker = Faker::create();
+        $title = $faker->sentence();
+        $content = $faker->realText(200, 2);
+        $htmlContent = "<p>".str_replace("\n", "</p><p>", $content). "</p>";
+
         return [
             'title' => $title,
             'slug' => Str::slug($title),

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\Dashboard;
 
+use Image;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Http\Resources\UserManagementCollection;
-use Image;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;

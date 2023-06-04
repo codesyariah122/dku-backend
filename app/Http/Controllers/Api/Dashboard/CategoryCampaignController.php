@@ -94,6 +94,7 @@ class CategoryCampaignController extends Controller
             event(new EventNotification($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'added new category campaign successfully',
                 'data' => $new_category
             ]);

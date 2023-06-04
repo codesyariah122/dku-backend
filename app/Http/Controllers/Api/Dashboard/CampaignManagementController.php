@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use App\Models\{Campaign, CategoryCampaign, User};
 use App\Events\{EventNotification, DataManagementEvent};
+use App\Http\Resources\CampaignManagementCollection;
 
 class CampaignManagementController extends Controller
 {
@@ -36,11 +37,8 @@ class CampaignManagementController extends Controller
             $campaigns = Campaign::whereNull('deleted_at')
                 ->orderBy('id', 'DESC')
                 ->paginate(10);
-            
-            return response()->json([
-                'message' => 'List data campaigns',
-                'data' => $campaigns
-            ]);
+            return new CampaignManagementCollection($campaigns);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -99,7 +97,7 @@ class CampaignManagementController extends Controller
 
             $new_campaign = new Campaign;
             $new_campaign->title = $req['title'];
-            $new_campaign->slug = Str::slug(strtolower($req['title']));
+            $new_campaign->slug = $request->slug ? $request->slug : Str::slug(strtolower($req['title']));
             $new_campaign->description = $req['description'];
             $new_campaign->donation_target = $req['donation_target'];
             $new_campaign->is_headline = $req['is_headline'];
@@ -109,6 +107,7 @@ class CampaignManagementController extends Controller
                 $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
                 $new_campaign->banner = $file;
             }
+
             $new_campaign->publish = 'Y';
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
@@ -137,10 +136,8 @@ class CampaignManagementController extends Controller
                 ->with('users')
                 ->findOrFail($new_campaign->id);
 
-            return response()->json([
-                'message' => 'added new campaign successfully',
-                'data' => $saving_campaigns
-            ]);
+            return new CampaignManagementCollection($saving_campaigns);
+            
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
