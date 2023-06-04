@@ -36,6 +36,7 @@ class CampaignManagementController extends Controller
         try {
             $campaigns = Campaign::whereNull('deleted_at')
                 ->orderBy('id', 'DESC')
+                ->with('category_campaigns')
                 ->paginate(10);
             return new CampaignManagementCollection($campaigns);
 
@@ -87,8 +88,7 @@ class CampaignManagementController extends Controller
             ];
 
             $check_already_campaign = Campaign::whereTitle($req['title'])->get();
-            // var_dump($check_already_campaign);
-            // die;
+
             if (count($check_already_campaign) > 0) {
                 return response()->json([
                     'message' => "{$req['title']}, is already been taken!!"
@@ -133,6 +133,7 @@ class CampaignManagementController extends Controller
             event(new DataManagementEvent($data_event));
 
             $saving_campaigns = Campaign::with('category_campaigns')
+                ->with('category_campaigns')
                 ->with('users')
                 ->findOrFail($new_campaign->id);
 
@@ -189,21 +190,20 @@ class CampaignManagementController extends Controller
     public function destroy($id)
     {
         try {
-            $delete_category = Campaign::findOrFail($id);
-            $delete_category->delete();
+            $delete_campaign = Campaign::findOrFail($id);
+            $delete_campaign->delete();
             $data_event = [
                 'type' => 'removed',
-                'notif' => "{$delete_category->name}, success move to trash, please check trash!",
-                'data' => $delete_category
+                'notif' => "{$delete_campaign->name}, success move to trash, please check trash!",
+                'data' => $delete_campaign
             ];
 
             event(new DataManagementEvent($data_event));
 
-            return response()->json([
-                'success' => true,
-                'message' => "Category Campaign {$delete_category->name} success move to trash, please check trash",
-                'data' => $delete_category
-            ]);
+            $data_campaigns = Campaign::with('category_campaigns')
+                ->with('users')
+                ->findOrFail($id);
+            return new CampaignManagementCollection($data_campaigns);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
