@@ -199,14 +199,17 @@ class CampaignManagementController extends Controller
             
             $data_event = [
                 'type' => 'removed',
-                'notif' => "{$delete_campaign->name}, success move to trash, please check trash!",
+                'notif' => "{$delete_campaign->title}, success move to trash, please check trash!",
                 'data' => $delete_campaign
             ];
 
             event(new DataManagementEvent($data_event));
 
-            return new CampaignManagementCollection($delete_campaign);
-
+            return response()->json([
+                'success' => true,
+                'message' => "Category Campaign {$delete_campaign->title} success move to trash, please check trash",
+                'data' => $delete_campaign
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,

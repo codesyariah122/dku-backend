@@ -90,6 +90,7 @@ class WebFiturController extends Controller
                     $restored_user->restore();
                     $restored_user->profiles()->restore();
                     $restored = User::findOrFail($id);
+                    $name = $restored->name;
                     break;
 
                 case 'ROLE_USER':
@@ -121,6 +122,7 @@ class WebFiturController extends Controller
                         $query->with('profiles');
                     }])
                         ->findOrFail($id);
+                    $name = $restored->name;
                     break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
@@ -128,7 +130,7 @@ class WebFiturController extends Controller
                         ->where('id', $id);
                     $restored_category_campaign->restore();
                     $restored = CategoryCampaign::findOrFail($id);
-
+                    $name = $restored->name;
                     break;
 
                 case 'CAMPAIGN_DATA':
@@ -136,6 +138,7 @@ class WebFiturController extends Controller
                         ->where('id', $id);
                     $restored_campaign->restore();
                     $restored = Campaign::findOrFail($id);
+                    $name = $restored->title;
 
                     break;
 
@@ -145,7 +148,7 @@ class WebFiturController extends Controller
 
             $data_event = [
                 'type' => 'added',
-                'notif' => "{$restored->name}, has been restored!",
+                'notif' => "{$name}, has been restored!",
                 'data' => $restored
             ];
 
