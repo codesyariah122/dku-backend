@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      *
      * @return void
+     * @author Puji Ermanto <pujiermanto@gmail.com>
      */
     public function run()
     {
@@ -25,11 +26,14 @@ class DatabaseSeeder extends Seeder
         // ->each(function ($user) {
         //     $user->roles()->sync(Roles::whereIn('id', [1])->get());
         // });
+
         Campaign::factory()
         ->count(10)
         ->create()
         ->each(function($campaign) {
-            $campaign->category_campaigns()->sync(CategoryCampaign::whereIn('id', [2])->get());
+            $users = User::whereRole(random_int(1, 2))->get();
+            $campaign->category_campaigns()->sync(CategoryCampaign::whereId(random_int(1,8))->get());
+            $campaign->users()->sync($users[0]->id);
         });
     }
 }
