@@ -24,7 +24,7 @@ class CreateCampaignsTable extends Migration
             $table->string('banner')->nullable();
             $table->unsignedBigInteger('total_trf')->unsigned()->default(0)->nullable();
             $table->enum('publish', ['Y', 'N'])->default('N');
-            $table->string('barcode')->nullable();
+            $table->longText('barcode')->nullable();
             $table->string('created_by')->nullable();
             $table->string('author')->nullable();
             $table->string('author_email')->nullable();
