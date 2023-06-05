@@ -112,7 +112,7 @@ class CampaignManagementController extends Controller
             $new_campaign->publish = $request->publish ? $request->publish : 'Y';
            
             $new_campaign->end_campaign = Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString();
-            
+
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
@@ -193,12 +193,10 @@ class CampaignManagementController extends Controller
     public function destroy($id)
     {
         try {
-            $delete_campaign = Campaign::whereNull('deleted_at')
-            ->with('category_campaigns')
-            ->findOrFail($id);
-
+            $delete_campaign = Campaign::findOrFail($id);
+            
             $delete_campaign->delete();
-
+            
             $data_event = [
                 'type' => 'removed',
                 'notif' => "{$delete_campaign->name}, success move to trash, please check trash!",
@@ -207,10 +205,8 @@ class CampaignManagementController extends Controller
 
             event(new DataManagementEvent($data_event));
 
-            $data_campaigns = Campaign::with('category_campaigns')
-                ->with('users')
-                ->findOrFail($id);
             return new CampaignManagementCollection($delete_campaign);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
