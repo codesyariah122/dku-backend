@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Image;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\{Campaign, CategoryCampaign, User};
 use App\Events\{EventNotification, DataManagementEvent};
@@ -108,7 +109,10 @@ class CampaignManagementController extends Controller
                 $new_campaign->banner = $file;
             }
 
-            $new_campaign->publish = 'Y';
+            $new_campaign->publish = $request->publish ? $request->publish : 'Y';
+           
+            $new_campaign->end_campaign = Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString();
+            
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
@@ -133,7 +137,6 @@ class CampaignManagementController extends Controller
             event(new DataManagementEvent($data_event));
 
             $saving_campaigns = Campaign::with('category_campaigns')
-                ->with('category_campaigns')
                 ->with('users')
                 ->findOrFail($new_campaign->id);
 
@@ -190,8 +193,12 @@ class CampaignManagementController extends Controller
     public function destroy($id)
     {
         try {
-            $delete_campaign = Campaign::findOrFail($id);
+            $delete_campaign = Campaign::whereNull('deleted_at')
+            ->with('category_campaigns')
+            ->findOrFail($id);
+
             $delete_campaign->delete();
+
             $data_event = [
                 'type' => 'removed',
                 'notif' => "{$delete_campaign->name}, success move to trash, please check trash!",
@@ -203,7 +210,7 @@ class CampaignManagementController extends Controller
             $data_campaigns = Campaign::with('category_campaigns')
                 ->with('users')
                 ->findOrFail($id);
-            return new CampaignManagementCollection($data_campaigns);
+            return new CampaignManagementCollection($delete_campaign);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
