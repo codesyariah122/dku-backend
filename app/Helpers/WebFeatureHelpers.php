@@ -6,6 +6,7 @@
  * */
 
 namespace App\Helpers;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 
 use App\Models\{User, Campaign};
 
@@ -68,4 +69,14 @@ class WebFeatureHelpers
 
         return $result;
     }
+
+
+    public function generateBarcode($data)
+    {
+        $generator = new BarcodeGeneratorHTML();
+        $barcodeHtml = $generator->getBarcode($data, $generator::TYPE_CODE_128);
+
+        return $barcodeHtml;
+    }
+
 }

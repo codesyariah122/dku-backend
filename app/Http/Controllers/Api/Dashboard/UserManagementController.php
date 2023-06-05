@@ -418,10 +418,13 @@ class UserManagementController extends Controller
 
             event(new UpdateProfileEvent($data_event));
 
-            return response()->json([
-                'message' => "Update user {$user->name}, berhasil",
-                'data' => $new_user_updated
-            ]);
+            // return response()->json([
+            //     'message' => "Update user {$user->name}, berhasil",
+            //     'data' => $new_user_updated
+            // ]);
+
+            return new UserManagementCollection($new_user_updated);
+
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,
@@ -496,6 +499,7 @@ class UserManagementController extends Controller
             ->whereNull('deleted_at')
             ->findOrFail($id);
 
+
             $profile_id = $delete_user->profiles[0]->id;
 
             $profile_delete = Profile::whereNull('deleted_at')
@@ -512,11 +516,17 @@ class UserManagementController extends Controller
 
             event(new DataManagementEvent($data_event));
 
-            return response()->json([
-                'success' => true,
-                'message' => "User {$delete_user['name']} success move to trash",
-                'data' => $delete_user
-            ]);
+
+            $user_deleted = User::withTrashed()
+                ->with('profiles', function($profile) {
+                    $profile->withTrashed();
+                })
+                ->with('roles')
+                ->whereId($id)
+                ->get();
+
+            return new UserManagementCollection($user_deleted);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

@@ -35,41 +35,41 @@ class WebFiturController extends Controller
         }
     }
 
-
     public function trash(Request $request)
     {
         try {
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                    $deleted = User::onlyTrashed()
-                        ->with('profiles')
-                        ->with('roles')
-                        ->paginate(10);
-                    break;
+                $deleted = User::onlyTrashed()
+                ->with('profiles')
+                ->with('roles')
+                ->paginate(10);
+                break;
 
                 case 'ROLE_USER':
-                    $deleted = Roles::onlyTrashed()
-                        ->with('users')
-                        ->paginate(10);
-                    break;
+                $deleted = Roles::onlyTrashed()
+                ->with('users')
+                ->paginate(10);
+                break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $deleted = CategoryCampaign::onlyTrashed()
-                        ->paginate(10);
-                    break;
+                $deleted = CategoryCampaign::onlyTrashed()
+                ->paginate(10);
+                break;
 
                 case 'CAMPAIGN_DATA':
-                    $deleted = Campaign::onlyTrashed()
-                        ->paginate(10);
-                    break;
+                $deleted = Campaign::onlyTrashed()
+                ->paginate(10);
+                break;
 
                 default:
-                    $deleted = [];
-                    break;
+                $deleted = [];
+                break;
             endswitch;
 
             return response()->json([
+                'success' => true,
                 'message' => 'Deleted data on trashed!',
                 'data' => $deleted
             ]);
@@ -84,70 +84,70 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                    $restored_user = User::withTrashed()
-                        ->with('profiles')
-                        ->findOrFail($id);
-                    $restored_user->restore();
-                    $restored_user->profiles()->restore();
-                    $restored = User::findOrFail($id);
-                    $name = $restored->name;
-                    break;
+                $restored_user = User::withTrashed()
+                ->with('profiles')
+                ->findOrFail($id);
+                $restored_user->restore();
+                $restored_user->profiles()->restore();
+                $restored = User::findOrFail($id);
+                $name = $restored->name;
+                break;
 
                 case 'ROLE_USER':
-                    $restored_role = Roles::with(['users' => function ($user) {
-                        return $user->withTrashed()->with('profiles')->get();
-                    }])
-                        ->withTrashed()
-                        ->findOrFail(intval($id));
+                $restored_role = Roles::with(['users' => function ($user) {
+                    return $user->withTrashed()->with('profiles')->get();
+                }])
+                ->withTrashed()
+                ->findOrFail(intval($id));
 
 
-                    $prepare_userToProfiles = User::withTrashed()
-                        ->where('role', intval($id))
-                        ->with(['profiles' => function ($query) {
-                            $query->withTrashed();
-                        }])
-                        ->get();
+                $prepare_userToProfiles = User::withTrashed()
+                ->where('role', intval($id))
+                ->with(['profiles' => function ($query) {
+                    $query->withTrashed();
+                }])
+                ->get();
 
-                    foreach ($prepare_userToProfiles as $user) {
-                        foreach ($user->profiles as $profile) {
-                            $profile->restore();
-                        }
+                foreach ($prepare_userToProfiles as $user) {
+                    foreach ($user->profiles as $profile) {
+                        $profile->restore();
                     }
+                }
 
-                    $restored_role->restore();
-                    $restored_role->users()->restore();
+                $restored_role->restore();
+                $restored_role->users()->restore();
 
 
-                    $restored = Roles::with(['users' => function ($query) {
-                        $query->with('profiles');
-                    }])
-                        ->findOrFail($id);
-                    $name = $restored->name;
-                    break;
+                $restored = Roles::with(['users' => function ($query) {
+                    $query->with('profiles');
+                }])
+                ->findOrFail($id);
+                $name = $restored->name;
+                break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $restored_category_campaign = CategoryCampaign::onlyTrashed()
-                        ->where('id', $id);
-                    $restored_category_campaign->restore();
-                    $restored = CategoryCampaign::findOrFail($id);
-                    $name = $restored->name;
-                    break;
+                $restored_category_campaign = CategoryCampaign::onlyTrashed()
+                ->findOrFail($id);
+                $restored_category_campaign->restore();
+                $restored = CategoryCampaign::findOrFail($id);
+                $name = $restored->name;
+                break;
 
                 case 'CAMPAIGN_DATA':
-                    $restored_campaign = Campaign::onlyTrashed()
-                        ->where('id', $id);
-                    $restored_campaign->restore();
-                    $restored = Campaign::findOrFail($id);
-                    $name = $restored->title;
+                $restored_campaign = Campaign::onlyTrashed()
+                ->findOrFail($id);
+                $restored_campaign->restore();
+                $restored = Campaign::findOrFail($id);
+                $name = $restored->title;
 
-                    break;
+                break;
 
                 default:
-                    $restored = [];
+                $restored = [];
             endswitch;
 
             $data_event = [
-                'type' => 'added',
+                'type' => 'restored',
                 'notif' => "{$name}, has been restored!",
                 'data' => $restored
             ];
@@ -155,6 +155,7 @@ class WebFiturController extends Controller
             event(new DataManagementEvent($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'Restored data on trashed Success!',
                 'data' => $restored
             ]);
@@ -172,47 +173,48 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                    $deleted = User::onlyTrashed()
-                        ->with('profiles')
-                        ->where('id', $id)
-                        ->first();
+                $deleted = User::onlyTrashed()
+                ->with('profiles')
+                ->where('id', $id)
+                ->first();
 
-                    if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
-                        $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
-                        unlink($old_photo);
-                    }
+                if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
+                    $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
+                    unlink($old_photo);
+                }
 
-                    $deleted->profiles()->delete();
-                    $deleted->forceDelete();
+                $deleted->profiles()->delete();
+                $deleted->forceDelete();
 
-                    break;
+                break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $deleted = CategoryCampaign::onlyTrashed()
-                        ->where('id', $id)->first();
+                $deleted = CategoryCampaign::onlyTrashed()
+                ->where('id', $id)->first();
                     // $deleted->categories()->delete();
-                    $deleted->forceDelete();
+                $deleted->forceDelete();
 
-                    break;
+                break;
 
                 case 'CAMPAIGN_DATA':
-                    $deleted = Campaign::onlyTrashed()
-                        ->where('id', $id)->first();
+                $deleted = Campaign::onlyTrashed()
+                ->where('id', $id)->first();
 
-                    $file_path = $deleted->banner;
+                $file_path = $deleted->banner;
 
-                    if (Storage::exists($file_path)) {
-                        Storage::disk('public')->delete($file_path);
-                    }
-                    $deleted->forceDelete();
+                if (Storage::exists($file_path)) {
+                    Storage::disk('public')->delete($file_path);
+                }
+                $deleted->forceDelete();
 
-                    break;
+                break;
 
                 default:
-                    $deleted = [];
+                $deleted = [];
             endswitch;
 
             $data_event = [
+                'type' => 'destroyed',
                 'notif' => "Data has been deleted!",
                 'data' => $deleted
             ];
@@ -220,6 +222,7 @@ class WebFiturController extends Controller
             event(new EventNotification($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'Deleted data on trashed Success!',
                 'data' => $deleted
             ]);
@@ -237,26 +240,26 @@ class WebFiturController extends Controller
             $type = $request->query('type');
             switch ($type) {
                 case 'USER_DATA':
-                    $countTrash = User::onlyTrashed()
-                        ->get();
-                    break;
+                $countTrash = User::onlyTrashed()
+                ->get();
+                break;
                 case 'CAMPAIGN_DATA':
-                    $countTrash = Campaign::onlyTrashed()
-                        ->get();
-                    break;
+                $countTrash = Campaign::onlyTrashed()
+                ->get();
+                break;
                 case 'CATEGORY_CAMPAIGN_DATA':
-                    $countTrash = CategoryCampaign::onlyTrashed()
-                    ->get();
-                    break;
+                $countTrash = CategoryCampaign::onlyTrashed()
+                ->get();
+                break;
                 default:
-                    $countTrash = [];
+                $countTrash = [];
             }
 
             return response()
-                ->json([
-                    'message' => $type . ' Trash',
-                    'data' => count($countTrash)
-                ]);
+            ->json([
+                'message' => $type . ' Trash',
+                'data' => count($countTrash)
+            ]);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -266,25 +269,25 @@ class WebFiturController extends Controller
     {
         switch ($data['type']):
             case 'TOTAL_USER':
-                return response()->json([
-                    'message' => $data['message'],
-                    'total' => $data['total'],
-                    'data' => $data['users'],
-                ], 200);
-                break;
+            return response()->json([
+                'message' => $data['message'],
+                'total' => $data['total'],
+                'data' => $data['users'],
+            ], 200);
+            break;
             case 'CATEGORY_CAMPAIGN':
-                return response()->json([
-                    'message' => $data['message'],
-                    'total' => $data['total'],
-                ], 200);
-                break;
+            return response()->json([
+                'message' => $data['message'],
+                'total' => $data['total'],
+            ], 200);
+            break;
             case 'TOTAL_CAMPAIGN':
-                return response()->json([
-                    'message' => $data['message'],
-                    'total' => $data['total'],
-                    'data' => $data['campaigns']
-                ], 200);
-                break;
+            return response()->json([
+                'message' => $data['message'],
+                'total' => $data['total'],
+                'data' => $data['campaigns']
+            ], 200);
+            break;
         endswitch;
     }
 
@@ -295,61 +298,61 @@ class WebFiturController extends Controller
 
             switch ($type) {
                 case "TOTAL_USER":
-                    $totalData = User::whereNull('deleted_at')
-                        ->where('role', '!=', 3)
-                        ->get();
-                    $totals = count($totalData);
-                    $user_per_role = new WebFeatureHelpers;
-                    $admin = $user_per_role->get_total_user('ADMIN');
-                    $author = $user_per_role->get_total_user('AUTHOR');
-                    $user = $user_per_role->get_total_user('USER');
-                    $user_online = $user_per_role->user_online();
-                    $sendResponse = [
-                        'type' => 'TOTAL_USER',
-                        'message' => 'Total data user',
-                        'total' => $totals,
-                        'users' => [
-                            'user_online' => $user_online,
-                            'admin_dashboard' => $admin,
-                            'author' => $author,
-                            'user_donation' => $user,
-                        ]
-                    ];
-                    return $this->totalDataSendResponse($sendResponse);
-                    break;
+                $totalData = User::whereNull('deleted_at')
+                ->where('role', '!=', 3)
+                ->get();
+                $totals = count($totalData);
+                $user_per_role = new WebFeatureHelpers;
+                $admin = $user_per_role->get_total_user('ADMIN');
+                $author = $user_per_role->get_total_user('AUTHOR');
+                $user = $user_per_role->get_total_user('USER');
+                $user_online = $user_per_role->user_online();
+                $sendResponse = [
+                    'type' => 'TOTAL_USER',
+                    'message' => 'Total data user',
+                    'total' => $totals,
+                    'users' => [
+                        'user_online' => $user_online,
+                        'admin_dashboard' => $admin,
+                        'author' => $author,
+                        'user_donation' => $user,
+                    ]
+                ];
+                return $this->totalDataSendResponse($sendResponse);
+                break;
 
                 case 'CATEGORY_CAMPAIGN':
-                    $msg_title = 'Category Campaign Data';
-                    $totalData = CategoryCampaign::whereNull('deleted_at')->get();
-                    $totals = count($totalData);
-                    $sendResponse = [
-                        'type' => 'CATEGORY_CAMPAIGN',
-                        'message' => 'Total data campaign',
-                        'total' => $totals
-                    ];
-                    return $this->totalDataSendResponse($sendResponse);
-                    break;
+                $msg_title = 'Category Campaign Data';
+                $totalData = CategoryCampaign::whereNull('deleted_at')->get();
+                $totals = count($totalData);
+                $sendResponse = [
+                    'type' => 'CATEGORY_CAMPAIGN',
+                    'message' => 'Total data campaign',
+                    'total' => $totals
+                ];
+                return $this->totalDataSendResponse($sendResponse);
+                break;
 
                 case "TOTAL_CAMPAIGN":
-                    $totalData = Campaign::whereNull('deleted_at')->get();
-                    $totals = count($totalData);
-                    $dataCampaign = new WebFeatureHelpers;
-                    $publish = $dataCampaign->publish_campaign();
-                    $most_view = $dataCampaign->most_viewed_campaign();
-                    $sendResponse = [
-                        'type' => 'TOTAL_CAMPAIGN',
-                        'message' => 'Total campaign',
-                        'total' => $totals,
-                        'campaigns' => [
-                            'publish' => $publish,
-                            'most_viewer' => $most_view
-                        ]
-                    ];
-                    return $this->totalDataSendResponse($sendResponse);
-                    break;
+                $totalData = Campaign::whereNull('deleted_at')->get();
+                $totals = count($totalData);
+                $dataCampaign = new WebFeatureHelpers;
+                $publish = $dataCampaign->publish_campaign();
+                $most_view = $dataCampaign->most_viewed_campaign();
+                $sendResponse = [
+                    'type' => 'TOTAL_CAMPAIGN',
+                    'message' => 'Total campaign',
+                    'total' => $totals,
+                    'campaigns' => [
+                        'publish' => $publish,
+                        'most_viewer' => $most_view
+                    ]
+                ];
+                return $this->totalDataSendResponse($sendResponse);
+                break;
 
                 default:
-                    $totalData = [];
+                $totalData = [];
             }
         } catch (\Throwable $th) {
             throw $th;

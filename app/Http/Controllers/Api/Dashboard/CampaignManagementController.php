@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\{Campaign, CategoryCampaign, User};
 use App\Events\{EventNotification, DataManagementEvent};
 use App\Http\Resources\CampaignManagementCollection;
+use App\Helpers\WebFeatureHelpers;
 
 class CampaignManagementController extends Controller
 {
@@ -20,6 +21,8 @@ class CampaignManagementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $feature_helpers;
+
     public function __construct()
     {
         $this->middleware('auth:api');
@@ -30,6 +33,8 @@ class CampaignManagementController extends Controller
                 'message' => 'Anda tidak memiliki cukup hak akses'
             ]);
         });
+
+        $this->feature_helpers = new WebFeatureHelpers;
     }
 
     public function index()
@@ -37,8 +42,10 @@ class CampaignManagementController extends Controller
         try {
             $campaigns = Campaign::whereNull('deleted_at')
                 ->orderBy('id', 'DESC')
+                ->with('users')
                 ->with('category_campaigns')
                 ->paginate(10);
+
             return new CampaignManagementCollection($campaigns);
 
         } catch (\Exception $e) {
@@ -113,6 +120,8 @@ class CampaignManagementController extends Controller
            
             $new_campaign->end_campaign = Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString();
 
+            // $new_campaign->barcode = $this->feature_helpers->generateBarcode($request->slug ? $request->slug : Str::slug(strtolower($req['title'])));
+
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];
@@ -125,7 +134,8 @@ class CampaignManagementController extends Controller
             $new_campaign->users()->sync($campaign_user->id);
 
             $campaign_barcode = Campaign::findOrFail($new_campaign->id);
-            $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
+            // $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
+            $campaign_barcode->barcode = $this->feature_helpers->generateBarcode($new_campaign->slug);
             $campaign_barcode->save();
 
             $data_event = [
@@ -136,9 +146,10 @@ class CampaignManagementController extends Controller
 
             event(new DataManagementEvent($data_event));
 
-            $saving_campaigns = Campaign::with('category_campaigns')
-                ->with('users')
-                ->findOrFail($new_campaign->id);
+            $saving_campaigns = Campaign::with('users')
+                ->with('category_campaigns')
+                ->whereId($new_campaign->id)
+                ->get();
 
             return new CampaignManagementCollection($saving_campaigns);
             

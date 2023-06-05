@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Resources;
-
+use Illuminate\Support\Collection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class CampaignManagementCollection extends ResourceCollection
@@ -14,12 +14,23 @@ class CampaignManagementCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        $campaigns = collect($this->collection);
-        
+        $collects = collect($this->collection);
+
+        $campaigns = $collects->map(function($campaign) {
+            return $campaign;
+        });
+
         return [
             'success' => true,
             'message' => 'Campaign lists !',
             'data' => $campaigns
         ];
+    }
+
+    public function withResponse($request, $response)
+    {
+        if ($this->collection->isEmpty()) {
+            $response->setStatusCode(404);
+        }
     }
 }
