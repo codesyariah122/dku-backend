@@ -135,7 +135,8 @@ class CampaignManagementController extends Controller
 
             $campaign_barcode = Campaign::findOrFail($new_campaign->id);
             // $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
-            $campaign_barcode->barcode = $this->feature_helpers->generateBarcode($new_campaign->slug);
+            $campaigin_link = env('FRONTEND_APP')."/campaign/".$new_campaign->slug;
+            $campaign_barcode->barcode = $this->feature_helpers->generateQrCode($campaigin_link);
             $campaign_barcode->save();
 
             $data_event = [
@@ -153,10 +154,10 @@ class CampaignManagementController extends Controller
 
             return new CampaignManagementCollection($saving_campaigns);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }

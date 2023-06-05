@@ -7,7 +7,8 @@
 
 namespace App\Helpers;
 use Picqer\Barcode\BarcodeGeneratorHTML;
-
+use \Milon\Barcode\DNS1D;
+use \Milon\Barcode\DNS2D;
 use App\Models\{User, Campaign};
 
 class WebFeatureHelpers
@@ -77,6 +78,15 @@ class WebFeatureHelpers
         $barcodeHtml = $generator->getBarcode($data, $generator::TYPE_CODE_128);
 
         return $barcodeHtml;
+    }
+
+
+    public function generateQrCode($data)
+    {
+        $qr = new DNS2D;
+        $qrCode = $qr->getBarcodeHTML($data, 'QRCODE', 4,4);
+
+        return $qrCode;
     }
 
 }
