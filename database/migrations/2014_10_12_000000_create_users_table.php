@@ -24,7 +24,8 @@ class CreateUsersTable extends Migration
             $table->enum('status', ['ACTIVE', 'INACTIVE']);
             $table->boolean('is_login')->default(false);
             $table->string('activation_id', 64)->unique()->nullable();
-            $table->rememberToken();
+            // $table->rememberToken();
+            $table->longText('remember_token')->nullable()->change();
             // $table->foreign('role')->constrained()->references('id')->on('roles')->onDelete('cascade');
             $table->timestamps();
         });
