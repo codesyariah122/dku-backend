@@ -268,12 +268,12 @@ class UserManagementController extends Controller
     {
         try {
 
-            if ($request->name === NULL && $request->file('photo') === NULL) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Request body cannot be empty'
-                ]);
-            }
+            // if ($request->name === NULL && $request->file('photo') === NULL) {
+            //     return response()->json([
+            //         'error' => true,
+            //         'message' => 'Request body cannot be empty'
+            //     ]);
+            // }
 
 
             $username = $request->username !== NULL ? $request->username : $this->username->get_username($request->name);
@@ -311,6 +311,7 @@ class UserManagementController extends Controller
             $update_user->name = $request->name ? $request->name : $user->name;
             $update_user->email = $request->email ? $request->email : $user->email;
             $update_user->phone = $request->phone ? $request->phone : $user->phone;
+            $update_user->password = $request->password ? Hash::make($request->password) : $user->password;
             $update_user->status = $request->status ? $request->status : $user->status;
             $update_user->save();
 
