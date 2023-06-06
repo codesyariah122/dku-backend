@@ -367,6 +367,7 @@ class WebFiturController extends Controller
                 $dataCampaign = new WebFeatureHelpers;
                 $publish = $dataCampaign->publish_campaign();
                 $most_view = $dataCampaign->most_viewed_campaign();
+
                 $sendResponse = [
                     'type' => 'TOTAL_CAMPAIGN',
                     'message' => 'Total campaign',

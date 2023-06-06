@@ -25,22 +25,33 @@ class CampaignViewerController extends Controller
     public function viewer(Request $request, $slug)
     {
         try {
-            $ip_address = $this->helpers->getIpAddr();
-            // $ip_address = '106.113.21.111';
+            // $ip_address = $this->helpers->getIpAddr();
+            $ip_address = '101.111.8.1';
             $campaign = Campaign::whereSlug($slug)->firstOrFail();
             $check_viewer = Viewer::whereIpAddress($ip_address)->get();
 
-            if(count($check_viewer) > 0) {
-                $campaign_update = Campaign::findOrFail($campaign->id);
-                // $campaign_update->views = $campaign->views + 1;
-                // $campaign_update->save();
-                // $update_viewer = Viewer::whereCampaignId($campaign_update->id)
-                //                 ->firstOrFail();
-                // $update_viewer->campaign_title = $campaign_update->title;
-                // $update_viewer->save();
 
-                $message = "You already as a viewers of campaign";
+            if(count($check_viewer) > 0) {
+                $campaign_update = Campaign::whereTitle($check_viewer[0]->campaign_title)
+                    ->firstOrFail();
+                // var_dump($campaign_update->title !== $campaign->title); die;
+                if($campaign_update->title !== $campaign->title) {
+                    $campaign_ = Campaign::findOrFail($campaign->id);
+                    // var_dump($campaign_->id); die;                
+                    $campaign_->views+=1;
+                    $campaign_->save();
+
+                    $add_viewer = new Viewer;
+                    $add_viewer->campaign_title = $campaign_->title;
+                    $add_viewer->user_agent = $request->server('HTTP_USER_AGENT');
+                    $add_viewer->ip_address = $ip_address;
+                    $add_viewer->save();
+                    $campaign_->viewers()->sync($add_viewer->id);
+                }
+
+                $message = "You already as a viewers of campaign, {$campaign_update->title}";
                 $campaign_with_viewer = Campaign::with('viewers')->findOrFail($campaign_update->id);
+
             } else {
                 $update_campaign_viewer = Campaign::findOrFail($campaign->id);
                 $update_campaign_viewer->views+=1;
@@ -62,16 +73,16 @@ class CampaignViewerController extends Controller
 
                 $message = "New viewer added for campaign";
                 $campaign_with_viewer = Campaign::with('viewers')
-                                        ->findOrFail($update_campaign_viewer->id);
+                ->findOrFail($update_campaign_viewer->id);
+
+                $data_event = [
+                    'type' => 'added',
+                    'notif' => "New viewer for campaign, {$campaign_with_viewer->title}!"
+                ];
+
+                event(new CampaignViewerEvent($data_event));
             }
 
-            $data_event = [
-                'type' => 'added',
-                'notif' => "Update viewer for campaign, {$campaign_with_viewer->title}!",
-                'data' => $campaign_with_viewer
-            ];
-
-            event(new CampaignViewerEvent($data_event));
 
             return response()->json([
                 'success' => true,

@@ -55,17 +55,17 @@ class WebFeatureHelpers
 
     public function most_viewed_campaign()
     {
-        $result = [];
-        $max_views = Campaign::max('views');
-        $data_views = Campaign::with('viewers')->whereViews($max_views)
-                    ->firstOrFail();
-        $display_data_viewers = Campaign::with('viewers')
-            ->findOrFail($data_views->id);
+        $highestViews = Campaign::max('views');
+        $records = Campaign::where('views', $highestViews)
+        ->with('viewers')
+        ->orderBy('created_at', 'desc')
+        ->limit(1)
+        ->get();
         
         $result = [
-            'title' => $data_views->title,
-            'views' => $data_views->views,
-            'data' => $display_data_viewers
+            'title' => $records[0]->title,
+            'views' => $records[0]->views,
+            'data' => $records
         ];
 
         return $result;
