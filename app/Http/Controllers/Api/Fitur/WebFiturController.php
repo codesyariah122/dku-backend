@@ -91,6 +91,12 @@ class WebFiturController extends Controller
                 $restored_user->profiles()->restore();
                 $restored = User::findOrFail($id);
                 $name = $restored->name;
+
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!",
+                    'data' => $restored
+                ];
                 break;
 
                 case 'ROLE_USER':
@@ -123,6 +129,12 @@ class WebFiturController extends Controller
                 }])
                 ->findOrFail($id);
                 $name = $restored->name;
+
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!",
+                    'data' => $restored
+                ];
                 break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
@@ -131,6 +143,12 @@ class WebFiturController extends Controller
                 $restored_category_campaign->restore();
                 $restored = CategoryCampaign::findOrFail($id);
                 $name = $restored->name;
+
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!",
+                    'data' => $restored
+                ];
                 break;
 
                 case 'CAMPAIGN_DATA':
@@ -139,18 +157,15 @@ class WebFiturController extends Controller
                 $restored_campaign->restore();
                 $restored = Campaign::findOrFail($id);
                 $name = $restored->title;
-
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!"
+                ];
                 break;
 
                 default:
                 $restored = [];
             endswitch;
-
-            $data_event = [
-                'type' => 'restored',
-                'notif' => "{$name}, has been restored!",
-                'data' => $restored
-            ];
 
             event(new DataManagementEvent($data_event));
 
@@ -173,7 +188,7 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                
+
                 $deleted = User::onlyTrashed()
                 ->with('profiles', function($profile) {
                     return $profile->onlyTrashed();
@@ -189,6 +204,12 @@ class WebFiturController extends Controller
                 $deleted->profiles()->delete();
                 $deleted->forceDelete();
 
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "Data has been deleted!",
+                    'data' => $deleted
+                ];
+
                 break;
 
                 case 'CATEGORY_CAMPAIGN_DATA':
@@ -197,11 +218,16 @@ class WebFiturController extends Controller
                     // $deleted->categories()->delete();
                 $deleted->forceDelete();
 
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "Data has been deleted!",
+                    'data' => $deleted
+                ];
                 break;
 
                 case 'CAMPAIGN_DATA':
                 $deleted = Campaign::onlyTrashed()
-                ->where('id', $id)->first();
+                ->where('id', $id)->firstOrFail();
 
                 $file_path = $deleted->banner;
 
@@ -210,17 +236,16 @@ class WebFiturController extends Controller
                 }
                 $deleted->forceDelete();
 
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "Data has been deleted!"
+                ];
                 break;
 
                 default:
                 $deleted = [];
             endswitch;
 
-            $data_event = [
-                'type' => 'destroyed',
-                'notif' => "Data has been deleted!",
-                'data' => $deleted
-            ];
 
             event(new EventNotification($data_event));
 

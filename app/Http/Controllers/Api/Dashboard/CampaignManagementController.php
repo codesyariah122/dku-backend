@@ -205,14 +205,14 @@ class CampaignManagementController extends Controller
     public function destroy($id)
     {
         try {
-            $delete_campaign = Campaign::findOrFail($id);
+            $delete_campaign = Campaign::whereNull('deleted_at')
+                ->findOrFail($id);
             
             $delete_campaign->delete();
             
             $data_event = [
                 'type' => 'removed',
-                'notif' => "{$delete_campaign->title}, success move to trash, please check trash!",
-                'data' => $delete_campaign
+                'notif' => "{$delete_campaign->title}, success move to trash, please check trash!"
             ];
 
             event(new DataManagementEvent($data_event));
