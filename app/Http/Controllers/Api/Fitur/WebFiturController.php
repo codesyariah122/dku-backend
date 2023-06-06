@@ -173,10 +173,13 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
+                
                 $deleted = User::onlyTrashed()
-                ->with('profiles')
+                ->with('profiles', function($profile) {
+                    return $profile->onlyTrashed();
+                })
                 ->where('id', $id)
-                ->first();
+                ->firstOrFail();
 
                 if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
                     $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
