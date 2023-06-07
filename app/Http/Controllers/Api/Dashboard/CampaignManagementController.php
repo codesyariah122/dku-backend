@@ -121,7 +121,7 @@ class CampaignManagementController extends Controller
             $new_campaign->end_campaign = Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString();
 
             // $new_campaign->barcode = $this->feature_helpers->generateBarcode($request->slug ? $request->slug : Str::slug(strtolower($req['title'])));
-
+            $new_campaign->created_by = $request->user()->name;
             $new_campaign->author = $request->user()->name;
             $new_campaign->author_email = $request->user()->email;
             $new_campaign->without_limit = $req['without_limit'];

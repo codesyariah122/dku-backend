@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\{Hash, Validator, Http};
 use Illuminate\Support\Str;
@@ -364,6 +365,10 @@ class LoginController extends Controller
             $removeToken = $request->user()->tokens()->delete();
             $delete_login = Login::whereUserId($user->id);
             $delete_login->delete();
+
+            $tableLogin = with(new Login)->getTable();
+            DB::statement("ALTER TABLE $tableLogin AUTO_INCREMENT = 1;");
+
 
             $data_event = [
                 'type' => 'logout',
