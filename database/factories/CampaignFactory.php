@@ -22,7 +22,7 @@ class CampaignFactory extends Factory
     
     public function definition()
     {
-        $user = User::findOrFail(2);
+        $user = User::findOrFail(1);
 
         $faker = Faker::create();
         $title = $faker->sentence();

@@ -34,7 +34,7 @@ class ProfileFactory extends Factory
         $createAvatar = makeAvatar($fontPath, $dest, $char);
 
         $photo = $createAvatar == true ? $newAvatarName : '';
-                    // store into database field photo
+
         $save_path = 'thumbnail_images/users/';
         $new_profile->photo = $save_path . $photo;
     }
@@ -42,6 +42,8 @@ class ProfileFactory extends Factory
     public function definition()
     {
         $faker = Faker::create('id_ID');
+
+        // var_dump($faker->name); die;
 
         return [
             'username' => $faker->userName,

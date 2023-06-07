@@ -219,14 +219,13 @@ class UserManagementController extends Controller
     public function show($username)
     {
         try {
-            $user_detail = Profile::whereUsername($username)
-                ->with(['users' => function($query) {
-                    $query->with('roles');
+            $user_detail = Profile::where('username', $username)
+                ->with(['users' => function($user) {
+                    return $user->with('roles');
                 }])
-                ->get();
+                ->firstOrFail();
 
-
-            if (count($user_detail) % 2 === 1) {
+            if ($user_detail) {
                 return response()->json([
                     'success' => true,
                     'message' => 'User detail data',
@@ -499,13 +498,7 @@ class UserManagementController extends Controller
             ->whereNull('deleted_at')
             ->findOrFail($id);
 
-
-            $profile_id = $delete_user->profiles[0]->id;
-
-            $profile_delete = Profile::whereNull('deleted_at')
-            ->findOrFail($profile_id);
-
-            $profile_delete->delete();
+            $delete_user->profiles()->delete();
             $delete_user->delete();
 
             $data_event = [

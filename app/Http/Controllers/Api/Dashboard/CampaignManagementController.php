@@ -170,7 +170,22 @@ class CampaignManagementController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $campaign_detail = Campaign::with('category_campaigns')
+                ->with('users')
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Detail Campaign {$campaign_detail->title}.",
+                'data' => $campaign_detail
+            ]);
+        } catch(\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -219,7 +234,7 @@ class CampaignManagementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Category Campaign {$delete_campaign->title} success move to trash, please check trash",
+                'message' => "Campaign {$delete_campaign->title} success move to trash, please check trash",
                 'data' => $delete_campaign
             ]);
         } catch (\Exception $e) {

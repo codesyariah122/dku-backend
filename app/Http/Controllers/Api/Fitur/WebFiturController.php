@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Helpers\ContextData;
 use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign};
 use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
@@ -42,7 +43,9 @@ class WebFiturController extends Controller
             switch ($dataType):
                 case 'USER_DATA':
                 $deleted = User::onlyTrashed()
-                ->with('profiles')
+                ->with('profiles', function($profile) {
+                    return $profile->withTrashed();
+                })
                 ->with('roles')
                 ->paginate(10);
                 break;
@@ -85,7 +88,9 @@ class WebFiturController extends Controller
             switch ($dataType):
                 case 'USER_DATA':
                 $restored_user = User::withTrashed()
-                ->with('profiles')
+                ->with('profiles', function($profile) {
+                    return $profile->withTrashed();
+                })
                 ->findOrFail($id);
                 $restored_user->restore();
                 $restored_user->profiles()->restore();
@@ -190,23 +195,35 @@ class WebFiturController extends Controller
                 case 'USER_DATA':
 
                 $deleted = User::onlyTrashed()
-                ->with('profiles', function($profile) {
-                    return $profile->onlyTrashed();
-                })
-                ->where('id', $id)
-                ->firstOrFail();
+                    ->with('profiles', function($profile) {
+                        return $profile->withTrashed();
+                    })
+                    ->where('id', $id)
+                    ->firstOrFail();
 
                 if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
                     $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
-                    unlink($old_photo);
+                    $file_exists = public_path() . '/' . $deleted->profiles[0]->photo;
+
+                    if($old_photo && file_exists($file_exists)) {
+                        unlink($old_photo);
+                    }
                 }
 
-                $deleted->profiles()->delete();
+                $deleted->profiles()->forceDelete();
                 $deleted->forceDelete();
+
+                $message = "Data {$deleted->name} has been deleted !";
+
+                $tableUser = with(new User)->getTable();
+                $tableProfile = with(new Profile)->getTable();
+                DB::statement("ALTER TABLE $tableUser AUTO_INCREMENT = 1;");
+                DB::statement("ALTER TABLE $tableProfile AUTO_INCREMENT = 1;");
+
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "Data has been deleted!",
+                    'notif' => "User {$deleted->name} has been deleted!",
                     'data' => $deleted
                 ];
 
@@ -217,6 +234,8 @@ class WebFiturController extends Controller
                 ->where('id', $id)->first();
                     // $deleted->categories()->delete();
                 $deleted->forceDelete();
+
+                $message = "Data {$deleted->name} has been deleted !";
 
                 $data_event = [
                     'type' => 'destroyed',
@@ -236,6 +255,11 @@ class WebFiturController extends Controller
                 }
                 $deleted->forceDelete();
 
+                $tableCampaign = with(new Campaign)->getTable();
+                DB::statement("ALTER TABLE $tableCampaign AUTO_INCREMENT = 1;");
+
+                $message = "Data {$deleted->title} has been deleted !";
+
                 $data_event = [
                     'type' => 'destroyed',
                     'notif' => "Data has been deleted!"
@@ -251,7 +275,7 @@ class WebFiturController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Deleted data on trashed Success!',
+                'message' => $message,
                 'data' => $deleted
             ]);
         } catch (\Throwable $th) {
