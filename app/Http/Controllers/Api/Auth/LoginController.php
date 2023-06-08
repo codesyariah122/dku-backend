@@ -260,12 +260,18 @@ class LoginController extends Controller
                                     'emailForbaiden' => $user[0]->email,
                                 ];
 
+                                $users = User::with('logins')
+                                    ->with('roles')
+                                    ->whereIsLogin($user[0]->is_login)
+                                    ->firstOrFail();
+
                                 event(new EventNotification($data_event));
 
                                 return response()->json([
                                     'is_login' => true,
                                     'message' => "Akun sedang digunakan {$last_login}",
-                                    'quote' => 'Please check the notification again!'
+                                    'quote' => 'Please check the notification again!',
+                                    'data' => $users
                                 ]);
                             }
 
