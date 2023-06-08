@@ -168,12 +168,13 @@ class CampaignManagementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
         try {
             $campaign_detail = Campaign::with('category_campaigns')
                 ->with('users')
-                ->findOrFail($id);
+                ->whereSlug($slug)
+                ->firstOrFail();
 
             return response()->json([
                 'success' => true,

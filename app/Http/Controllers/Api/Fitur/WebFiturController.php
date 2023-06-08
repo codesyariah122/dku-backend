@@ -232,7 +232,7 @@ class WebFiturController extends Controller
                 case 'CATEGORY_CAMPAIGN_DATA':
                 $deleted = CategoryCampaign::onlyTrashed()
                 ->where('id', $id)->first();
-                    // $deleted->categories()->delete();
+
                 $deleted->forceDelete();
 
                 $message = "Data {$deleted->name} has been deleted !";
