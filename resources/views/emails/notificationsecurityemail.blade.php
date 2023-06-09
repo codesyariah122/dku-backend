@@ -7,9 +7,14 @@ Dear {{ $details['name'] }}, {{ $details['message'] }}
 
 Device : {{$details['user_agent']}}
 
-@component('mail::button', ['url' => $details['url']])
+@component('mail::button', ['url' => $details['url_reset']])
     Check Your Activity
 @endcomponent
+
+@component('mail::button', ['url' => $details['url_force_logout']])
+    Force Logout
+@endcomponent
+
 
 Thanks,<br>
 {{ config('app.name') }}

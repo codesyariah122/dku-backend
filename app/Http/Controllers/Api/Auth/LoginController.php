@@ -245,11 +245,16 @@ class LoginController extends Controller
 
                             if ($this->forbidenIsUserLogin($user[0]->is_login)) {
                                 $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
+                                $login_data = Login::whereUserId($user[0]->id)
+                                    ->firstOrFail();
+
+                                $dashboard = env('DASHBOARD_APP');
                                 $details = [
                                     'name' => $user[0]->name,
                                     'title' => "Seseorang, baru saja mencoba mengakses akun Anda!",
                                     'message' => "Seseorang mencoba mengakses akun anda melalui alamat email : {$user[0]->email}",
-                                    'url' => "https://dev.dompetkebaikanumat.com/user/settings/security/{$user[0]->id}",
+                                    'url_reset' => "https://dku-admin.vercel.app/activity/security-login?token={$login_data->user_token_login}",
+                                    'url_force_logout' => 'https://dku-admin.vercel.app/activity/force-logout?token='.$login_data->user_token_login,
                                     'user_agent' => $user_agent
                                 ];
 
@@ -269,7 +274,7 @@ class LoginController extends Controller
 
                                 return response()->json([
                                     'is_login' => true,
-                                    'message' => "Akun sedang digunakan {$last_login}",
+                                    'message' => "Akun sedang digunakan {$last_login}, silahkan cek email anda!",
                                     'quote' => 'Please check the notification again!',
                                     'data' => $users
                                 ]);

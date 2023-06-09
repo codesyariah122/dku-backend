@@ -550,4 +550,23 @@ class WebFiturController extends Controller
             ]);
         }
     }
+
+    public function force_logout(Request $request, $id)
+    {
+        try {
+            $user_force = User::whereEmail($request->email)
+                ->with('logins')
+                ->with('roles')
+                ->with('profiles')
+                ->firstOrFail();
+
+            var_dump($user_force); die;
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
 }
