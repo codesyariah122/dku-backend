@@ -11,7 +11,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as ProviderUser;
 use App\Helpers\UserHelpers;
 use Carbon\Carbon;
-use App\Models\{User, Login, Profile, Roles, UserActivation};
+use App\Models\{User, Login, Profile, Roles, UserActivation, UserDonation};
 use App\Events\EventNotification;
 
 class RedirectProviderController extends Controller
@@ -175,6 +175,10 @@ class RedirectProviderController extends Controller
                     $newuser->expires_at = now()->addRealDays(1);
                     $newuser->last_login = $current;
                     $newuser->save();
+                    $user_donation = new UserDonation;
+                    $user_donation->user_id = $newuser->id;
+                    $user_donation->save();
+                    $newuser->user_donations()->sync($user_donation);
 
                     $token = $newuser->createToken('authToken')->accessToken;
 

@@ -135,6 +135,7 @@ class UserManagementController extends Controller
                 $new_user->name = $request->name;
                 $new_user->email = $request->email;
                 $new_user->role = intval($request->role);
+                $new_user->phone = $this->helpers->formatPhoneNumber($request->phone);
                 $new_user->password = Hash::make($request->password);
                 $new_user->status = $request->status;
                 $new_user->save();
@@ -266,20 +267,16 @@ class UserManagementController extends Controller
     public function update_with_profile_picture(Request $request, $id)
     {
         try {
-
-            // if ($request->name === NULL && $request->file('photo') === NULL) {
-            //     return response()->json([
-            //         'error' => true,
-            //         'message' => 'Request body cannot be empty'
-            //     ]);
-            // }
-
-
             $username = $request->username !== NULL ? $request->username : $this->username->get_username($request->name);
 
-            $existingProfile = Profile::where('username', $username)->first();
+            $existingProfile = Profile::whereUsername($username)
+                ->whereNull('deleted_at')
+                ->first();
+            $userExistingProfile = User::with('profiles')
+                ->findOrFail($id);
 
-            if ($existingProfile) {
+
+            if ($existingProfile !== NULL && $userExistingProfile->profiles[0]->username !== $username) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Duplicate entry: ' . $username,
@@ -287,29 +284,13 @@ class UserManagementController extends Controller
                 ], 409);
             }
 
-            // $validator = Validator::make($request->all(), [
-            //     'name' => [
-            //         Rule::unique('users')->ignore($id)
-            //     ],
-
-            //     'username' => [
-            //         'required',
-            //         'string',
-            //         'max:255',
-            //         Rule::unique('profiles')->ignore($id),
-            //     ],
-            // ]);
-
-            // if ($validator->fails()) {
-            //     return response()->json($validator->errors(), 400);
-            // }
-
+        
             $user = User::with('profiles')->findOrFail($id);
 
             $update_user = User::findOrFail($user->id);
             $update_user->name = $request->name ? $request->name : $user->name;
             $update_user->email = $request->email ? $request->email : $user->email;
-            $update_user->phone = $request->phone ? $request->phone : $user->phone;
+            $update_user->phone = $request->phone ? $this->helpers->formatPhoneNumber($request->phone) : $user->phone;
             $update_user->password = $request->password ? Hash::make($request->password) : $user->password;
             $update_user->status = $request->status ? $request->status : $user->status;
             $update_user->save();
@@ -322,7 +303,9 @@ class UserManagementController extends Controller
             if ($request->name !== "" && $request->file('photo') !== NULL) {
                 $image = $request->file('photo');
 
+
                 if ($image !== '' || $image !== NULL) {
+
                     $extension = $request->file('photo')->getClientOriginalExtension();
 
                     $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
@@ -345,20 +328,21 @@ class UserManagementController extends Controller
                 $exist_photo = env('APP_URL') . '/' . $user_photo;
 
                 if ($user_image_path && $check_photo_db === $exist_photo) {
-                    $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
-                    unlink($old_photo);
+                    // $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
+                    // unlink($old_photo);
 
-                    $initial = $this->initials->get_initials($request->name);
-                    $path = public_path() . '/thumbnail_images/users/';
-                    $fontPath = public_path('fonts/Oliciy.ttf');
-                    $char = $initial;
-                    $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
-                    $dest = $path . $newAvatarName;
+                    // $initial = $this->initials->get_initials($request->name);
+                    // $path = public_path() . '/thumbnail_images/users/';
+                    // $fontPath = public_path('fonts/Oliciy.ttf');
+                    // $char = $initial;
+                    // $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
+                    // $dest = $path . $newAvatarName;
 
-                    $createAvatar = makeAvatar($fontPath, $dest, $char);
-                    $photo = $createAvatar == true ? $newAvatarName : '';
-                    $save_path = 'thumbnail_images/users/';
-                    $update_profile->photo = $save_path . $photo;
+                    // $createAvatar = makeAvatar($fontPath, $dest, $char);
+                    // $photo = $createAvatar == true ? $newAvatarName : '';
+                    // $save_path = 'thumbnail_images/users/';
+                    // $update_profile->photo = $save_path . $photo;
+                    $update_profile->photo = $update_user->profiles[0]->photo;
                 } else {
                     $initial = $this->initials->get_initials($request->name);
                     $path = public_path() . '/thumbnail_images/users/';
@@ -432,51 +416,39 @@ class UserManagementController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $username)
     {
         try {
-            $user = User::with('profiles')->findOrFail($id);
+            $profile_byusername = Profile::with('users')
+                ->whereUsername($username)
+                ->firstOrFail();
+            $profile_id = $profile_byusername->id;
+            $user_id = $profile_byusername->users[0]->id;
 
-            $update_user = User::findOrFail($user->id);
-            $update_user->name = $request->name ? $request->name : $user->name;
-            $update_user->email = $request->email ? $request->email : $user->email;
-            $update_user->phone = $request->phone ? $request->phone : $user->phone;
-            $update_user->status = $request->status ? $request->status : $user->status;
+            $update_user = User::findOrFail($user_id);
+
+            $update_user->name = $request->name ? $request->name : $update_user->name;
+            $update_user->email = $request->email ? $request->email : $update_user->email;
+            $update_user->role = $request->role ? $request->role : $update_user->role;
+            $update_user->password = $request->password ? Hash::make($request->password) : $update_user->password;
+            $update_user->status = $request->status ? $request->status : $update_user->status;
             $update_user->save();
 
-            $update_profile = Profile::findOrFail($user->profiles[0]->id);
-            $update_profile->username = $request->name !== NULL ? $this->username->get_username($request->name) : $update_profile->username;
-            $update_profile->about = $request->about ? $request->about : $update_profile->about;
-            $update_profile->address = $request->address ? $request->address : $update_profile->about;
-            $update_profile->user_agent = $request->user_agent ? $request->user_agent : $update_profile->user_agent;
-            $update_profile->post_code = $request->post_code ? $request->post_code : $update_profile->post_code;
-            $update_profile->city = $request->city ? $request->city : $update_profile->city;
-            $update_profile->district = $request->district ? $request->district : $update_profile->district;
-            $update_profile->province = $request->province ? $request->province : $update_profile->province;
-            $update_profile->country = $request->country ? $request->country : $update_profile->country;
-            if ($update_profile->save()) {
+            $type_data_update = 'data';
 
-                $new_user_updated = User::whereId($update_user->id)->with('profiles')->get();
-                $type_data_update = 'data';
+            $data_event = [
+                'type' => 'updated',
+                'notif' => "{$update_user->name}, {$type_data_update} successfully update!",
+                'data' => $update_user
+            ];
 
-                $data_event = [
-                    'type' => 'updated',
-                    'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
-                    'data' => $new_user_updated
-                ];
+            event(new UpdateProfileEvent($data_event));
 
-                event(new UpdateProfileEvent($data_event));
+            return response()->json([
+                'message' => "Update user {$update_user->name}, berhasil",
+                'data' => $update_user
+            ]);
 
-                return response()->json([
-                    'message' => "Update user {$user->name}, berhasil",
-                    'data' => $new_user_updated
-                ]);
-            } else {
-                return response()->json([
-                    'error' => true,
-                    'messge' => 'Duplicate username field !!'
-                ]);
-            }
         } catch (\Throwable $th) {
             response()->json([
                 'error' => true,

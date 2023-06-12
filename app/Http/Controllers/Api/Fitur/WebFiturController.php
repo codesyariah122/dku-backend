@@ -42,12 +42,24 @@ class WebFiturController extends Controller
             $dataType = $request->query('type');
             switch ($dataType):
                 case 'USER_DATA':
-                $deleted = User::onlyTrashed()
-                ->with('profiles', function($profile) {
-                    return $profile->withTrashed();
-                })
-                ->with('roles')
-                ->paginate(10);
+                $roleType = $request->query('roles');
+                if($roleType === 'DASHBOARD') {
+                    $deleted =  User::onlyTrashed()
+                        ->where('role', '<', 3)
+                        ->with('profiles', function($profile) {
+                            return $profile->withTrashed();
+                        })
+                        ->with('roles')
+                        ->paginate(10);
+                } else {                
+                    $deleted = User::onlyTrashed()
+                    ->where('role', '>', 2)
+                    ->with('profiles', function($profile) {
+                        return $profile->withTrashed();
+                    })
+                    ->with('roles')
+                    ->paginate(10);
+                }
                 break;
 
                 case 'ROLE_USER':
@@ -85,6 +97,7 @@ class WebFiturController extends Controller
     {
         try {
             $dataType = $request->query('type');
+
             switch ($dataType):
                 case 'USER_DATA':
                 $restored_user = User::withTrashed()
@@ -551,22 +564,4 @@ class WebFiturController extends Controller
         }
     }
 
-    public function force_logout(Request $request, $id)
-    {
-        try {
-            $user_force = User::whereEmail($request->email)
-                ->with('logins')
-                ->with('roles')
-                ->with('profiles')
-                ->firstOrFail();
-
-            var_dump($user_force); die;
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'error' => true,
-                'message' => $th->getMessage()
-            ]);
-        }
-    }
 }
