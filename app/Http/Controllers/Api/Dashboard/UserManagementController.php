@@ -442,11 +442,15 @@ class UserManagementController extends Controller
                 'data' => $update_user
             ];
 
+            $update_user_success = User::with('profiles')
+                ->findOrFail($update_user->id);
+
             event(new UpdateProfileEvent($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => "Update user {$update_user->name}, berhasil",
-                'data' => $update_user
+                'data' => $update_user_success
             ]);
 
         } catch (\Throwable $th) {
