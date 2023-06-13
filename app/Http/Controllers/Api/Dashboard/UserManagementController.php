@@ -399,7 +399,7 @@ class UserManagementController extends Controller
                 'data' => $new_user_updated
             ];
 
-            event(new UpdateProfileEvent($data_event));
+            event(new DataManagementEvent($data_event));
 
             // return response()->json([
             //     'message' => "Update user {$user->name}, berhasil",
@@ -445,7 +445,7 @@ class UserManagementController extends Controller
             $update_user_success = User::with('profiles')
                 ->findOrFail($update_user->id);
 
-            event(new UpdateProfileEvent($data_event));
+            event(new DataManagementEvent($data_event));
 
             return response()->json([
                 'success' => true,
