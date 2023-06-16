@@ -34,6 +34,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
 
     // Campaign Management
     Route::resource('/campaign-management', CampaignManagementController::class);
+    Route::post('/update-campaign/{slug}', [CampaignManagementController::class, 'update']);
 
     // Role management
     Route::resource('/roles-management', RoleUserManagementController::class);

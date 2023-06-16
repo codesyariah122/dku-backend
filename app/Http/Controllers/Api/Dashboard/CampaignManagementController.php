@@ -141,8 +141,7 @@ class CampaignManagementController extends Controller
 
             $data_event = [
                 'type' => 'added',
-                'notif' => "{$new_campaign->title}, berhasil ditambahkan!",
-                'data' => $new_campaign
+                'notif' => "{$new_campaign->title}, successfully added!"
             ];
 
             event(new DataManagementEvent($data_event));
@@ -207,9 +206,68 @@ class CampaignManagementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $slug)
     {
-        //
+        try {
+            $campaign_data = Campaign::with('category_campaigns')
+                ->whereSlug($slug)
+                ->firstOrFail();
+
+            $category_campaign = CategoryCampaign::findOrFail($campaign_data->category_campaigns[0]->id);
+
+            $update_campaign = Campaign::with('category_campaigns')
+                ->findOrFail($campaign_data->id);
+
+
+            // var_dump($category_campaign->id); die;
+
+            $update_campaign->title = $request->title ? $request->title : $update_campaign->title;
+            $update_campaign->slug = $request->slug ? $request->slug : $update_campaign->slug;
+            $update_campaign->description = $request->description ? $request->description : $update_campaign->description;
+            $update_campaign->donation_target = $request->donation_target ? $request->donation_target : $update_campaign->donation_target;
+            $update_campaign->is_headline = $request->is_headline ? $request->is_headline : $update_campaign->is_headline;
+            $update_campaign->publish = $request->publish ? $request->publish : $update_campaign->publish;
+            $update_campaign->end_campaign = $request->end_campaign ? Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString() : $update_campaign->end_campaign;
+
+            if ($request->file('banner')) {
+                $image = $request->file('banner');
+                $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
+                $update_campaign->banner = $file;
+            } else {
+                $update_campaign->banner = $update_campaign->banner;
+            }
+
+            $update_campaign->save();
+
+            $update_campaign->category_campaigns()->sync($category_campaign->id);
+
+
+            $data_event = [
+                'type' => 'updated',
+                'notif' => "{$update_campaign->title}, successfully update!"
+            ];
+
+            event(new DataManagementEvent($data_event));
+
+            $saving_campaigns = Campaign::with('users')
+                ->with('category_campaigns')
+                ->whereId($update_campaign->id)
+                ->get();
+
+            return new CampaignManagementCollection($saving_campaigns);
+
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => "{$update_campaign->title}, successfully update!",
+            //     'data' => $saving_campaigns
+            // ]);
+
+        } catch(\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => "Error {$th->getMessage()}"
+            ]);
+        }
     }
 
     /**

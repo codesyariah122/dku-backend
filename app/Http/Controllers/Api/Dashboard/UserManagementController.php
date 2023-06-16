@@ -192,8 +192,7 @@ class UserManagementController extends Controller
 
                 $data_event = [
                     'type' => 'added',
-                    'notif' => "{$users[0]->name}, successfully added!",
-                    'data' => $users
+                    'notif' => "{$users[0]->name}, successfully added!"
                 ];
 
                 event(new DataManagementEvent($data_event));
@@ -395,8 +394,7 @@ class UserManagementController extends Controller
 
             $data_event = [
                 'type' => 'updated',
-                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!",
-                'data' => $new_user_updated
+                'notif' => "{$new_user_updated[0]->name}, {$type_data_update} successfully update!"
             ];
 
             event(new DataManagementEvent($data_event));
@@ -438,8 +436,7 @@ class UserManagementController extends Controller
 
             $data_event = [
                 'type' => 'updated',
-                'notif' => "{$update_user->name}, {$type_data_update} successfully update!",
-                'data' => $update_user
+                'notif' => "{$update_user->name}, {$type_data_update} successfully update!"
             ];
 
             $update_user_success = User::with('profiles')
