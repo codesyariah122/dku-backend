@@ -401,7 +401,7 @@ class LoginController extends Controller
         }
     }
 
-    public function userProfile(Request $request)
+    public function user_profile(Request $request)
     {
         try {
             $user = $request->user();
@@ -409,18 +409,18 @@ class LoginController extends Controller
                 ->with('profiles')
                 ->with('roles')
                 ->with('logins')
-                ->get();
-            if (count($user_login) > 0) {
-                return response()->json([
-                    'message' => 'User data is login',
-                    'data' => $user_login
-                ], 200);
-            } else {
+                ->firstOrFail();
+
+            if (!$user_login) {
                 return response()->json([
                     'not_login' => true,
                     'message' => 'Anauthenticated'
                 ]);
             }
+            return response()->json([
+                'message' => 'User data is login',
+                'data' => $user_login
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage(),

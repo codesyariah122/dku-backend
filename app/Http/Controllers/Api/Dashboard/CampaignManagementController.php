@@ -134,7 +134,6 @@ class CampaignManagementController extends Controller
             $new_campaign->users()->sync($campaign_user->id);
 
             $campaign_barcode = Campaign::findOrFail($new_campaign->id);
-            // $campaign_barcode->barcode = $new_campaign->id > 9 ? "CAMPAIGN-0{$new_campaign->id}" : "CAMPAIGN-00{$new_campaign->id}";
             $campaigin_link = env('FRONTEND_APP')."/campaign/".$new_campaign->slug;
             $campaign_barcode->barcode = $this->feature_helpers->generateQrCode($campaigin_link);
             $campaign_barcode->save();

@@ -17,17 +17,17 @@ use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
 
     // User profile
-    Route::get('/user-profile', [LoginController::class, 'userProfile']);
+    Route::get('/user-profile', [LoginController::class, 'user_profile']);
 
     // User management
     Route::resource('/user-management', UserManagementController::class);
     Route::post('/update-user-with-photo/{id}', [UserManagementController::class, 'update_with_profile_picture']);
 
     // Edit profile user
-    Route::put('/update-profile/{username}', [WebFiturController::class, 'update_user_profile']);
+    Route::put('/update-profile', [WebFiturController::class, 'update_user_profile']);
 
-    // Upload photo
-    Route::post('/upload-photo/{id}', [WebFiturController::class, 'upload_profile_picture']);
+    // Update & Upload photo
+    Route::post('/upload-photo', [WebFiturController::class, 'upload_profile_picture']);
 
     // Category Campaign Management
     Route::resource('/category-campaigns-management', CategoryCampaignController::class);

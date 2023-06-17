@@ -322,11 +322,15 @@ class WebFiturController extends Controller
 
             return response()
             ->json([
+                'success' => true,
                 'message' => $type . ' Trash',
                 'data' => count($countTrash)
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
         }
     }
 
@@ -421,7 +425,10 @@ class WebFiturController extends Controller
                 $totalData = [];
             }
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
         }
     }
 
@@ -433,11 +440,16 @@ class WebFiturController extends Controller
         return $initial;
     }
 
-    public function upload_profile_picture(Request $request, $id)
+    public function upload_profile_picture(Request $request)
     {
         try {
-            $update_user = User::with('profiles')->findOrFail($id);
+            $user_id = $request->user()->id;
+
+            $update_user = User::with('profiles')
+                ->findOrFail($user_id);
+
             $user_photo = $update_user->profiles[0]->photo;
+            
             $image = $request->file('photo');
 
             if ($image !== '' && $image !== NULL) {
@@ -465,8 +477,7 @@ class WebFiturController extends Controller
 
                 $data_event = [
                     'type' => 'update-photo',
-                    'notif' => "{$update_user->name} photo, has been updated!",
-                    'data' => $profile_has_update
+                    'notif' => "{$update_user->name} photo, has been updated!"
                 ];
 
                 event(new UpdateProfileEvent($data_event));
@@ -477,32 +488,33 @@ class WebFiturController extends Controller
                 ]);
             } else {
                 return response()->json([
+                    'error' => true,
                     'message' => 'please choose files!!'
                 ]);
             }
         } catch (\Throwable $th) {
             return response()->json([
+                'error' => true,
                 'message' => $th->getMessage()
             ]);
         }
     }
 
-    public function update_user_profile(Request $request, $username)
+    public function update_user_profile(Request $request)
     {
         try {
-            $prepare_profile = Profile::whereUsername($username)->with('users')->first();
-            $check_avatar = explode('_', $prepare_profile->photo);
-            $handle_duplicate = User::whereName($request->name)->get();
 
-            if (count($handle_duplicate) > 0) {
-                return response()->json([
-                    'duplicate' => true,
-                    'message' => "Error update {$request->name}, this data is duplicate"
-                ]);
-            }
+            $username = $request->user()->profiles[0]->username;
+
+            $prepare_profile = Profile::whereUsername($username)->with('users')->firstOrFail();
+
+            $check_avatar = explode('_', $prepare_profile->photo);
 
             $user_id = $prepare_profile->users[0]->id;
             $update_user = User::findOrFail($user_id);
+
+            // var_dump($check_avatar); die;
+
             $update_user->name = $request->name ? $request->name : $update_user->name;
             $update_user->email = $request->email ? $request->email : $update_user->email;
             $update_user->phone = $request->phone ? $request->phone : $update_user->phone;
@@ -512,7 +524,7 @@ class WebFiturController extends Controller
             $user_profiles = User::with('profiles')->findOrFail($update_user->id);
 
             $update_profile = Profile::findOrFail($user_profiles->profiles[0]->id);
-            $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', $request->name)) : $user_profiles->profiles[0]->username;
+            // $update_profile->username = $request->name ? trim(preg_replace('/\s+/', '_', $request->name)) : $user_profiles->profiles[0]->username;
 
             if ($check_avatar[2] === "avatar.png") {
                 $old_photo = public_path() . '/' . $update_user->profiles[0]->photo;
@@ -531,7 +543,6 @@ class WebFiturController extends Controller
                 $update_profile->photo = $path . $photo;
             }
 
-
             $update_profile->about = $request->about ? $request->about : $user_profiles->profiles[0]->about;
             $update_profile->address = $request->address ? $request->address : $user_profiles->profiles[0]->address;
             $update_profile->post_code = $request->post_code ? $request->post_code : $user_profiles->profiles[0]->post_code;
@@ -546,13 +557,13 @@ class WebFiturController extends Controller
             $data_event = [
                 'type' => 'update-profile',
                 'notif' => "{$update_user->name}, has been updated!",
-                'data' => $new_user_updated
             ];
 
             event(new UpdateProfileEvent($data_event));
 
 
             return response()->json([
+                'success' => true,
                 'message' => "Update user {$update_user->name}, berhasil",
                 'data' => $new_user_updated
             ]);
