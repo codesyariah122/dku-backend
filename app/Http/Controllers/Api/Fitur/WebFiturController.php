@@ -486,6 +486,7 @@ class WebFiturController extends Controller
                 event(new UpdateProfileEvent($data_event));
 
                 return response()->json([
+                    'success' => true,
                     'message' => 'Profile photo has been updated',
                     'data' => $profile_has_update
                 ]);
