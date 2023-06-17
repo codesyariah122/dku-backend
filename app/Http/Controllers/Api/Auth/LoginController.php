@@ -221,6 +221,7 @@ class LoginController extends Controller
 
                 $geo = Http::get("http://ip-api.com/json/{$ip_client}")->json();
 
+
                 if (count($user) === 0) {
                     return response()->json([
                         'not_found' => true,
@@ -345,10 +346,16 @@ class LoginController extends Controller
                     endif;
                 }
             } else {
+                $user = User::whereNull('deleted_at')
+                ->where('email', $request->email)
+                ->get();
+
+               if(count($user) === 0) {
                 return response()->json([
                     'error' => true,
-                    'message' => 'User cannot access dashboard!'
-                ], 404);
+                    'message' => 'User not registered!'
+                ]);
+               }
             }
         } catch (\Throwable $th) {
             return response()->json([
