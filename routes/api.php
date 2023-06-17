@@ -23,6 +23,9 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::resource('/user-management', UserManagementController::class);
     Route::post('/update-user-with-photo/{id}', [UserManagementController::class, 'update_with_profile_picture']);
 
+    // Change user password
+    Route::post('/change-password', [WebFiturController::class, 'change_password']);
+
     // Edit profile user
     Route::put('/update-profile', [WebFiturController::class, 'update_user_profile']);
 

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api\Fitur;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -567,6 +570,61 @@ class WebFiturController extends Controller
                 'message' => "Update user {$update_user->name}, berhasil",
                 'data' => $new_user_updated
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
+
+    public function change_password(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'current_password'      => 'required',
+                'new_password'  => [
+                    'required', 'confirmed', Password::min(8)
+                        ->mixedCase()
+                        ->letters()
+                        ->numbers()
+                        ->symbols()
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+            $user = $request->user();
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'The current password is incorrect!!'
+                ]);
+            }
+
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            $data_event = [
+                'type' => 'change-password',
+                'notif' => "Your password, has been changes!",
+            ];
+
+            event(new UpdateProfileEvent($data_event));
+
+            $user_has_update = User::with('profiles')
+                ->with('roles')
+                ->findOrFail($user->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Your password successfully updates!",
+                'data' => $user_has_update
+            ]);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
