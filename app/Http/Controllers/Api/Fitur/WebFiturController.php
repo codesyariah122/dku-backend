@@ -513,7 +513,7 @@ class WebFiturController extends Controller
             $user_id = $prepare_profile->users[0]->id;
             $update_user = User::findOrFail($user_id);
 
-            // var_dump($check_avatar); die;
+            // var_dump($check_avatar[2]); die;
 
             $update_user->name = $request->name ? $request->name : $update_user->name;
             $update_user->email = $request->email ? $request->email : $update_user->email;
