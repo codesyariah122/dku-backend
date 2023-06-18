@@ -48,12 +48,12 @@ class WebFiturController extends Controller
                 $roleType = $request->query('roles');
                 if($roleType === 'DASHBOARD') {
                     $deleted =  User::onlyTrashed()
-                        ->where('role', '<', 3)
-                        ->with('profiles', function($profile) {
-                            return $profile->withTrashed();
-                        })
-                        ->with('roles')
-                        ->paginate(10);
+                    ->where('role', '<', 3)
+                    ->with('profiles', function($profile) {
+                        return $profile->withTrashed();
+                    })
+                    ->with('roles')
+                    ->paginate(10);
                 } else {                
                     $deleted = User::onlyTrashed()
                     ->where('role', '>', 2)
@@ -211,11 +211,11 @@ class WebFiturController extends Controller
                 case 'USER_DATA':
 
                 $deleted = User::onlyTrashed()
-                    ->with('profiles', function($profile) {
-                        return $profile->withTrashed();
-                    })
-                    ->where('id', $id)
-                    ->firstOrFail();
+                ->with('profiles', function($profile) {
+                    return $profile->withTrashed();
+                })
+                ->where('id', $id)
+                ->firstOrFail();
 
                 if ($deleted->profiles[0]->photo !== "" && $deleted->profiles[0]->photo !== NULL) {
                     $old_photo = public_path() . '/' . $deleted->profiles[0]->photo;
@@ -449,7 +449,7 @@ class WebFiturController extends Controller
             $user_id = $request->user()->id;
 
             $update_user = User::with('profiles')
-                ->findOrFail($user_id);
+            ->findOrFail($user_id);
 
             $user_photo = $update_user->profiles[0]->photo;
             
@@ -473,6 +473,7 @@ class WebFiturController extends Controller
 
                 Image::make($thumbImage)->save($thumbPath);
                 $new_profile = Profile::findOrFail($update_user->profiles[0]->id);
+                
                 $new_profile->photo = "thumbnail_images/users/" . $filenametostore;
                 $new_profile->save();
 
@@ -535,7 +536,7 @@ class WebFiturController extends Controller
                 unlink($old_photo);
 
                 $initial = $this->initials($update_user->name);
-                $path = 'thumbnail_images/users/';
+                $path = public_path() . '/thumbnail_images/users/';
                 $fontPath = public_path('fonts/Oliciy.ttf');
                 $char = $initial;
                 $newAvatarName = rand(12, 34353) . time() . '_avatar.png';
@@ -544,7 +545,9 @@ class WebFiturController extends Controller
                 $createAvatar = makeAvatar($fontPath, $dest, $char);
                 $photo = $createAvatar == true ? $newAvatarName : '';
 
-                $update_profile->photo = $path . $photo;
+                // store into database field photo
+                $save_path = 'thumbnail_images/users/';
+                $update_profile->photo = $save_path . $photo;
             }
 
             $update_profile->about = $request->about ? $request->about : $user_profiles->profiles[0]->about;
@@ -586,10 +589,10 @@ class WebFiturController extends Controller
                 'current_password'      => 'required',
                 'new_password'  => [
                     'required', 'confirmed', Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
                 ]
             ]);
 
@@ -617,8 +620,8 @@ class WebFiturController extends Controller
             event(new UpdateProfileEvent($data_event));
 
             $user_has_update = User::with('profiles')
-                ->with('roles')
-                ->findOrFail($user->id);
+            ->with('roles')
+            ->findOrFail($user->id);
 
             return response()->json([
                 'success' => true,
