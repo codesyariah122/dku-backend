@@ -397,10 +397,15 @@ class LoginController extends Controller
             event(new EventNotification($data_event));
 
             if ($removeToken) {
+                $userIsLogout = User::whereId($user->id)
+                            ->with('profiles')
+                            ->with('roles')
+                            ->with('logins')
+                            ->get();
                 return response()->json([
                     'success' => true,
                     'message' => 'Logout Success!',
-                    'data' => $user
+                    'data' => $userIsLogout
                 ]);
             }
         } catch (\Throwable $th) {
