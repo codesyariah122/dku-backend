@@ -47,7 +47,7 @@ class CampaignManagementController extends Controller
                     ->orderBy('id', 'DESC')
                     ->with('users')
                     ->with('category_campaigns')
-                    ->whereTitle($request->title)
+                    ->where('title', 'like', '%' . $request->title . '%')
                     ->paginate(10);
             } elseif($request->category_campaign) {
                 $campaigns = Campaign::whereNull('deleted_at')
