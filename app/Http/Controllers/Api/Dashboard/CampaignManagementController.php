@@ -37,14 +37,44 @@ class CampaignManagementController extends Controller
         $this->feature_helpers = new WebFeatureHelpers;
     }
 
-    public function index()
+
+    public function index(Request $request)
     {
         try {
-            $campaigns = Campaign::whereNull('deleted_at')
-                ->orderBy('id', 'DESC')
-                ->with('users')
-                ->with('category_campaigns')
-                ->paginate(10);
+
+            if($request->title) {
+                $campaigns = Campaign::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->with('users')
+                    ->with('category_campaigns')
+                    ->whereTitle($request->title)
+                    ->paginate(10);
+            } elseif($request->category_campaign) {
+                $campaigns = Campaign::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->with('users')
+                    ->with('category_campaigns')
+                    ->whereHas('category_campaigns', function ($query) use ($request) {
+                        $query->where('category_campaigns.id', $request->category_campaign);
+                    })
+                    ->paginate(10);
+            } elseif($request->start_date) {
+                $startDate = $request->start_date;
+                $endDate = $request->end_date;
+                // var_dump($startDate); die;
+                $campaigns = Campaign::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->with('users')
+                    ->with('category_campaigns')
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->paginate(10);
+            }else {
+                $campaigns = Campaign::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->with('users')
+                    ->with('category_campaigns')
+                    ->paginate(10);
+            }
 
             return new CampaignManagementCollection($campaigns);
 

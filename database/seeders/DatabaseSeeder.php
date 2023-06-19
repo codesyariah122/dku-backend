@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         //     $user->roles()->sync(Roles::whereIn('id', [1])->get());
         // });
         Campaign::factory()
-        ->count(1)
+        ->count(5)
         ->create()
         ->each(function($campaign) {
             $users = User::whereRole(random_int(1, 2))->get();
