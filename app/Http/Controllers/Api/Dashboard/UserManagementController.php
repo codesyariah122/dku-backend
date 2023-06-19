@@ -45,21 +45,52 @@ class UserManagementController extends Controller
             $user_type = $request->query('role');
 
             if ($user_type == 'USER') {
-                $users = User::whereNull('deleted_at')
-                ->with('profiles')
-                ->with('roles')
-                ->with('logins')
-                ->whereRole(3)
-                ->orderBy('id', 'DESC')
-                ->paginate(10);
+                if($request->name) {                
+                    $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->where('name', 'like', '%'.$request->name.'%')
+                    ->whereRole(3)
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                } else {
+                    $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->whereRole(3)
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                }
             } else {
-                $users = User::whereNull('deleted_at')
-                ->with('profiles')
-                ->with('roles')
-                ->with('logins')
-                ->whereIn('role', [1, 2])
-                ->orderBy('id', 'DESC')
-                ->paginate(10);
+                if($request->name) {
+                    $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->where('name', 'like', '%'.$request->name.'%')
+                    ->whereIn('role', [1, 2])
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                } elseif($request->roles) {
+                    $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->where('role', $request->roles)
+                    ->whereIn('role', [1, 2])
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                } else {
+                     $users = User::whereNull('deleted_at')
+                    ->with('profiles')
+                    ->with('roles')
+                    ->with('logins')
+                    ->whereIn('role', [1, 2])
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                }
             }
 
             return new UserManagementCollection($users);
