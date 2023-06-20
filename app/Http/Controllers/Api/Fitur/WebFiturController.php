@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Exports\CampaignDataExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Helpers\ContextData;
 use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign};
 use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
@@ -635,6 +638,35 @@ class WebFiturController extends Controller
                 'message' => $th->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @author Puji Ermanto <pujiermanto@gmail.com>
+     * @return \Illuminate\Http\Response
+     */
+
+    public function campaign_data_download()
+    {
+        try {
+            $export = new CampaignDataExport();
+            $fileName = 'campaign-data.xlsx';
+
+            Excel::store($export, $fileName, 'public');
+
+            $fileUrl = Storage::url($fileName);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Campaigns data',
+                'link' => $fileUrl
+            ]);
+        } catch(\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        } 
     }
 
 }

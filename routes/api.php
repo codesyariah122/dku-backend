@@ -38,6 +38,8 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // Campaign Management
     Route::resource('/campaign-management', CampaignManagementController::class);
     Route::post('/update-campaign/{slug}', [CampaignManagementController::class, 'update']);
+    // Export campaign data
+    Route::get('/campaign-data/download', [WebFiturController::class, 'campaign_data_download']);
 
     // Role management
     Route::resource('/roles-management', RoleUserManagementController::class);
