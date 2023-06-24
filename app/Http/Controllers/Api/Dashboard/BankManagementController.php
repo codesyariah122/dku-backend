@@ -35,11 +35,21 @@ class BankManagementController extends Controller
         $this->feature_helpers = new WebFeatureHelpers;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $name = $request->name;
 
-            $banks = Bank::paginate(10);
+            if($name) {
+                $banks = Bank::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->where('name', 'like', '%'.$name.'%')
+                    ->paginate(10);
+            } else {
+                $banks = Bank::whereNull('deleted_at')
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+            }
 
             return new BankManagementCollection($banks);
 
@@ -130,7 +140,19 @@ class BankManagementController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+
+            $detail_bank = Bank::whereId($id)
+                ->get();
+
+            return new BankManagementCollection($detail_bank);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -155,7 +177,6 @@ class BankManagementController extends Controller
     {
         try {
             $update_bank = Bank::findOrFail($id);
-
 
             // var_dump($category_campaign->id); die;
 
