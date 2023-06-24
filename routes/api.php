@@ -41,7 +41,10 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // Export campaign data
     Route::get('/campaign-data/download', [WebFiturController::class, 'campaign_data_download']);
 
+    // Bank Management
     Route::resource('/bank-management',BankManagementController::class);
+    Route::post('/update-bank/{id}', [BankManagementController::class, 'update']);
+
 
     // Role management
     Route::resource('/roles-management', RoleUserManagementController::class);

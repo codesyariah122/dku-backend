@@ -14,7 +14,7 @@ use App\Exports\CampaignDataExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Helpers\ContextData;
-use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign};
+use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign, Bank};
 use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
 use App\Helpers\{UserHelpers, WebFeatureHelpers, FeatureHelpers};
 use Image;
@@ -82,6 +82,11 @@ class WebFiturController extends Controller
                 case 'CAMPAIGN_DATA':
                 $deleted = Campaign::onlyTrashed()
                 ->paginate(10);
+                break;
+
+                case 'BANK_DATA':
+                $deleted = Bank::onlyTrashed()
+                    ->paginate(10);
                 break;
 
                 default:
@@ -187,6 +192,18 @@ class WebFiturController extends Controller
                 ];
                 break;
 
+                case 'BANK_DATA':
+                $restored_bank = Bank::onlyTrashed()
+                    ->findOrFail($id);
+                $restored_bank->restore();
+                $restored = Bank::findOrFail($id);
+                $name = $restored->name;
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!"
+                ];
+                break;
+
                 default:
                 $restored = [];
             endswitch;
@@ -282,6 +299,35 @@ class WebFiturController extends Controller
                 $data_event = [
                     'type' => 'destroyed',
                     'notif' => "Data has been deleted!"
+                ];
+                break;
+
+                case 'BANK_DATA':
+                $deleted = Bank::onlyTrashed()
+                ->where('id', $id)
+                ->firstOrFail();
+
+                if ($deleted->image !== "" && $deleted->image !== NULL) {
+                    $old_photo = public_path() . '/' . $deleted->image;
+                    $file_exists = public_path() . '/' . $deleted->image;
+
+                    if($old_photo && file_exists($file_exists)) {
+                        unlink($old_photo);
+                    }
+                }
+
+                $deleted->forceDelete();
+
+                $message = "Data {$deleted->name} has been deleted !";
+
+                $tableBank = with(new Bank)->getTable();
+                DB::statement("ALTER TABLE $tableBank AUTO_INCREMENT = 1;");
+
+
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "User {$deleted->name} has been deleted!",
+                    'data' => $deleted
                 ];
                 break;
 

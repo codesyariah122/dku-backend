@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Image;
 use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
@@ -259,6 +260,12 @@ class CampaignManagementController extends Controller
             $update_campaign->end_campaign = $request->end_campaign ? Carbon::createFromTimestamp($request->end_campaign)->toDateTimeString() : $update_campaign->end_campaign;
 
             if ($request->file('banner')) {
+                // Deleted old storage
+                $file_path = $update_campaign->banner;
+                if (Storage::exists($file_path)) {
+                    Storage::disk('public')->delete($file_path);
+                }
+
                 $image = $request->file('banner');
                 $file = $image->store(trim(preg_replace('/\s+/', '', '/images/campaigns')), 'public');
                 $update_campaign->banner = $file;
