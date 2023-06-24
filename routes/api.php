@@ -10,7 +10,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
-use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController};
+use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController, BankManagementController};
 use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController};
 
 
@@ -40,6 +40,8 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     Route::post('/update-campaign/{slug}', [CampaignManagementController::class, 'update']);
     // Export campaign data
     Route::get('/campaign-data/download', [WebFiturController::class, 'campaign_data_download']);
+
+    Route::resource('/bank-management',BankManagementController::class);
 
     // Role management
     Route::resource('/roles-management', RoleUserManagementController::class);

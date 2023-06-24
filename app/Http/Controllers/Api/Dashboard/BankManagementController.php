@@ -5,41 +5,44 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Image;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
-use App\Models\CategoryCampaign;
+use App\Models\{Bank};
 use App\Events\{EventNotification, DataManagementEvent};
+use App\Http\Resources\BankManagementCollection;
+use App\Helpers\WebFeatureHelpers;
 
-class CategoryCampaignController extends Controller
+class BankManagementController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *@author puji ermanto<pujiermanto@gmail.com>
+     *
      * @return \Illuminate\Http\Response
      */
-
     public function __construct()
     {
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('category-campaigns-management')) return $next($request);
+            if (Gate::allows('campaigns-management')) return $next($request);
             return response()->json([
                 'error' => true,
                 'message' => 'Anda tidak memiliki cukup hak akses'
             ]);
         });
+
+        $this->feature_helpers = new WebFeatureHelpers;
     }
 
     public function index()
     {
         try {
-            $category_campaigns = CategoryCampaign::whereNull('deleted_at')
-                ->with('campaigns')
-                ->paginate(10);
-            return response()->json([
-                'message' => 'List category campaigns',
-                'data' => $category_campaigns
-            ]);
+
+            $banks = Bank::paginate(10);
+
+            return new BankManagementCollection($banks);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -55,6 +58,7 @@ class CategoryCampaignController extends Controller
      */
     public function create()
     {
+        //
     }
 
     /**
@@ -66,42 +70,54 @@ class CategoryCampaignController extends Controller
     public function store(Request $request)
     {
         try {
+            $data = $request->all();
+
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
+                'norek' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
 
-            $check_ready = CategoryCampaign::whereName($request->name)->get();
+            $new_bank = new Bank;
+            $new_bank->name = $data['name'];
+            $new_bank->norek = $data['norek'];
+            $new_bank->owner = $data['owner'];
+            $new_bank->product_code = $data['product_code'];
+            $new_bank->bank_code = $data['bank_code'];
+            $new_bank->status = $data['status'];
+            $new_bank->type = $data['type'];
 
-            if (count($check_ready) > 0) {
-                return response()->json([
-                    'message' => "{$request->name}, its already taken!"
-                ]);
+            if($request->file('image')) {
+                $image = $request->file('image');
+                $extension = $request->file('image')->getClientOriginalExtension();
+
+                $filenametostore = Str::random(12) . '_' . time() . '.' . $extension;
+
+                $thumbImage = Image::make($image->getRealPath())->resize(100, 100);
+                $thumbPath = public_path() . '/thumbnail_images/banks/' . $filenametostore;
+                Image::make($thumbImage)->save($thumbPath);
+                $new_bank->image = "thumbnail_images/banks/" . $filenametostore;
             }
-
-            $new_category = new CategoryCampaign();
-            $new_category->name = $request->name;
-            $new_category->slug = Str::slug($request->name);
-            $new_category->save();
+            $new_bank->save();
 
             $data_event = [
-                'notif' => "{$new_category->name}, berhasil ditambahkan!",
-                'data' => $new_category
+                'type' => 'added',
+                'notif' => "{$new_bank->name}, successfully added!"
             ];
 
             event(new DataManagementEvent($data_event));
 
-            return response()->json([
-                'success' => true,
-                'message' => 'added new category campaign successfully',
-                'data' => $new_category
-            ]);
-        } catch (\Exception $e) {
+            $saving_banks = Bank::whereId($new_bank->id)
+                ->get();
+
+            return new BankManagementCollection($saving_banks);
+
+        } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => "Error : ".$th->getMessage()
             ]);
         }
     }
@@ -148,25 +164,6 @@ class CategoryCampaignController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $delete_category = CategoryCampaign::findOrFail($id);
-            $delete_category->delete();
-            $data_event = [
-                'notif' => "{$delete_category->name}, success move to trash, please check trash!",
-            ];
-
-            event(new DataManagementEvent($data_event));
-
-            return response()->json([
-                'success' => true,
-                'message' => "Category Campaign {$delete_category->name} success move to trash, please check trash",
-                'data' => $delete_category
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
-        }
+        //
     }
 }
