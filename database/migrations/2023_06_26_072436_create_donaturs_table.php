@@ -15,10 +15,11 @@ class CreateDonatursTable extends Migration
     {
         Schema::create('donaturs', function (Blueprint $table) {
             $table->id();
+            $table->string('transaction_id')->nullable();
             $table->string('name');
             $table->string('email');
             $table->enum('anonim', ['Y', 'N'])->default('N');
-            $table->enum('status', ['ACCEPT', 'HOLD'])->default('HOLD');
+            $table->enum('status', ['PAID', 'PENDING'])->default('PENDING');
             $table->unsignedBigInteger('donation_amount')->unsigned()->default(0)->nullable();
             $table->integer('unique_code')->nullable();
             $table->string('image')->nullable();

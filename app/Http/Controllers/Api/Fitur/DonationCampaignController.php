@@ -50,13 +50,13 @@ class DonationCampaignController extends Controller
                     ->whereSlug($slug)
                     ->firstOrFail();
                     $bank_target = Bank::findOrFail($request_data['bank_id']);
-                    $uniqueCode = mt_rand(0, 53);
+                    $uniqueCode = mt_rand(50, 99);
                     $new_donation = new Donatur;
                     $new_donation->name = $request_data['name'];
                     $new_donation->email = $request_data['email'];
                     $new_donation->donation_amount = $request_data['donation_amount'] + $uniqueCode;
                     $new_donation->anonim = $request_data['anonim'];
-                    $new_donation->status = 'HOLD';
+                    $new_donation->status = 'PENDING';
                     $new_donation->unique_code = $uniqueCode;
                     $new_donation->methode = $request_data['methode'];
                     $new_donation->fundraiser = $request_data['user_id'] ? 'Y' : 'N';
@@ -97,7 +97,7 @@ class DonationCampaignController extends Controller
                         ->with('category_campaigns')
                         ->with('banks')
                         ->whereEmail($request_data['email'])
-                        ->where('status', 'HOLD')
+                        ->where('status', 'PAID')
                         ->firstOrFail();
                     $nominal = number_format($donation_ready_hold->donation_amount, 0, ',',  '.');
 
@@ -123,8 +123,6 @@ class DonationCampaignController extends Controller
     public function donation_payment(Request $request, $slug)
     {
         try {
-            
-
             $donation_check = Campaign::with('donaturs.banks')
                 ->with('category_campaigns')
                 ->whereSlug($slug)
@@ -142,13 +140,14 @@ class DonationCampaignController extends Controller
 
             $request_data = $request->all();
 
-            if($donation_check->donaturs[0]->email === $request_data['email'] && $donation_check->donaturs[0]->status === "HOLD" && $donation_check->donaturs[0]->image === NULL) {
+            if($donation_check->donaturs[0]->email === $request_data['email'] && $donation_check->donaturs[0]->status === "PENDING" && $donation_check->donaturs[0]->image === NULL) {
                 $check_donation = Donatur::with('campaigns')
                     ->with('category_campaigns')
                     ->with('banks')
                     ->findOrFail($request_data['donation_id']);
 
                 $update_donation = Donatur::findOrFail($check_donation->id);
+                $update_donation->transaction_id = Str::random(12);
                 $update_donation->expires_at = NULL;
 
                 if($request_data['image']) {
