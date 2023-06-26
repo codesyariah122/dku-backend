@@ -14,7 +14,7 @@ use App\Exports\CampaignDataExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Helpers\ContextData;
-use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign, Bank};
+use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign, Bank, Donatur};
 use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
 use App\Helpers\{UserHelpers, WebFeatureHelpers, FeatureHelpers};
 use Image;
@@ -86,6 +86,11 @@ class WebFiturController extends Controller
 
                 case 'BANK_DATA':
                 $deleted = Bank::onlyTrashed()
+                    ->paginate(10);
+                break;
+
+                case 'DONATION_DATA':
+                $deleted = Donatur::onlyTrashed()
                     ->paginate(10);
                 break;
 
@@ -198,6 +203,19 @@ class WebFiturController extends Controller
                 $restored_bank->restore();
                 $restored = Bank::findOrFail($id);
                 $name = $restored->name;
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "{$name}, has been restored!"
+                ];
+                break;
+
+                case 'DONATION_DATA':
+                $restored_donation = Donatur::onlyTrashed()
+                    ->findOrFail($id);
+                $restored_donation->restore();
+
+                $restored = Donatur::findOrFail($id);
+                $name = $restored_donation->name;
                 $data_event = [
                     'type' => 'restored',
                     'notif' => "{$name}, has been restored!"
@@ -329,6 +347,28 @@ class WebFiturController extends Controller
                     'notif' => "User {$deleted->name} has been deleted!",
                     'data' => $deleted
                 ];
+                break;
+
+                case 'DONATION_DATA':
+                $deleted = Donatur::onlyTrashed()
+                    ->where('id', $id)
+                    ->firstOrFail();
+                $file_path = $deleted->image;
+
+                if (Storage::exists($file_path)) {
+                    Storage::disk('public')->delete($file_path);
+                }
+                $deleted->forceDelete();
+                $tableDonation = with(new Donatur)->getTable();
+                DB::statement("ALTER TABLE $tableDonation AUTO_INCREMENT = 1;");
+
+                $message = "Donatur, {$deleted->name} has been deleted !";
+
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "Data has been deleted!"
+                ];
+
                 break;
 
                 default:

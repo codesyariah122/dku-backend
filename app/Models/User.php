@@ -74,8 +74,8 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\UserActivation');
     }
 
-    public function user_donations()
+    public function donaturs()
     {
-        return $this->belongsToMany('App\Models\UserDonation');
+        return $this->belongsToMany('App\Model\Donatur');
     }
 }

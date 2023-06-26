@@ -5,11 +5,11 @@ namespace App\Http\Resources;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class CampaignManagementCollection extends ResourceCollection
+class DonationManagementCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
-     * @author Puji Ermanto <pujiermanto@gmail.com>
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
@@ -17,14 +17,14 @@ class CampaignManagementCollection extends ResourceCollection
     {
         $collects = collect($this->collection);
 
-        $campaigns = $collects->map(function($campaign) {
-            return $campaign;
+        $donations = $collects->map(function($donation) {
+            return $donation;
         });
 
         return [
             'success' => true,
-            'message' => 'Campaign lists !',
-            'data' => $campaigns
+            'message' => 'Donation data lists !',
+            'data' => $donations
         ];
     }
 

@@ -11,4 +11,10 @@ class Bank extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+
+    public function donaturs()
+    {
+        return $this->belongsToMany('App\Model\Donatur');
+    }
 }

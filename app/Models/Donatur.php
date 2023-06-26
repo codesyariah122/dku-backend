@@ -6,16 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Campaign extends Model
+class Donatur extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'campaigns';
-
     public function users()
     {
         return $this->belongsToMany('App\Models\User');
+    }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany('App\Models\Campaign');
     }
 
     public function category_campaigns()
@@ -23,13 +26,9 @@ class Campaign extends Model
         return $this->belongsToMany('App\Models\CategoryCampaign');
     }
 
-    public function viewers()
+    public function banks()
     {
-        return $this->belongsToMany('App\Models\Viewer');
+        return $this->belongsToMany('App\Models\Bank');
     }
 
-    public function donaturs()
-    {
-        return $this->belongsToMany('App\Models\Donatur');
-    }
 }

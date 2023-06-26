@@ -25,19 +25,25 @@ class CampaignViewerController extends Controller
     public function viewer(Request $request, $slug)
     {
         try {
-            // $ip_address = $this->helpers->getIpAddr();
-            $ip_address = '101.111.8.1';
-            $campaign = Campaign::whereSlug($slug)->firstOrFail();
+            $ip_address = $this->helpers->getIpAddr();
+            // $ip_address = '121.111.8.141';
+            $campaign = Campaign::whereSlug($slug)
+            ->firstOrFail();
+            
+
             $check_viewer = Viewer::whereIpAddress($ip_address)->get();
 
 
             if(count($check_viewer) > 0) {
-                $campaign_update = Campaign::whereTitle($check_viewer[0]->campaign_title)
-                    ->firstOrFail();
-                // var_dump($campaign_update->title !== $campaign->title); die;
+                // var_dump($check_viewer[0]->campaign_title); die;
+                $campaign_update = Campaign::where('title', $check_viewer[0]->campaign_title)
+                ->firstOrFail();
+                
+                // var_dump($campaign_update); die;
+
                 if($campaign_update->title !== $campaign->title) {
                     $campaign_ = Campaign::findOrFail($campaign->id);
-                    // var_dump($campaign_->id); die;                
+
                     $campaign_->views+=1;
                     $campaign_->save();
 
@@ -58,11 +64,13 @@ class CampaignViewerController extends Controller
                 $update_campaign_viewer->save();
                 $check_viewer = Viewer::whereIpAddress($ip_address)->get();
                 if(count($check_viewer) > 0) {
+
                     $update_viewer_first = Viewer::whereIpAddress($ip_address)->firstOrFail();
                     $update_viewer_first->campaign_title = $update_campaign_viewer->title;
                     $update_viewer_first->save();
                     $update_campaign_viewer->viewers()->sync($update_viewer_first->id);
-                } else {                    
+                } else {
+
                     $add_viewer = new Viewer;
                     $add_viewer->campaign_title = $update_campaign_viewer->title;
                     $add_viewer->user_agent = $request->server('HTTP_USER_AGENT');
@@ -83,7 +91,6 @@ class CampaignViewerController extends Controller
                 event(new CampaignViewerEvent($data_event));
             }
 
-
             return response()->json([
                 'success' => true,
                 'message' => "{$message}, {$campaign->title}",
@@ -93,6 +100,7 @@ class CampaignViewerController extends Controller
 
         } catch (\Throwable $th) {
             return response()->json([
+                'tolol' => 'ANJING',
                 'error' => true,
                 'message' => $th->getMessage()
             ]);

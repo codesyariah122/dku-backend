@@ -10,8 +10,10 @@ namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
-use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController, BankManagementController};
-use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController};
+
+use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController, BankManagementController, DonationManagementController};
+
+use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController, DonationCampaignController};
 
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {
@@ -73,6 +75,11 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
 
     // Any user have list menu
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
+
+    // Donation management
+    Route::resource('/donation-management', DonationManagementController::class);
+    // Donation accept
+    Route::put('/donations-accept/{id}', [DonationManagementController::class, 'donation_accept']);
 });
 
 Route::middleware(['cors'])->prefix('v1/auth')->group(function () {
@@ -92,13 +99,20 @@ Route::middleware(['cors'])->prefix('v1/auth')->group(function () {
 });
 
 Route::middleware('cors')->prefix('v1')->group(function () {
+    
     Route::post('/subscribe', [SubscriberController::class, 'subscribe']);
+
     Route::get('/test', function () {
         return response()->json([
             'message' => 'test api'
         ]);
     });
     Route::put('/campaign/{slug}', [CampaignViewerController::class, 'viewer']);
+
+    // Donation user
+    Route::post('/donations/{slug}', [DonationCampaignController::class, 'donation']);
+    Route::post('/donations-payment/{slug}', [DonationCampaignController::class, 'donation_payment']);
+
 });
 
 
