@@ -19,7 +19,7 @@ class CreateDonatursTable extends Migration
             $table->string('name');
             $table->string('email');
             $table->enum('anonim', ['Y', 'N'])->default('N');
-            $table->enum('status', ['PAID', 'PENDING'])->default('PENDING');
+            $table->enum('status', ['PAID', 'HOLD', 'PENDING'])->default('PENDING');
             $table->unsignedBigInteger('donation_amount')->unsigned()->default(0)->nullable();
             $table->integer('unique_code')->nullable();
             $table->string('image')->nullable();

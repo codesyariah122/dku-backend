@@ -148,7 +148,7 @@ class DonationManagementController extends Controller
         }
     }
 
-    public function donation_accept(Request $request, $id)
+    public function donation_accept(Request $request, $transaction_id)
     {
         try{
             $validator = Validator::make($request->all(), [
@@ -159,28 +159,44 @@ class DonationManagementController extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
-
             $donation_check = Donatur::with('campaigns')
                 ->with('category_campaigns')
                 ->with('banks')
-                ->findOrFail($id);
+                ->where('transaction_id', $transaction_id)
+                ->firstOrFail();
 
-            if($donation_check) {
-                $accept_donation = Donatur::findOrFail($id);
+            if($donation_check->transaction_id) {
+                $accept_donation = Donatur::where('transaction_id', $transaction_id)
+                    ->firstOrFail();
                 $accept_donation->status = $request->status;
-                $accept_donation->save();                
-
+                $accept_donation->save();
 
                 $donation_has_update = Donatur::with('campaigns')
                     ->with('category_campaigns')
                     ->with('banks')
                     ->findOrFail($accept_donation->id);
 
+                $donation_campaign = Campaign::with('category_campaigns')
+                    ->findOrFail($donation_has_update->campaigns[0]->id);
+
+                $donation_campaign->total_trf = $donation_campaign->total_trf + $accept_donation->donation_amount;
+                $donation_campaign->save();
+
+                $data_event = [
+                    'type' => 'accept-donation',
+                    'notif' => "Donatur, {$accept_donation->name}, has been successfully transaction!",
+                    'msg_donation' => "Donator, {$accept_donation->name}, telah menyelesaikan transaksi donasi"
+                ];
+
+                event(new DataManagementEvent($data_event));
+
                 return response()->json([
                     'success' => true,
                     'message' => "Donation has been accept",
                     'data' => $donation_has_update
                 ]);
+            } else {
+                var_dump("Error"); die;
             }
         } catch(\Throwable $th) {
             return response()->json([

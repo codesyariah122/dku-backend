@@ -79,8 +79,9 @@ class DonationCampaignController extends Controller
 
 
                     $data_event = [
-                        'type' => 'added',
-                        'notif' => "Successfulle donation campaign : {$saving_donations->campaigns[0]->title}!"
+                        'type' => 'process-donation',
+                        'notif' => "Successfully donation campaign : {$saving_donations->campaigns[0]->title}!",
+                        "msg_donation" => "{$new_donation->name}, telah berdonasi untuk campaign : {$saving_donations->campaigns[0]->title}"
                     ];
 
                     event(new DataManagementEvent($data_event));
@@ -126,11 +127,14 @@ class DonationCampaignController extends Controller
             $donation_check = Campaign::with('donaturs.banks')
                 ->with('category_campaigns')
                 ->whereSlug($slug)
+                ->with('donaturs', function($query) use ($request) {
+                    $query->where('email', $request->email);
+                })
                 ->firstOrFail();
 
             $validator = Validator::make($request->all(), [
                 'image' => 'required',
-                'email' => 'required',
+                'email' => 'required|email',
                 'donation_id' => 'required'
             ]);
 
@@ -140,43 +144,65 @@ class DonationCampaignController extends Controller
 
             $request_data = $request->all();
 
-            if($donation_check->donaturs[0]->email === $request_data['email'] && $donation_check->donaturs[0]->status === "PENDING" && $donation_check->donaturs[0]->image === NULL) {
-                $check_donation = Donatur::with('campaigns')
+            if(count($donation_check->donaturs) > 0):
+                if($donation_check->donaturs[0]->status === "PENDING" && $donation_check->donaturs[0]->image === NULL) {
+                    $check_donation = Donatur::with('campaigns')
                     ->with('category_campaigns')
                     ->with('banks')
                     ->findOrFail($request_data['donation_id']);
 
-                $update_donation = Donatur::findOrFail($check_donation->id);
-                $update_donation->transaction_id = Str::random(12);
-                $update_donation->expires_at = NULL;
+                    if($check_donation->email === $request_data['email']) {
+                        $update_donation = Donatur::findOrFail($check_donation->id);
+                        $update_donation->transaction_id = Str::random(36);
+                        $update_donation->status = 'HOLD';
+                        $update_donation->expires_at = NULL;
 
-                if($request_data['image']) {
-                    $image = $request->file('image');
-                    $file = $image->store(trim(preg_replace('/\s+/', '', '/images/donaturs')), 'public');
-                    $update_donation->image = $file;
+                        if($request_data['image']) {
+                            $image = $request->file('image');
+                            $file = $image->store(trim(preg_replace('/\s+/', '', '/images/donaturs')), 'public');
+                            $update_donation->image = $file;
+                        }
+
+                        $update_donation->save();
+
+                        $data_event = [
+                            'type' => 'pay-donation',
+                            'notif' => "Terima kasih, donasi Anda akan segera di proses oleh Admin kami.",
+                            'msg_donation' => "{$update_donation->name}, telah memproses pembayaran donasi!"
+                        ];
+
+                        event(new DataManagementEvent($data_event));
+
+
+                        $donation_payment = Donatur::with('campaigns')
+                            ->with('category_campaigns')
+                            ->with('banks')
+                            ->findOrFail($update_donation->id);
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => "Donasi Anda untuk campaign {$check_donation->campaigns[0]->title}, sedang di proses oleh Admin kami.",
+                            'data' => $donation_payment
+                        ]);   
+                    } else {
+                        return response()->json([
+                        'not_relevant' => true,
+                        'message' => "Data anda tidak sesuai dengan donasi manapun!"
+                    ]);
+                    }
+
+                } else {
+                    return response()->json([
+                        'is_process' => true,
+                        'message' => "Transaksi anda untuk campaign , {$donation_check->title}, sedang di proses Admin kami!"
+                    ]);
                 }
-
-                $update_donation->save();
-
-                $data_event = [
-                    'type' => 'added',
-                    'notif' => "Your donation has been process!"
-                ];
-
-                event(new DataManagementEvent($data_event));
-
+            else:
                 return response()->json([
-                    'success' => true,
-                    'message' => "Donasi Anda untuk campaign {$check_donation->campaigns[0]->title}, sedang di proses oleh Admin kami.",
-                    'data' => $check_donation
+                    'not_found' => true,
+                    'message' => "Data donatur yang anda cari tidak ditemukan!!"
                 ]);
-            }
-
-            return response()->json([
-                'process' => true,
-                'message' => "Admin kami sedang memproses status donasi Anda, mohon ditunggu!!",
-                'data' => $donation_check
-            ]);
+            endif;
 
 
         } catch(\Throwable $th) {

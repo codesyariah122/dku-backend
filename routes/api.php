@@ -79,7 +79,7 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // Donation management
     Route::resource('/donation-management', DonationManagementController::class);
     // Donation accept
-    Route::put('/donations-accept/{id}', [DonationManagementController::class, 'donation_accept']);
+    Route::put('/donations-accept/{transaction_id}', [DonationManagementController::class, 'donation_accept']);
 });
 
 Route::middleware(['cors'])->prefix('v1/auth')->group(function () {
