@@ -42,8 +42,9 @@ class DonationCampaignController extends Controller
             $check_already_donation = Donatur::whereEmail($request_data['email'])->get();
 
 
-            if($check_already_donation){
+            if($check_already_donation) {
                 $donation_hold = Donatur::whereEmail($request_data['email'])->get();
+            // var_dump(count($donation_hold)); die;
 
                 if(count($donation_hold) === 0) {
                     $campaign_target = Campaign::with('category_campaigns')
@@ -115,11 +116,12 @@ class DonationCampaignController extends Controller
                     ]);
 
                 } else {
+                    // var_dump("Kadie atuh"); die;
                     $donation_ready_hold = Donatur::with('campaigns')
                         ->with('category_campaigns')
                         ->with('banks')
                         ->whereEmail($request_data['email'])
-                        ->where('status', 'PAID')
+                        ->where('status', 'PENDING')
                         ->firstOrFail();
                     $nominal = number_format($donation_ready_hold->donation_amount, 0, ',',  '.');
 
