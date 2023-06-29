@@ -8,17 +8,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use App\Models\{Donatur, Campaign, CategoryCampaign, Viewer, Bank};
+use App\Models\{Donatur, Campaign, CategoryCampaign, Viewer, Bank, Nominal};
 use App\Events\{EventNotification, DataManagementEvent};
-use App\Helpers\UserHelpers;
+use App\Helpers\{UserHelpers, WebFeatureHelpers};
 
 class DonationCampaignController extends Controller
 {
-    private $helpers;
+    private $helpers, $webfitur;
 
     public function __construct()
     {
         $this->helpers = new UserHelpers;
+        $this->webfitur = new WebFeatureHelpers;
     }
 
     public function donation(Request $request, $slug)
@@ -27,7 +28,7 @@ class DonationCampaignController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                 'email' => 'required|email',
-                'donation_amount' => 'required',
+                'nominal_donation' => 'required',
                 'bank_id' => 'required',
                 'methode' => 'required'
             ]);
@@ -49,17 +50,30 @@ class DonationCampaignController extends Controller
                     ->with('users')
                     ->whereSlug($slug)
                     ->firstOrFail();
+
+                    $nominal_donation = Nominal::findOrFail($request_data['nominal_donation']);
+
+                    $notes_data = json_encode([
+                        'name' => $request_data['name'],
+                        'email' => $request_data['email'],
+                        'nominal_donation' => $nominal_donation->nominal,
+                        'anonim' => $request_data['anonim'],
+                        'methode' => $request_data['methode'],
+                        'created' => Carbon::now()->format('Y-m-d H:i:s')
+                    ]);
+
                     $bank_target = Bank::findOrFail($request_data['bank_id']);
-                    $uniqueCode = mt_rand(50, 99);
+                    
                     $new_donation = new Donatur;
                     $new_donation->name = $request_data['name'];
                     $new_donation->email = $request_data['email'];
-                    $new_donation->donation_amount = $request_data['donation_amount'] + $uniqueCode;
+
                     $new_donation->anonim = $request_data['anonim'];
                     $new_donation->status = 'PENDING';
-                    $new_donation->unique_code = $uniqueCode;
+                    $new_donation->unique_code = $this->webfitur->get_unicode();
                     $new_donation->methode = $request_data['methode'];
                     $new_donation->fundraiser = $request_data['user_id'] ? 'Y' : 'N';
+                    $new_donation->note = $notes_data;
                     $new_donation->campaign_id = $campaign_target->id;
                     $new_donation->category_campaign_id = $campaign_target->category_campaigns[0]->id;
                     $new_donation->bank_id = $request_data['bank_id'];
@@ -68,13 +82,20 @@ class DonationCampaignController extends Controller
                     $new_donation->save();
 
                     $donatur = Donatur::findOrFail($new_donation->id);
+                    
+                    $donation_amount = Donatur::findOrFail($new_donation->id);
+                    $donatur->donation_amount = $nominal_donation->nominal + $donatur->unique_code;
+                    $donatur->save();
+
                     $new_donation->campaigns()->sync($donatur->campaign_id);
                     $new_donation->category_campaigns()->sync($donatur->category_campaign_id);
                     $new_donation->banks()->sync($donatur->bank_id);
+                    $new_donation->nominals()->sync($request_data['nominal_donation']);
 
                     $saving_donations = Donatur::with('campaigns')
                     ->with('category_campaigns')
                     ->with('banks')
+                    ->with('nominals')
                     ->findOrFail($new_donation->id);
 
 

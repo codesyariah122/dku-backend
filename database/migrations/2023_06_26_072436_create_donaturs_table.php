@@ -29,7 +29,9 @@ class CreateDonatursTable extends Migration
             $table->unsignedBigInteger('category_campaign_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('bank_id')->nullable();
+            $table->json('confirm_data')->nullable();
             $table->enum('fundraiser', ['Y', 'N'])->default('N');
+            $table->mediumText('note')->nullable();
 
             $table->foreign('campaign_id')->constrained()->references('id')->on('campaigns')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('category_campaign_id')->constrained()->references('id')->on('category_campaigns')->onDelete('cascade')->onUpdate('cascade');

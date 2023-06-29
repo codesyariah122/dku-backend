@@ -31,4 +31,9 @@ class Donatur extends Model
         return $this->belongsToMany('App\Models\Bank');
     }
 
+    public function nominals()
+    {
+        return $this->belongsToMany('App\Models\Nominal');
+    }
+
 }

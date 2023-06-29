@@ -11,7 +11,18 @@ namespace App\Http\Controllers\Api\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
 
-use App\Http\Controllers\Api\Dashboard\{CategoryCampaignController, RoleUserManagementController, MenuManagementController, SubMenuManagementController, UserAccessMenuController, UserManagementController, CampaignManagementController, BankManagementController, DonationManagementController};
+use App\Http\Controllers\Api\Dashboard\{
+    CategoryCampaignController, 
+    RoleUserManagementController, 
+    MenuManagementController, 
+    SubMenuManagementController, 
+    UserAccessMenuController, 
+    UserManagementController, 
+    CampaignManagementController, 
+    BankManagementController, 
+    DonationManagementController, 
+    NominalManagementController
+};
 
 use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController, DonationCampaignController};
 
@@ -76,6 +87,9 @@ Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->pre
     // Any user have list menu
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
 
+    // Nominal donation management
+    Route::resource('/nominal-management', NominalManagementController::class);
+
     // Donation management
     Route::resource('/donation-management', DonationManagementController::class);
     // Donation accept
@@ -107,12 +121,19 @@ Route::middleware('cors')->prefix('v1')->group(function () {
             'message' => 'test api'
         ]);
     });
+
+    // Viewer campaign by slug
     Route::put('/campaign/{slug}', [CampaignViewerController::class, 'viewer']);
 
     // Donation user
     Route::post('/donations/{slug}', [DonationCampaignController::class, 'donation']);
     Route::post('/donations-payment/{slug}', [DonationCampaignController::class, 'donation_payment']);
 
+
+    // unicode
+    Route::get('/uniqcode', [WebFiturController::class, 'get_unique_code']);
+    // List of nominal donations
+    Route::get('/lists-nominal-donation', [WebFiturController::class, 'get_nominal_lists']);
 });
 
 

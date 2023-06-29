@@ -9,7 +9,7 @@ class ContextData
     public function getInfoData($type)
     {
         switch ($type):
-            case 'COD(O.t)':
+            case 'super_admin':
                 $user = Profile::whereUsername($type)->with('users')->get();
                 return $user;
                 break;

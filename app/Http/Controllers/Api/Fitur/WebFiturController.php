@@ -14,18 +14,19 @@ use App\Exports\CampaignDataExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Helpers\ContextData;
-use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign, Bank, Donatur};
+use App\Models\{Campaign, User, Roles, Profile, CategoryCampaign, Bank, Donatur, Nominal};
 use App\Events\{EventNotification, UpdateProfileEvent, DataManagementEvent};
 use App\Helpers\{UserHelpers, WebFeatureHelpers, FeatureHelpers};
 use Image;
 
 class WebFiturController extends Controller
 {
-    private $helpers;
+    private $helpers, $webfitur;
 
     public function __construct()
     {
         $this->helpers = new UserHelpers;
+        $this->webfitur = new WebFeatureHelpers;
     }
 
     public function web_data()
@@ -91,6 +92,14 @@ class WebFiturController extends Controller
 
                 case 'DONATION_DATA':
                 $deleted = Donatur::onlyTrashed()
+                    ->with('campaigns')
+                    ->with('category_campaigns')
+                    ->with('banks')
+                    ->paginate(10);
+                break;
+
+                case 'NOMINAL':
+                $deleted = Nominal::onlyTrashed()
                     ->paginate(10);
                 break;
 
@@ -166,7 +175,7 @@ class WebFiturController extends Controller
 
                 $data_event = [
                     'type' => 'restored',
-                    'notif' => "{$name}, has been restored!",
+                    'notif' => "{$name} has been restored!",
                     'data' => $restored
                 ];
                 break;
@@ -180,7 +189,7 @@ class WebFiturController extends Controller
 
                 $data_event = [
                     'type' => 'restored',
-                    'notif' => "{$name}, has been restored!",
+                    'notif' => "{$name} has been restored!",
                     'data' => $restored
                 ];
                 break;
@@ -193,7 +202,7 @@ class WebFiturController extends Controller
                 $name = $restored->title;
                 $data_event = [
                     'type' => 'restored',
-                    'notif' => "{$name}, has been restored!"
+                    'notif' => "{$name} has been restored!"
                 ];
                 break;
 
@@ -205,7 +214,7 @@ class WebFiturController extends Controller
                 $name = $restored->name;
                 $data_event = [
                     'type' => 'restored',
-                    'notif' => "{$name}, has been restored!"
+                    'notif' => "Bank, {$name} has been restored!"
                 ];
                 break;
 
@@ -218,7 +227,20 @@ class WebFiturController extends Controller
                 $name = $restored_donation->name;
                 $data_event = [
                     'type' => 'restored',
-                    'notif' => "{$name}, has been restored!"
+                    'notif' => "Donatur, {$name} has been restored!"
+                ];
+                break;
+
+                case 'NOMINAL':
+                $restored_nominal = Nominal::onlyTrashed()
+                    ->findOrFail($id);
+                $restored_nominal->restore();
+
+                $restored = Nominal::findOrFail($id);
+                $name = $restored_nominal->nominal;
+                $data_event = [
+                    'type' => 'restored',
+                    'notif' => "Nominal, {$name} has been restored!"
                 ];
                 break;
 
@@ -230,7 +252,7 @@ class WebFiturController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Restored data on trashed Success!',
+                'message' => $data_event['notif'],
                 'data' => $restored
             ]);
         } catch (\Throwable $th) {
@@ -267,7 +289,7 @@ class WebFiturController extends Controller
                 $deleted->profiles()->forceDelete();
                 $deleted->forceDelete();
 
-                $message = "Data {$deleted->name} has been deleted !";
+                $message = "Data {$deleted->name} has permanently deleted !";
 
                 $tableUser = with(new User)->getTable();
                 $tableProfile = with(new Profile)->getTable();
@@ -277,7 +299,7 @@ class WebFiturController extends Controller
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "User {$deleted->name} has been deleted!",
+                    'notif' => "User {$deleted->name} has permanently deleted!",
                     'data' => $deleted
                 ];
 
@@ -289,11 +311,11 @@ class WebFiturController extends Controller
 
                 $deleted->forceDelete();
 
-                $message = "Data {$deleted->name} has been deleted !";
+                $message = "Category {$deleted->name} has permanently deleted !";
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "Data has been deleted!",
+                    'notif' => "Category {$deleted->name} has permanently deleted !",
                     'data' => $deleted
                 ];
                 break;
@@ -312,11 +334,11 @@ class WebFiturController extends Controller
                 $tableCampaign = with(new Campaign)->getTable();
                 DB::statement("ALTER TABLE $tableCampaign AUTO_INCREMENT = 1;");
 
-                $message = "Data {$deleted->title} has been deleted !";
+                $message = "Campaign {$deleted->title} has permanently deleted !";
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "Data has been deleted!"
+                    'notif' => "Campaign {$deleted->title} has permanently deleted !"
                 ];
                 break;
 
@@ -336,7 +358,7 @@ class WebFiturController extends Controller
 
                 $deleted->forceDelete();
 
-                $message = "Data {$deleted->name} has been deleted !";
+                $message = "Bank {$deleted->name} has permanently deleted !";
 
                 $tableBank = with(new Bank)->getTable();
                 DB::statement("ALTER TABLE $tableBank AUTO_INCREMENT = 1;");
@@ -344,7 +366,7 @@ class WebFiturController extends Controller
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "User {$deleted->name} has been deleted!",
+                    'notif' => "User {$deleted->name} has permanently deleted !",
                     'data' => $deleted
                 ];
                 break;
@@ -362,13 +384,28 @@ class WebFiturController extends Controller
                 $tableDonation = with(new Donatur)->getTable();
                 DB::statement("ALTER TABLE $tableDonation AUTO_INCREMENT = 1;");
 
-                $message = "Donatur, {$deleted->name} has been deleted !";
+                $message = "Donatur, {$deleted->name} has permanently deleted !";
 
                 $data_event = [
                     'type' => 'destroyed',
-                    'notif' => "Data has been deleted!"
+                    'notif' => "Donatur, {$deleted->name} has permanently deleted !"
                 ];
+                break;
 
+                case 'NOMINAL':
+                $deleted = Nominal::onlyTrashed()
+                    ->where('id', $id)
+                    ->firstOrFail();
+                $deleted->forceDelete();
+                $tableNominal = with(new Nominal)->getTable();
+                DB::statement("ALTER TABLE $tableNominal AUTO_INCREMENT = 1;");
+
+                $message = "Nominal, {$deleted->nominal} has permanently deleted !";
+
+                $data_event = [
+                    'type' => 'destroyed',
+                    'notif' => "Nominal, {$deleted->nominal} has permanently deleted!"
+                ];
                 break;
 
                 default:
@@ -408,6 +445,13 @@ class WebFiturController extends Controller
                 $countTrash = CategoryCampaign::onlyTrashed()
                 ->get();
                 break;
+                case 'DONATION_DATA':
+                $countTrash = Donatur::onlyTrashed()
+                ->get();
+                break;
+                case 'NOMINAL':
+                $countTrash = Nominal::onlyTrashed()
+                ->get();
                 default:
                 $countTrash = [];
             }
@@ -510,6 +554,18 @@ class WebFiturController extends Controller
                         'most_viewer' => $most_view
                     ]
                 ];
+                return $this->totalDataSendResponse($sendResponse);
+                break;
+
+                case "TOTAL_DONATION":
+                $totalData = Donatur::whereNull('deleted_at')
+                    ->get();
+                $sendResponse = [
+                    'type' => 'TOTAL_DONATION',
+                    'message' => 'Total data donations',
+                    'total' => $totals
+                ];
+                $totals = count($totalData);
                 return $this->totalDataSendResponse($sendResponse);
                 break;
 
@@ -753,6 +809,43 @@ class WebFiturController extends Controller
                 'message' => $th->getMessage()
             ]);
         } 
+    }
+
+    public function get_nominal_lists()
+    {
+        try {
+            $nominals = Nominal::paginate(10);
+            return response()->json([
+                'success' => true,
+                'message' => 'List nominal donation data',
+                'data' => $nominals
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
+
+    public function get_unique_code()
+    {
+        try {
+
+            $uniquecode = $this->webfitur->get_unicode();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Uniqcode Data',
+                'data' => $uniquecode
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => $th->getMessage()
+            ]);
+        }
     }
 
 }

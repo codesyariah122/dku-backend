@@ -89,4 +89,9 @@ class WebFeatureHelpers
         return $qrCode;
     }
 
+    public function get_unicode()
+    {
+        return mt_rand(50, 99);
+    }
+
 }
