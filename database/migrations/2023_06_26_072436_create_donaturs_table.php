@@ -32,6 +32,7 @@ class CreateDonatursTable extends Migration
             $table->json('confirm_data')->nullable();
             $table->enum('fundraiser', ['Y', 'N'])->default('N');
             $table->mediumText('note')->nullable();
+            $table->mediumText('message')->nullable();
 
             $table->foreign('campaign_id')->constrained()->references('id')->on('campaigns')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('category_campaign_id')->constrained()->references('id')->on('category_campaigns')->onDelete('cascade')->onUpdate('cascade');

@@ -131,11 +131,12 @@ class DonationManagementController extends Controller
                     $new_donation->email = $request_data['email'];
 
                     $new_donation->anonim = $request_data['anonim'] ? $request_data['anonim'] : 'N';
-                    $new_donation->status = 'PENDING';
+                    $new_donation->status = $request_data['status'] ? $request_data['status'] : 'PENDING';
                     $new_donation->unique_code = $this->webfitur->get_unicode();
                     $new_donation->methode = $request_data['methode'];
                     $new_donation->fundraiser = $request_data['user_id'] !== NULL ? 'Y' : 'N';
                     $new_donation->note = $notes_data;
+                    $new_donation->message = $request_data['message'];
                     $new_donation->campaign_id = $campaign_target->id;
                     $new_donation->category_campaign_id = $campaign_target->category_campaigns[0]->id;
                     $new_donation->bank_id = $request_data['bank_id'];
