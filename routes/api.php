@@ -11,7 +11,8 @@ namespace App\Http\Controllers\Api\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriberController;
 
-use App\Http\Controllers\Api\Dashboard\{
+use App\Http\Controllers\Api\Dashboard\
+{
     CategoryCampaignController, 
     RoleUserManagementController, 
     MenuManagementController, 
@@ -24,7 +25,10 @@ use App\Http\Controllers\Api\Dashboard\{
     NominalManagementController
 };
 
-use App\Http\Controllers\Api\Fitur\{WebFiturController, CampaignViewerController, DonationCampaignController};
+use App\Http\Controllers\Api\Fitur\
+{
+    WebFiturController, CampaignViewerController, DonationCampaignController
+};
 
 
 Route::middleware(['auth:api', 'cors', 'json.response', 'session.expired'])->prefix('v1/fitur')->group(function () {

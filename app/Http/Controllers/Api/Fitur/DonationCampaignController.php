@@ -132,9 +132,7 @@ class DonationCampaignController extends Controller
                     ]);
                 }
 
-
             }
-
 
         } catch (\Throwable $th) {
             return response()->json([
